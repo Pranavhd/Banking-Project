@@ -1,7 +1,7 @@
 from django.db import models
-from django.models.fields import MoneyField
+from djmoney.models.fields import MoneyField
 from django.core.exceptions import ValidationError
-from Users.models import Profile
+from BankingSystem.Users.models import Profile
 
 
 class BankingAccount(models.Model):

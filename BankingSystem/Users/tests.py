@@ -71,4 +71,46 @@ class EmployeeTest(TestCase):
         response = self.client.post('/users/internal/create/', data, follow=True)
         self.assertEquals(response.status_code, 401)
 
+    def test_admin_update_internal_user_succeed(self):
+        # login as admin
+        self.client.post('/login/', {'username': 'admin', 'password': 'adminadmin'})
+        # update t1 user email
+        data = {'username': 't1', 'email': 't1t1@gmail.com'}
+        response = self.client.post('/users/internal/update/', data, follow=True)
+        self.assertEquals(response.status_code, 201)
+        user = User.objects.get(username='t1')
+        self.assertEqual(user.email, 't1t1@gmail.com')
 
+    def test_admin_update_internal_user_with_invalid_post_data_failed(self):
+        # login as admin
+        self.client.post('/login/', {'username': 'admin', 'password': 'adminadmin'})
+        # length of 'email' < 100
+        data = {'username': 't1', 'email': 't1'*100 + '@gmail.com'}
+        response = self.client.post('/users/internal/update/', data, follow=True)
+        self.assertEquals(response.status_code, 400)
+
+    def test_t1_or_t2_update_internal_user_failed(self):
+        # login as admin
+        self.client.post('/login/', {'username': 't1', 'password': 't1t1'})
+        # update t1 user
+        data = {'username': 't2', 'email': 't2t2@gmail.com'}
+        response = self.client.post('/users/internal/update/', data, follow=True)
+        self.assertEquals(response.status_code, 401)
+
+    def test_admin_delete_internal_user_succeed(self):
+        # login as admin
+        self.client.post('/login/', {'username': 'admin', 'password': 'adminadmin'})
+        # delete t2 user
+        data = {'username': 't2'}
+        response = self.client.post('/users/internal/delete/', data, follow=True)
+        self.assertEquals(response.status_code, 201)
+        with self.assertRaises(User.DoesNotExist):
+            _ = User.objects.get(username='t2')
+
+    def test_t1_or_t2_delete_internal_user_failed(self):
+        # login as admin
+        self.client.post('/login/', {'username': 't1', 'password': 't1t1'})
+        # delete t2 user
+        data = {'username': 't2'}
+        response = self.client.post('/users/internal/delete/', data, follow=True)
+        self.assertEquals(response.status_code, 401)

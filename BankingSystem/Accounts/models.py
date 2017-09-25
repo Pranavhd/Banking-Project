@@ -9,9 +9,6 @@ class BankingAccount(models.Model):
     account_name = models.CharField(max_length=128)
     funds = MoneyField(max_digits=20, decimal_places=2, default_currency='USD')
 
-    class Meta:
-        abstract = True
-
 
 class CheckingAccount(BankingAccount):
     None

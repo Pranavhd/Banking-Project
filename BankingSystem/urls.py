@@ -14,18 +14,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url
-from django.contrib import admin, auth
-from django.contrib.auth import views as auth_views
-from BankingSystem.Users import views as users_views
+from django.contrib import admin
 
 urlpatterns = [
-    # admin
     url(r'^admin/', admin.site.urls),
-    # login & logout
-    url(r'^login/$', auth_views.LoginView.as_view()),
-    url(r'^logout/$', auth_views.LogoutView.as_view()),
-    # users
-    url(r'^users/internal/create/$', users_views.create_internal_user),
-    url(r'^users/internal/update/$', users_views.update_internal_user),
-    url(r'^users/internal/delete/$', users_views.delete_internal_user),
 ]

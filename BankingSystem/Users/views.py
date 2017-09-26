@@ -41,60 +41,11 @@ def create_internal_user(request):
 
 
 def update_internal_user(request):
-    # check if a valid user
-    if not request.user.is_authenticated():
-        return HttpResponse(status=401)
-
-    # check if it is an admin user
-    try:
-        employee = models.Employee.objects.get(user=request.user)
-    except models.Employee.DoesNotExist:
-        return HttpResponse(status=401)
-    if employee.level != 0:
-        return HttpResponse(status=401)
-
-    # check POST data is valid
-    f = form.UpdateUserForm(request.POST)
-    if not f.is_valid():
-        return HttpResponse(status=400)
-
-    # check if username already exist
-    try:
-        user = User.objects.get(username=request.POST['username'])
-    except User.DoesNotExist:
-        return HttpResponse(status=400)
-
-    # update user field
-    user.email = request.POST['email'] if request.POST.get('email', None) else user.email
-    user.password = request.POST['password'] if request.POST.get('password', None) else user.password
-    user.save()
-    return HttpResponse(status=201)
+    # TODO
+    pass
 
 
 def delete_internal_user(request):
-    # check if a valid user
-    if not request.user.is_authenticated():
-        return HttpResponse(status=401)
+    # TODO
+    pass
 
-    # check if it is an admin user
-    try:
-        employee = models.Employee.objects.get(user=request.user)
-    except models.Employee.DoesNotExist:
-        return HttpResponse(status=401)
-    if employee.level != 0:
-        return HttpResponse(status=401)
-
-    # check POST data is valid
-    f = form.DeleteUserForm(request.POST)
-    if not f.is_valid():
-        return HttpResponse(status=400)
-
-    # check if username already exist
-    try:
-        user = User.objects.get(username=request.POST['username'])
-    except User.DoesNotExist:
-        return HttpResponse(status=400)
-    del_employee = models.Employee.objects.get(user=user)
-    del_employee.delete()
-    user.delete()
-    return HttpResponse(status=201)

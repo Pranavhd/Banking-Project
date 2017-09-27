@@ -19,7 +19,7 @@ def update_personal_details(request):
 #    customer_form = form.UpdatePersonalDetailsForm(request.POST)
 
 #    if not customer_form.is_valid():
-#        return HttpResponse(status=400)
+ #       return HttpResponse(status=400)
 
     # check if customer/merchant exists with that username
     try:

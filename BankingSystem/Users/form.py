@@ -8,4 +8,4 @@ class UpdatePersonalDetailsForm(forms.Form):
     mailing_address = forms.CharField(widget=forms.Textarea(), max_length=4000)
     class Meta:
         model = Individual
-        fields = ['username', 'email', 'phone_number', 'mailing_address']
+        fields = ['username', 'email', 'mailing_address']

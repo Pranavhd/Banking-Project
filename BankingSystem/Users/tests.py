@@ -10,15 +10,19 @@ class IndividualTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='admin', email='admin@gmail.com', password='adminadmin')
         self.customer = models.Individual.objects.create(user=self.user, phone_number='12345678910', mailing_adress='This is my sample address')
+        url = reverse('view_personal_details')
+        self.response = self.client.get(url)
 
     def test_view_personal_details_success_status_code(self):
-        url = reverse('view_personal_details')
-        response = self.client.get(url)
-        self.assertEquals(response.status_code, 200)
+       self.assertEquals(self.response.status_code, 200)
 
     def test_view_personal_details_url_resolves_personal_details_view(self):
         view = resolve('/users/external/getdetails/')
         self.assertEquals(view.func, views.view_personal_details)
+
+    def test_view_personal_details_contains_link_to_update_page(self):
+        update_personal_details_url = reverse('update_personal_details')
+        self.assertContains(self.response, 'action="{0}"'.format(update_personal_details_url))
 
 
     # to test whether personal details of a customer are getting updating successfully

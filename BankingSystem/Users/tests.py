@@ -20,6 +20,18 @@ class IndividualTest(TestCase):
         view = resolve('/users/external/getdetails/')
         self.assertEquals(view.func, views.view_personal_details)
 
+
+    # to test whether personal details of a customer are getting updating successfully
+    def test_update_personal_details_of_individual_merchant_success(self):
+        url = reverse('update_personal_details')
+        customer_data = {'username': 'customer', 'email': 'customer@gmail.com', 'password': 'customerPassword',
+                         'phone_number': '898983839840'}
+        response = self.client.post(url, customer_data)
+        self.assertEquals(response.status_code, 201)
+        self.assertEquals(self.customer.user.username, 'customer')
+        self.assertEquals(self.customer.user.email, 'customer@gmail.com')
+
+
     def test_update_personal_details_url_resolves_update_personal_details_view(self):
         view = resolve('/users/external/updatedetails/')
         self.assertEquals(view.func, views.update_personal_details)

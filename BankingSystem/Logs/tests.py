@@ -21,7 +21,7 @@ class AdminLogsTest(TestCase):
         models.SystemLogModel.objects.create(title='e', content='ee')
         models.SystemLogModel.objects.create(title='f', content='ff')
 
-    def test_admin_get_sysem_log_succeed(self):
+    def test_admin_get_system_log_succeed(self):
         # login as admin
         self.client.post('/login/', {'username': 'admin', 'password': 'adminadmin'})
         # get 5 rows

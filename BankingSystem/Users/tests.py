@@ -59,7 +59,7 @@ class EmployeeTest(TestCase):
         self.assertEquals(response.status_code, 400)
 
     def test_t1_or_t2_create_internal_user_failed(self):
-        # login as admin
+        # login as t1
         self.client.post('/login/', {'username': 't1', 'password': 't1t1'})
         # create admin user
         data = {'username': 'new', 'email': 'new@gmail.com', 'password': 'newnew', 'level': 0}
@@ -111,7 +111,7 @@ class EmployeeTest(TestCase):
             _ = User.objects.get(username='t2')
 
     def test_t1_or_t2_delete_internal_user_failed(self):
-        # login as admin
+        # login as t1
         self.client.post('/login/', {'username': 't1', 'password': 't1t1'})
         # delete t2 user
         data = {'username': 't2'}

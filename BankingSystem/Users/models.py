@@ -10,10 +10,9 @@ class Profile(models.Model):
 class Employee(models.Model):
     None
 
-
 class Individual(Profile):
     phone_number = PhoneNumberField(default='')
-    mailing_adress = models.CharField(max_length=1000,default='NOT_PROVIDED')
+    mail_address = models.CharField(max_length=1000,default='NOT_PROVIDED')
 
 class Merchant(Profile):
     None

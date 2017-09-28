@@ -16,21 +16,16 @@ def view_personal_details(request):
 # defining view for updating personal details information
 def update_personal_details(request):
     user = User.objects.first()  # TODO: get the currently logged in user
-#    customer_form = form.UpdatePersonalDetailsForm(request.POST)
-
-#    if not customer_form.is_valid():
- #       return HttpResponse(status=400)
-
-    # check if customer/merchant exists with that username
+#    if not request.user.is_authenticated():
+#        return HttpResponse(status=401)
     try:
         customer = models.Individual.objects.get(user=user)
     except models.Individual.DoesNotExist:
         return HttpResponse(status=400)
 
-    # update customer details
-    customer.user.username = request.POST['username'] if request.POST.get('username', None) else customer.user.username
-    customer.user.email = request.POST['email'] if request.POST.get('email', None) else customer.user.email
-    customer.phone_number = request.POST['phonenumber'] if request.POST.get('phonenumber', None) else customer.phone_number
-    customer.mailing_adress = request.POST['mailingaddress'] if request.POST.get('mailingaddress', None) else customer.mailing_adress
+# update customer details
+    customer.user.username = request.POST['username']
+    customer.user.email = request.POST['email']
+    customer.mail_address = request.POST['mail_address']
     customer.save()
     return HttpResponse(status=201)

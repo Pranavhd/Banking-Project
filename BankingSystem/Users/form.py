@@ -1,19 +1,12 @@
 from django import forms
+from .models import Employee
+from django.contrib.auth.models import User
 
+class UpdatePersonalDetailsForm(forms.Form):
+    #User.username = forms.CharField(max_length=100, required=True)
+    #User.email = forms.EmailField(max_length=100, required=False)
+    #mail_address = forms.CharField(widget=forms.Textarea(), max_length=4000)
 
-class CreateUserForm(forms.Form):
-    username = forms.CharField(max_length=100, required=True)
-    email = forms.EmailField(max_length=100, required=True)
-    password = forms.CharField(max_length=100, required=True)
-    level = forms.IntegerField(required=True, min_value=0, max_value=2)
-
-
-class UpdateUserForm(forms.Form):
-    username = forms.CharField(max_length=100, required=True)
-    email = forms.EmailField(max_length=100, required=False)
-    password = forms.CharField(max_length=100, required=False)
-
-
-class DeleteUserForm(forms.Form):
-    username = forms.CharField(max_length=100, required=True)
-
+    class Meta:
+        model = Employee
+        fields = ['username', 'email', 'mail_address']

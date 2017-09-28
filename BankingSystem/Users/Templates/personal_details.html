@@ -1,0 +1,42 @@
+{% load static %}<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Boards</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  </head>
+  <body>
+    <div class="container">
+        <form name="PersonalDetails" method="post" action="/users/external/updatedetails/">
+            {% csrf_token %}
+        <table class="table">
+            <tr>
+                <td>User Name :</td>
+                <td colspan="3">
+                    <input type="text" name="username" maxlength="100" value={{ customer.user.username }}>
+                </td>
+            </tr>
+            <tr>
+                <td>Phone Number :</td>
+                <td colspan="3">
+                    <input type="text" name="phonenumber" maxlength="15" value={{ customer.phone_number }}>
+                </td>
+            </tr>
+            <tr>
+                <td>Email Address :</td>
+                <td colspan="3">
+                    <input type="text" name="email" value={{ customer.user.email }}>
+                </td>
+            </tr>
+            <tr>
+                <td>Mailing Address :</td>
+                <td colspan="3">
+                    <input type="text" name="mailingaddress" value={{ customer.mailing_adress }}>
+                </td>
+            </tr>
+        </table>
+            <input type="submit" name="submit" value="Update" id="updatePersonalDetails">
+        </form>
+    </div>
+  </body>
+</html>

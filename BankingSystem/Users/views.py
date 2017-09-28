@@ -23,7 +23,7 @@ def update_personal_details(request):
     except models.Individual.DoesNotExist:
         return HttpResponse(status=400)
 
-# update customer details
+    # update customer details
     customer.user.username = request.POST['username']
     customer.user.email = request.POST['email']
     customer.mail_address = request.POST['mail_address']

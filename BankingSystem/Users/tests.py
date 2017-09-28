@@ -38,7 +38,7 @@ class IndividualTestForUpdatingPersonalDetails(TestCase):
     # to test whether personal details of a customer are getting updating successfully
     def test_update_personal_details_of_individual_merchant_success(self):
         url = reverse('update_personal_details')
-        customer_data = {'email': 'customer@gmail.com', 'mail_address' : 'Updated address'}
+        customer_data = {'username': 'customer', 'email': 'customer@gmail.com', 'mail_address' : 'Updated address'}
         response = self.client.post(url, customer_data)
         self.assertEquals(response.status_code, 201)
 #        self.assertEquals(self.customer.user.email, 'customer@gmail.com')

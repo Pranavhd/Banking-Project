@@ -4,6 +4,9 @@ from django.test import TestCase
 from django.test import TestCase
 from django.contrib.auth.models import User
 from . import models
+from django.contrib.sessions.models import Session
+import time
+
 
 
 class EmployeeTest(TestCase):
@@ -116,4 +119,44 @@ class EmployeeTest(TestCase):
         # delete t2 user
         data = {'username': 't2'}
         response = self.client.post('/users/internal/delete/', data, follow=True)
+        self.assertEquals(response.status_code, 401)
+
+    # test case for 300 sec is not practical
+    def test_admin_session_not_timeout(self):
+        self.client.post('/login/', {'username': 'admin', 'password': 'adminadmin'})
+        # update server session for admin user
+        a = Session.objects.all()[0]
+        # b = a.expire_date
+        # print(b)
+        data = {'username': 'new', 'email': 'new@gmail.com', 'password': 'newnew', 'level': 0}
+
+        time.sleep(2)
+
+        response = self.client.post('/users/internal/create/', data, follow=True)
+        self.assertEquals(response.status_code, 201)
+
+    def test_admin_session_not_timeout(self):
+        self.client.post('/login/', {'username': 'admin', 'password': 'adminadmin'})
+        # update server session for admin user
+        a = Session.objects.all()[0]
+        # b = a.expire_date
+        # print(b)
+        data = {'username': 'new', 'email': 'new@gmail.com', 'password': 'newnew', 'level': 0}
+
+        time.sleep(5)
+
+        response = self.client.post('/users/internal/create/', data, follow=True)
+        self.assertEquals(response.status_code, 201)
+
+    def test_admin_session_timeout(self):
+        self.client.post('/login/', {'username': 'admin', 'password': 'adminadmin'})
+        # update server session for admin user
+        a = Session.objects.all()[0]
+        # b = a.expire_date
+        # print(b)
+        data = {'username': 'new', 'email': 'new@gmail.com', 'password': 'newnew', 'level': 0}
+
+        time.sleep(11)
+
+        response = self.client.post('/users/internal/create/', data, follow=True)
         self.assertEquals(response.status_code, 401)

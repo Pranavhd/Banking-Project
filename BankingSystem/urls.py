@@ -18,7 +18,6 @@ from django.contrib import admin, auth
 from django.contrib.auth import views as auth_views
 from BankingSystem.Users import views as users_views
 from BankingSystem.Logs import views as logs_views
-from django.conf.urls import include
 
 urlpatterns = [
     # admin
@@ -32,6 +31,4 @@ urlpatterns = [
     url(r'^users/internal/delete/$', users_views.delete_internal_user),
     # log
     url(r'^logs/log/system/$', logs_views.get_system_log),
-    # 2fa
-    url(r'', include('two_factor.urls', 'two_factor')),
 ]

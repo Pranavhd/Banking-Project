@@ -15,7 +15,11 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from BankingSystem.Users import views as users_views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+
+    url(r'^users/external/getdetails/$', users_views.view_personal_details, name='view_personal_details'),
+    url(r'^users/external/updatedetails/$', users_views.update_personal_details, name='update_personal_details'),
 ]

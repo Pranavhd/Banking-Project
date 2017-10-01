@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from . import models
-from . import form
+from .form import UpdatePersonalDetailsForm
 
 # Create your views here.
 
@@ -16,16 +16,22 @@ def view_personal_details(request):
 # defining view for updating personal details information
 def update_personal_details(request):
     user = User.objects.first()  # TODO: get the currently logged in user
-#    if not request.user.is_authenticated():
-#        return HttpResponse(status=401)
     try:
-        customer = models.Individual.objects.get(user=user)
+        individual = models.Individual.objects.get(user=user)
+        customer_id = individual.id
     except models.Individual.DoesNotExist:
         return HttpResponse(status=400)
 
     # update customer details
-    customer.user.username = request.POST['username']
-    customer.user.email = request.POST['email']
-    customer.mail_address = request.POST['mail_address']
-    customer.save()
+    if request.method == "POST":
+        form = UpdatePersonalDetailsForm(data=request.POST)
+        if not form.is_valid():
+            return HttpResponse(status=400)
+
+        if form.is_valid():
+            user.email = form.cleaned_data['email']
+            user.username = form.cleaned_data['username']
+            individual.mail_address = form.cleaned_data['mail_address']
+            user.save()
+            individual.save()
     return HttpResponse(status=201)

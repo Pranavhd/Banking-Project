@@ -7,31 +7,31 @@
   </head>
   <body>
     <div class="container">
-        <form name="PersonalDetails" method="post" action="/users/external/updatedetails/">
+        <form name="PersonalDetails" method="post" action="/users/internal/updatedetails/">
             {% csrf_token %}
         <table class="table">
             <tr>
                 <td>User Name :</td>
                 <td colspan="3">
-                    <input type="text" name="username" maxlength="100" value={{ customer.user.username }}>
+                    <input type="text" name="username" maxlength="100" value={{ employee.user.username }}>
                 </td>
             </tr>
             <tr>
                 <td>Phone Number :</td>
                 <td colspan="3">
-                    <input type="text" name="phonenumber" maxlength="15" value={{ customer.phone_number }}>
+                    <input type="text" name="phonenumber" maxlength="15" value={{ employee.phone_number }}>
                 </td>
             </tr>
             <tr>
                 <td>Email Address :</td>
                 <td colspan="3">
-                    <input type="text" name="email" value={{ customer.user.email }}>
+                    <input type="text" name="email" value={{ employee.user.email }}>
                 </td>
             </tr>
             <tr>
                 <td>Mailing Address :</td>
                 <td colspan="3">
-                    <input type="text" name="mailingaddress" value={{ customer.mailing_adress }}>
+                    <input type="text" name="mailingaddress" value={{ employee.mailing_adress }}>
                 </td>
             </tr>
         </table>

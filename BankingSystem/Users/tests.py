@@ -26,18 +26,21 @@ class EmployeeTestForViewingPersonalDetails(TestCase):
 
 class EmployeeTestForUpdatingPersonalDetails(TestCase):
 
-    def setUp(self):
-        user = User.objects.create_user(username='admin', email='admin@gmail.com', password='adminpwd')
-        employee = models.Employee.objects.create(user=user, phone_number='12345678910', mail_address='This is my sample address')
-
     def test_update_personal_details_url_resolves_update_personal_details_view(self):
-        view = resolve('/users/external/updatedetails/')
+        view = resolve('/users/internal/updatedetails/')
         self.assertEquals(view.func, views.update_personal_details)
 
     # to test whether personal details of a employee are getting updating successfully
-    def test_update_personal_details_of_individual_merchant_success(self):
+    def test_update_personal_details_of_employee_success(self):
+
+        user=User.objects.create_user(username='admin', email='admin@gmail.com', password='adminpwd')
+        employee = models.Employee.objects.create(user=user, phone_number='12345678910', mail_address='This is my sample address')
         url = reverse('update_personal_details')
-        employee_data = {'username': 'employee', 'email': 'employee@gmail.com', 'mail_address' : 'Updated address'}
+        employee_data = {'username': 'employee', 'email': 'employee@gmail.com', 'mail_address' : 'Updated address',
+                         'phone_number': '72738434995'}
         response = self.client.post(url, employee_data)
+        employee.refresh_from_db()
+        user.refresh_from_db()
         self.assertEquals(response.status_code, 201)
-#        self.assertEquals(self.employee.user.email, 'employee@gmail.com')
+        self.assertEqual(employee.mail_address, 'Updated address')
+        self.assertEquals(user.email, 'employee@gmail.com')

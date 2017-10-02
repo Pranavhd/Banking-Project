@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'BankingSystem.Users',
+    'BankingSystem.Logs',
 ]
 
 MIDDLEWARE = [
@@ -118,3 +120,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+#Django-twilio Test credentials settings
+TWILIO_ACCOUNT_SID = 'My-twilio-sid'
+TWILIO_AUTH_TOKEN = 'My-twilio-auth-token'
+DJANGO_TWILIO_FORGERY_PROTECTION = False
+DJANGO_TWILIO_BLACKLIST_CHECK = True

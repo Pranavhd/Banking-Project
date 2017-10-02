@@ -118,3 +118,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+# Email setup
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.yandex.com'
+EMAIL_HOST_USER = 'SoftSecu@yandex.com'
+DEFAULT_FROM_EMAIL = 'SoftSecu@yandex.com'
+EMAIL_HOST_PASSWORD = 'SoftSecu1'
+EMAIL_PORT = 587

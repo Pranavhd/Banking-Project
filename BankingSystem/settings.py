@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'BankingSystem.Users',
     'BankingSystem.Logs',
+    'BankingSystem.Request',
 ]
 
 MIDDLEWARE = [

@@ -7,6 +7,7 @@ from .form import UpdatePersonalDetailsForm
 
 # Create your views here.
 
+
 def create_internal_user(request):
     # check if a valid user
     if not request.user.is_authenticated():

@@ -4,6 +4,8 @@ from . import views
 from django.test import TestCase
 from django.contrib.auth.models import User
 from . import models
+from django.contrib.sessions.models import Session
+import time
 
 
 # Create your tests here.
@@ -161,3 +163,49 @@ class IndividualTestForUpdatingPersonalDetails(TestCase):
         self.assertEqual(individual.mail_address, 'Updated address')
         self.assertEquals(user.email, 'customer@gmail.com')
 
+
+class SessionTimeOutTest(TestCase):
+    def setUp(self):
+        # admin
+        user = User.objects.create_user(username='admin', email='admin@gmail.com', password='adminadmin')
+        models.Employee.objects.create(user=user, level=0)
+
+    # test case for 300 sec is not practical
+    def test_admin_session_not_timeout(self):
+        self.client.post('/login/', {'username': 'admin', 'password': 'adminadmin'})
+        # update server session for admin user
+        a = Session.objects.all()[0]
+        # b = a.expire_date
+        # print(b)
+        data = {'username': 'new', 'email': 'new@gmail.com', 'password': 'newnew', 'level': 0}
+
+        time.sleep(2)
+
+        response = self.client.post('/users/internal/create/', data, follow=True)
+        self.assertEquals(response.status_code, 201)
+
+    def test_admin_session_not_timeout(self):
+        self.client.post('/login/', {'username': 'admin', 'password': 'adminadmin'})
+        # update server session for admin user
+        a = Session.objects.all()[0]
+        # b = a.expire_date
+        # print(b)
+        data = {'username': 'new', 'email': 'new@gmail.com', 'password': 'newnew', 'level': 0}
+
+        time.sleep(5)
+
+        response = self.client.post('/users/internal/create/', data, follow=True)
+        self.assertEquals(response.status_code, 201)
+
+    def test_admin_session_timeout(self):
+        self.client.post('/login/', {'username': 'admin', 'password': 'adminadmin'})
+        # update server session for admin user
+        a = Session.objects.all()[0]
+        # b = a.expire_date
+        # print(b)
+        data = {'username': 'new', 'email': 'new@gmail.com', 'password': 'newnew', 'level': 0}
+
+        time.sleep(11)
+
+        response = self.client.post('/users/internal/create/', data, follow=True)
+        self.assertEquals(response.status_code, 401)

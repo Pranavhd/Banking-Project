@@ -1,2 +1,4 @@
 Django==1.11.5
 django-phonenumber-field
+django-twilio-sms
+django-two-factor-auth

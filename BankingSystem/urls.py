@@ -20,6 +20,7 @@ from BankingSystem.Users import views as users_views
 
 urlpatterns = [
     # login & logout
+
     url(r'^login/$', users_views.login_view),
     url(r'^login_post/$', users_views.login_post_view),
     url(r'^logout/$', users_views.logout_view),

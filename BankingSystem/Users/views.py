@@ -88,6 +88,10 @@ def signup_post_view(request):
 
 # admin
 def admin_view(request):
+    if not request.user.is_authenticated():
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401) # add for is_authenticated
+
     context = {}
     return render(request, 'admin.html', context)
 

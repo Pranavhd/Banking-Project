@@ -19,13 +19,15 @@ from django.contrib.auth import views as auth_views
 from BankingSystem.Users import views as users_views
 
 urlpatterns = [
-    # admin
-    url(r'^admin/', admin.site.urls),
     # login & logout
-    url(r'^login/$', auth_views.LoginView.as_view()),
-    url(r'^logout/$', auth_views.LogoutView.as_view()),
+    url(r'^login/$', users_views.login_view),
+    url(r'^login_post/$', users_views.login_post_view),
+    url(r'^logout/$', users_views.logout_view),
+
     # users
-    url(r'^users/internal/create/$', users_views.create_internal_user),
-    url(r'^users/internal/update/$', users_views.update_internal_user),
-    url(r'^users/internal/delete/$', users_views.delete_internal_user),
+    url(r'^admin/$', users_views.admin_view),
+    url(r'^tier1/$', users_views.tier1_view),
+    url(r'^tier2/$', users_views.tier2_view),
+    url(r'^customer/$', users_views.customer_view),
+    url(r'^merchant/$', users_views.merchant_view),
 ]

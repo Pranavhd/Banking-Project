@@ -34,17 +34,17 @@ def login_post_view(request):
     # redirect bank user
     bank_user = models.BankUser.objects.get(user=user)
     if bank_user.user_type == 'ADMIN':
-        redirect('/admin/')
+        return redirect('/admin/')
     elif bank_user.user_type == 'TIER1':
-        redirect('/tier1/')
+        return redirect('/tier1/')
     elif bank_user.user_type == 'TIER2':
-        redirect('/tier2/')
+        return redirect('/tier2/')
     elif bank_user.user_type == 'CUSTOMER':
-        redirect('/customer/')
+        return redirect('/customer/')
     elif bank_user.user_type == 'MERCHANT':
-        redirect('/merchant/')
+        return redirect('/merchant/')
     else:
-        redirect('/logout/')
+        return redirect('/logout/')
 
 
 def logout_view(request):
@@ -70,7 +70,7 @@ def signup_post_view(request):
     if not f.is_valid():
         context = {'msg': 'not valid post data'}
         return render(request, 'error.html', context, status=400)
-    if request.POST['user_type'] not in []:
+    if request.POST['user_type'] not in ['ADMIN', 'TIER2', 'TIER1', 'CUSTOMER', 'MERCHANT']:
         context = {'msg': 'not valid user type'}
         return render(request, 'error.html', context, status=400)
 
@@ -80,7 +80,7 @@ def signup_post_view(request):
         password=request.POST['password'],
         email=request.POST['email']
     )
-    models.BankUser.objects.create(user, user_type=request.POST['user_type'])
+    models.BankUser.objects.create(user=user, user_type=request.POST['user_type'])
 
     context = {'msg': 'user created'}
     return render(request, 'success.html', context)

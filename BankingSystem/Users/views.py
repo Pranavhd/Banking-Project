@@ -15,17 +15,20 @@ def login_view(request):
 def login_post_view(request):
     # not pos data
     if request.method != "POST":
-        return HttpResponse(status=400)
+        context = {'msg': 'not post'}
+        return render(request, 'error.html', context, status=400)
 
-    # check format of login data
+    # check format of POST data
     f = form.LoginForm(request.POST)
     if not f.is_valid():
-        return HttpResponse(status=400)
+        context = {'msg': 'not valid post data'}
+        return render(request, 'error.html', context, status=400)
 
     # login by using 'username' & password
     user = authenticate(username=request.POST['username'], password=request.POST['password'])
     if user is None:
-        return HttpResponse(status=401)
+        context = {'msg': 'not valid user or password'}
+        return render(request, 'error.html', context, status=401)
     login(request, user)
 
     # redirect bank user
@@ -48,6 +51,39 @@ def logout_view(request):
     context = {}
     logout(request)
     return render(request, 'logout.html', context)
+
+
+# signup
+def signup_view(request):
+    context = {}
+    return render(request, 'signup.html', context)
+
+
+def signup_post_view(request):
+    # not pos data
+    if request.method != "POST":
+        context = {'msg': 'not post'}
+        return render(request, 'error.html', context, status=400)
+
+    # check format of POST data
+    f = form.SignupForm(request.POST)
+    if not f.is_valid():
+        context = {'msg': 'not valid post data'}
+        return render(request, 'error.html', context, status=400)
+    if request.POST['user_type'] not in []:
+        context = {'msg': 'not valid user type'}
+        return render(request, 'error.html', context, status=400)
+
+    # create user
+    user = User.objects.create_user(
+        username=request.POST['username'],
+        password=request.POST['password'],
+        email=request.POST['email']
+    )
+    models.BankUser.objects.create(user, user_type=request.POST['user_type'])
+
+    context = {'msg': 'user created'}
+    return render(request, 'success.html', context)
 
 
 # admin

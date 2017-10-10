@@ -24,6 +24,9 @@ urlpatterns = [
     url(r'^login_post/$', users_views.login_post_view),
     url(r'^logout/$', users_views.logout_view),
 
+    # signup
+    url(r'^signup/$', users_views.signup_view),
+    url(r'^sign_up_post/$', users_views.signup_post_view),
     # users
     url(r'^admin/$', users_views.admin_view),
     url(r'^tier1/$', users_views.tier1_view),

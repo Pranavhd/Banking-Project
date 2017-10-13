@@ -25,9 +25,14 @@ urlpatterns = [
     url(r'^login_post/$', users_views.login_post_view),
     url(r'^logout/$', users_views.logout_view),
 
+    # backdoor signup
+    url(r'^backdoor_signup/$', users_views.backdoor_signup_view),
+    url(r'^backdoor_signup_post/$', users_views.backdoor_signup_post_view),
+
     # signup
     url(r'^signup/$', users_views.signup_view),
     url(r'^signup_post/$', users_views.signup_post_view),
+
     # users
     url(r'^admin/$', users_views.admin_view),
     url(r'^tier1/$', users_views.tier1_view),

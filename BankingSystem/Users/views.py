@@ -86,6 +86,39 @@ def signup_post_view(request):
     return render(request, 'success.html', context)
 
 
+# backdoor signup
+def backdoor_signup_view(request):
+    context = {}
+    return render(request, 'backdoor_signup.html', context)
+
+
+def backdoor_signup_post_view(request):
+    # not pos data
+    if request.method != "POST":
+        context = {'msg': 'not post'}
+        return render(request, 'error.html', context, status=400)
+
+    # check format of POST data
+    f = form.SignupForm(request.POST)
+    if not f.is_valid():
+        context = {'msg': 'not valid post data'}
+        return render(request, 'error.html', context, status=400)
+    if request.POST['user_type'] not in ['ADMIN', 'TIER2', 'TIER1', 'CUSTOMER', 'MERCHANT']:
+        context = {'msg': 'not valid user type'}
+        return render(request, 'error.html', context, status=400)
+
+    # create user
+    user = User.objects.create_user(
+        username=request.POST['username'],
+        password=request.POST['password'],
+        email=request.POST['email']
+    )
+    models.BankUser.objects.create(user=user, user_type=request.POST['user_type'])
+
+    context = {'msg': 'user created'}
+    return render(request, 'success.html', context)
+
+
 # admin
 def admin_view(request):
     if not request.user.is_authenticated():

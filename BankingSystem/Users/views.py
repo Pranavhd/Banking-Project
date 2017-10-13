@@ -68,7 +68,7 @@ def signup_post_view(request):
     # check format of POST data
     f = form.SignupForm(request.POST)
     if not f.is_valid():
-        context = {'msg': 'not valid post data'}
+        context = {'msg': 'not valid post data ' + str(f.errors)}
         return render(request, 'error.html', context, status=400)
     if request.POST['user_type'] not in ['CUSTOMER', 'MERCHANT']:
         context = {'msg': 'not valid user type'}
@@ -84,6 +84,7 @@ def signup_post_view(request):
         # user
         user=user,
         user_type=request.POST['user_type'],
+
         # personal info
         ssn=request.POST['ssn'],
         phone=request.POST['phone'],

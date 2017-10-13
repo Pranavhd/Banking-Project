@@ -2,9 +2,74 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>SignUp</title>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <style>
+        button[type=submit]{
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 16px 32px;
+            text-decoration: none;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        input[type=text],input[type=password] {
+
+            padding: 12px 20px;
+            margin: 8px 50px;
+            position: relative;
+            left : 50px;
+            box-sizing: border-box;
+            border: 1px solid #555;
+            outline: none;
+        }
+
+        input[type=text]:focus,input[type=password]:focus {
+             background-color: lightblue;
+        }
+        label{
+            display: inline-block;
+            width: 50px;
+        }
+
+
+
+    </style>
 </head>
 <body>
+    <t1>Create account</t1>
+
+    <form action="/signup_post/" method="post">{% csrf_token %}
+        <label class = "label"for="Uname" style="display: inline-block; width: 50px;">UserName: </label>
+        <input type="text" id="Uname" name="username"><br>
+
+        <label for="password" style="display: inline-block; width: 50px;">Password: </label>
+        <input type="password" id="password" name="password"><br>
+
+        <label for="email" style="display: inline-block;" >E-mail: </label>
+        <input type="text" id="email" name="email"><br>
+
+        <label for="ssn" style="display: inline-block; width: 50px;">SSN: </label>
+        <input type="text" id="ssn" name="ssn"><br>
+
+        <label for="phone" style="display: inline-block; width: 50px;">Phone: </label>
+        <input type="text" id="ssn" name="phone"><br>
+
+        <label for="user_type">User Type: </label>
+        <!--input type="text" id="user_type" name="user_type"><br-->
+      <select id="user_type" name="user_type">
+        <option value="CUSTOMER">Customer</option>
+        <option value="MERCHANT">Merchant</option>
+      </select><br>
+      <button type="submit" id="post-btn">button</button>
+
+    </form>
+
 
 </body>
 </html>
+
+
+<script>
+</script>

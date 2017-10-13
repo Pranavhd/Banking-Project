@@ -70,7 +70,7 @@ def signup_post_view(request):
     if not f.is_valid():
         context = {'msg': 'not valid post data'}
         return render(request, 'error.html', context, status=400)
-    if request.POST['user_type'] not in ['ADMIN', 'TIER2', 'TIER1', 'CUSTOMER', 'MERCHANT']:
+    if request.POST['user_type'] not in ['CUSTOMER', 'MERCHANT']:
         context = {'msg': 'not valid user type'}
         return render(request, 'error.html', context, status=400)
 
@@ -80,7 +80,19 @@ def signup_post_view(request):
         password=request.POST['password'],
         email=request.POST['email']
     )
-    models.BankUser.objects.create(user=user, user_type=request.POST['user_type'])
+    models.BankUser.objects.create(
+        # user
+        user=user,
+        user_type=request.POST['user_type'],
+        # personal info
+        ssn=request.POST['ssn'],
+        phone=request.POST['phone'],
+
+        # deposit
+        debit_balance=0,
+        checking_balance=0,
+        saving_balance=0
+    )
 
     context = {'msg': 'user created'}
     return render(request, 'success.html', context)
@@ -99,7 +111,7 @@ def backdoor_signup_post_view(request):
         return render(request, 'error.html', context, status=400)
 
     # check format of POST data
-    f = form.SignupForm(request.POST)
+    f = form.BackdoorSignupForm(request.POST)
     if not f.is_valid():
         context = {'msg': 'not valid post data'}
         return render(request, 'error.html', context, status=400)

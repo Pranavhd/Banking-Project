@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from . import form
 from . import models
+import collections
 
 
 # ----- login -----
@@ -39,7 +40,7 @@ def login_post_view(request):
         context = {'msg': 'no BankUser found'}
         return render(request, 'error.html', context, status=400)
 
-    # redirect 
+    # redirect
     if bank_user.user_type == 'ADMIN':
         return redirect('/admin/')
     elif bank_user.user_type == 'TIER1':
@@ -116,6 +117,7 @@ def account_open_post_view(request):
         user=user,
         state='INACTIVE',
         user_type=request.POST['user_type'],
+        username=request.POST['username'],
         phone=request.POST['phone'],
         email=request.POST['email'],
         address=request.POST['address'],
@@ -154,7 +156,12 @@ def admin_view(request):
         context = {'msg': 'not authenticated'}
         return render(request, 'error.html', context, status=401)
 
-    context = {}
+    # render users
+    context = {'users': []}
+    users = models.BankUser.objects.all().exclude(user_type='ADMIN')
+    RenderUser = collections.namedtuple('RenderUser', 'username email phone address')
+    for u in users:
+        context['users'].append(RenderUser(u.username, u.email, u.phone, u.address))
     return render(request, 'admin.html', context)
 
 

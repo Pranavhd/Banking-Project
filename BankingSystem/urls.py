@@ -39,4 +39,9 @@ urlpatterns = [
     url(r'^tier2/$', users_views.tier2_view),
     url(r'^customer/$', users_views.customer_view),
     url(r'^merchant/$', users_views.merchant_view),
+
+    # others
+    url(r'^account_update/$', users_views.account_update_view),
+    url(r'^make_transfer/$', users_views.make_transfer_view),
+
 ]

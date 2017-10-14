@@ -6,7 +6,7 @@ from . import form
 from . import models
 
 
-# login
+# ----- login -----
 def login_view(request):
     context = {}
     return render(request, 'login.html', context)
@@ -53,7 +53,7 @@ def logout_view(request):
     return render(request, 'logout.html', context)
 
 
-# signup
+# ------ signup -----
 def signup_view(request):
     context = {}
     return render(request, 'signup.html', context)
@@ -99,7 +99,7 @@ def signup_post_view(request):
     return render(request, 'success.html', context)
 
 
-# backdoor signup
+# ----- backdoor signup -----
 def backdoor_signup_view(request):
     context = {}
     return render(request, 'backdoor_signup.html', context)
@@ -132,7 +132,7 @@ def backdoor_signup_post_view(request):
     return render(request, 'success.html', context)
 
 
-# admin
+# ----- admin -----
 def admin_view(request):
     if not request.user.is_authenticated():
         context = {'msg': 'not authenticated'}
@@ -142,27 +142,36 @@ def admin_view(request):
     return render(request, 'admin.html', context)
 
 
-# tier1
+# ----- tier1 -----
 def tier1_view(request):
     context = {}
     return render(request, 'tier1.html', context)
 
 
-# tier2
+# ----- tier2 -----
 def tier2_view(request):
     context = {}
     return render(request, 'tier2.html', context)
 
 
-# customer
+# ----- customer -----
 def customer_view(request):
     context = {}
     return render(request, 'customer.html', context)
 
 
-# merchant
+# ----- merchant -----
 def merchant_view(request):
     context = {}
     return render(request, 'merchant.html', context)
 
 
+# ----- others -----
+def account_update_view(request):
+    context = {}
+    return render(request, 'account_update.html', context)
+
+
+def make_transfer_view(request):
+    context = {}
+    return render(request, 'make_transfer.html', context)

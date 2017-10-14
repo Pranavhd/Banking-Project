@@ -16,6 +16,7 @@ class BankUser(models.Model):
     state = models.CharField(max_length=10)
 
     # personal info
+    username = models.CharField(max_length=200)
     email = models.EmailField()
     phone_regex = RegexValidator(regex=r'^\+?1?\d{10}$')
     phone = models.CharField(validators=[phone_regex], max_length=12, blank=True)  # validators should be a list

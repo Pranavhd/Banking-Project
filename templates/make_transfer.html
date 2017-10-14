@@ -1,11 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base_login_signup.html' %}
 
-This is make transfer
-</body>
-</html>
+{% block title %} Transfer {% endblock%}
+{% block t1 %}<t1>Make a transfer</t1>{% endblock %}
+
+{% block content %}
+    <form action="/account_update/" method="get">
+        <label class = "label" for="" >FROM: </label>
+
+        <select id="trans_from" name="trans_from">
+            <option value="Saving">Saving</option>
+            <option value="Checking">Checking</option>
+        </select><br>
+
+
+        <label class = "label" for="trans_to" > TO: </label><br>
+        <input type="radio" name="location" value="Taipei"> My account<br>
+
+        <select id="trans_from" name="trans_from">
+            <option value="Saving">Saving</option>
+            <option value="Checking">Checking</option>
+        </select><br>
+        <input type="radio" name="location" value="Taoyuan"> Other
+
+    </form>
+
+
+    <form action="/make_transfer/" method="get">
+
+
+    </form>
+
+
+
+{% endblock %}

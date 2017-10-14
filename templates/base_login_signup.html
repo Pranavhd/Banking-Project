@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
-    <style>{% block style %}
+    <style>
         .center {
             position: absolute;
             left: 40%;
@@ -46,7 +46,7 @@
             bottom: 10px;
             left: 45%;
         }
-    {% endblock %}</style>
+    {% block style %}{% endblock %}</style>
 </head>
 <body>
     <div class = "center">

@@ -133,6 +133,6 @@ STATICFILES_DIRS = [
 # session control
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-SESSION_COOKIE_AGE = 10  # set to 10 seconds to test
+SESSION_COOKIE_AGE = 300# set to 10 seconds to test
 SESSION_SAVE_EVERY_REQUEST = True
 

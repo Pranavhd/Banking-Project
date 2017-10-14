@@ -1,10 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-This is admin
-</body>
-</html>
+{% extends 'base_login_signup.html' %}
+
+{% block title %} ADMIN {% endblock%}
+{% block t1 %}<t1>FUCK</t1>{% endblock %}
+
+{% block content %}
+    <form action="/account_update/" method="get">
+        <label class = "label" for="balance" > INTERNAL</label><br>
+        <table>
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Address</th>
+            </tr>
+            {% for user in Users %}
+            <tr>
+              <th> {{ user.username }}</th>
+              <th> {{ user.email }}</th>
+              <th> {{ user.phone }}</th>
+              <th> {{ user.address }}</th>
+            </tr>
+            {% endfor %}
+            </table>
+
+
+        <button type="submit" id="account_update_btn">account update</button>
+    </form>
+
+
+
+
+{% endblock %}

@@ -1,48 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>SignUp</title>
-    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
-    <style>
-        button[type=submit]{
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            padding: 10px 32px;
-            text-decoration: none;
-            margin: 4px 2px;
-            cursor: pointer;
-        }
-        input[type=text],input[type=password] {
+{% extends 'base_login_signup.html' %}
 
-            padding: 12px 20px;
-            margin: 8px ;
-            width: 20%;
-            box-sizing: border-box;
-            border: 1px solid #555;
-            outline: none;
-        }
+{% block title %} Signup {% endblock%}
 
-        input[type=text]:focus,input[type=password]:focus {
-             background-color: lightblue;
-        }
-        label{
-            display: inline-block;
-            width: 100px;
-        }
-        t1{
-            font-size: 40px;
+{% block t1 %}<t1>Create account</t1>{% endblock %}
 
-        }
-
-
-
-    </style>
-</head>
-<body>
-    <t1>Create account</t1>
-
+{% block content %}
     <form action="/signup_post/" method="post">{% csrf_token %}
         <label class = "label"for="Uname" >UserName: </label>
         <input type="text" id="Uname" name="username"><br>
@@ -58,7 +20,7 @@
 
         <label for="phone">Phone: </label>
         <input type="text" id="phone" name="phone">
-        <label for="phone">+1xxxxxxxxxx </label><br>
+        <label >+1xxxxxxxxxx </label><br>
 
         <label for="user_type">User Type: </label>
         <!--input type="text" id="user_type" name="user_type"><br-->
@@ -67,14 +29,8 @@
         <option value="MERCHANT">Merchant</option>
       </select><br>
 
-      <button type="submit" id="post-btn">button</button>
+      <button type="submit" id="post-btn">Summit</button>
 
     </form>
 
-
-</body>
-</html>
-
-
-<script>
-</script>
+{% endblock %}

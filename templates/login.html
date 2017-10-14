@@ -1,23 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
-</head>
-<body>
+{% extends 'base_login_signup.html' %}
 
+{% block title %} Login {% endblock%}
+{% block t1 %}<t1>Login page</t1>{% endblock %}
+
+{% block content %}
     <form action="/login_post/" method="post">{% csrf_token %}
-        Username: <input type="text" id="username" name="username"><br>
-        Password: <input type="password" id="password" name="password"><br>
-      <button type="submit" id="post-btn">button</button>
+        <label class = "label"for="Uname" >UserName: </label>
+        <input type="text" id="Uname" name="username"><br>
+
+        <label for="password">Password: </label>
+        <input type="password" id="password" name="password"><br>
+
+      <button type="submit" id="post-btn">Summit</button>
 
     </form>
 
-
-</body>
-</html>
-
-
-<script>
-</script>
+{% endblock %}

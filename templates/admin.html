@@ -1,11 +1,13 @@
 {% extends 'base_login_signup.html' %}
 
 {% block title %} ADMIN {% endblock%}
-{% block t1 %}<t1>FUCK</t1>{% endblock %}
+{% block t1 %}<t1>Users</t1>{% endblock %}
+{% block style%}
 
+{% endblock%}
 {% block content %}
-    <form action="/account_update/" method="get">
-        <label class = "label" for="balance" > INTERNAL</label><br>
+
+        <label class = "label" for="balance" > </label><br>
         <table>
             <tr>
               <th>Username</th>
@@ -13,19 +15,16 @@
               <th>Phone</th>
               <th>Address</th>
             </tr>
-            {% for user in Users %}
+            {% for user in users %}
             <tr>
-              <th> {{ user.username }}</th>
-              <th> {{ user.email }}</th>
-              <th> {{ user.phone }}</th>
-              <th> {{ user.address }}</th>
+              <td> {{ user.username }}</td>
+              <td> {{ user.email }}</td>
+              <td> {{ user.phone }}</td>
+              <td> {{ user.address }}</td>
             </tr>
             {% endfor %}
             </table>
 
-
-        <button type="submit" id="account_update_btn">account update</button>
-    </form>
 
 
 

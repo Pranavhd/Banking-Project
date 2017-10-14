@@ -162,6 +162,7 @@ def admin_view(request):
     RenderUser = collections.namedtuple('RenderUser', 'username email phone address')
     for u in users:
         context['users'].append(RenderUser(u.username, u.email, u.phone, u.address))
+    print(context)
     return render(request, 'admin.html', context)
 
 

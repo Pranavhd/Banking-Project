@@ -5,7 +5,7 @@
 {% block t1 %}<t1>Create account</t1>{% endblock %}
 
 {% block content %}
-    <form action="/signup_post/" method="post">{% csrf_token %}
+    <form action="/account_open_post/" method="post">{% csrf_token %}
         <label class = "label"for="Uname" >UserName: </label>
         <input type="text" id="Uname" name="username"><br>
 
@@ -14,9 +14,6 @@
 
         <label for="email" >E-mail: </label>
         <input type="text" id="email" name="email"><br>
-
-        <label for="ssn">SSN: </label>
-        <input type="text" id="ssn" name="ssn"><br>
 
         <label for="phone">Phone: </label>
         <input type="text" id="phone" name="phone">

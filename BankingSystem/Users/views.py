@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+import datetime
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -31,8 +32,14 @@ def login_post_view(request):
         return render(request, 'error.html', context, status=401)
     login(request, user)
 
-    # redirect bank user
-    bank_user = models.BankUser.objects.get(user=user)
+    # check if bank user exist
+    try:
+        bank_user = models.BankUser.objects.get(user=user)
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'no BankUser found'}
+        return render(request, 'error.html', context, status=400)
+
+    # redirect 
     if bank_user.user_type == 'ADMIN':
         return redirect('/admin/')
     elif bank_user.user_type == 'TIER1':
@@ -54,19 +61,19 @@ def logout_view(request):
 
 
 # ------ signup -----
-def signup_view(request):
+def account_open_view(request):
     context = {}
-    return render(request, 'signup.html', context)
+    return render(request, 'account_open.html', context)
 
 
-def signup_post_view(request):
+def account_open_post_view(request):
     # not pos data
     if request.method != "POST":
         context = {'msg': 'not post'}
         return render(request, 'error.html', context, status=400)
 
     # check format of POST data
-    f = form.SignupForm(request.POST)
+    f = form.AccountOpenForm(request.POST)
     if not f.is_valid():
         context = {'msg': 'not valid post data ' + str(f.errors)}
         return render(request, 'error.html', context, status=400)
@@ -74,69 +81,78 @@ def signup_post_view(request):
         context = {'msg': 'not valid user type'}
         return render(request, 'error.html', context, status=400)
 
+    # check if username already exist
+    try:
+        _ = User.objects.get(username=request.POST['username'])
+        context = {'msg': 'username exist'}
+        return render(request, 'error.html', context, status=400)
+    except User.DoesNotExist:
+        pass
+
+    # check phone unique
+    try:
+        _ = models.BankUser.objects.get(phone=request.POST['phone'])
+        context = {'msg': 'phone exist'}
+        return render(request, 'error.html', context, status=400)
+    except models.BankUser.DoesNotExist:
+        pass
+
+    # check email unique
+    try:
+        _ = models.BankUser.objects.get(email=request.POST['email'])
+        context = {'msg': 'email exist'}
+        return render(request, 'error.html', context, status=400)
+    except models.BankUser.DoesNotExist:
+        pass
+
     # create user
     user = User.objects.create_user(
         username=request.POST['username'],
         password=request.POST['password'],
-        email=request.POST['email']
     )
+
+    # create bank user
     models.BankUser.objects.create(
-        # user
         user=user,
+        state='INACTIVE',
         user_type=request.POST['user_type'],
-
-        # personal info
-        ssn=request.POST['ssn'],
         phone=request.POST['phone'],
-
-        # deposit
-        debit_balance=0,
-        checking_balance=0,
-        saving_balance=0
+        email=request.POST['email'],
+        address=request.POST['address'],
     )
 
-    context = {'msg': 'user created'}
-    return render(request, 'success.html', context)
-
-
-# ----- backdoor signup -----
-def backdoor_signup_view(request):
-    context = {}
-    return render(request, 'backdoor_signup.html', context)
-
-
-def backdoor_signup_post_view(request):
-    # not pos data
-    if request.method != "POST":
-        context = {'msg': 'not post'}
-        return render(request, 'error.html', context, status=400)
-
-    # check format of POST data
-    f = form.BackdoorSignupForm(request.POST)
-    if not f.is_valid():
-        context = {'msg': 'not valid post data'}
-        return render(request, 'error.html', context, status=400)
-    if request.POST['user_type'] not in ['ADMIN', 'TIER2', 'TIER1', 'CUSTOMER', 'MERCHANT']:
-        context = {'msg': 'not valid user type'}
-        return render(request, 'error.html', context, status=400)
-
-    # create user
-    user = User.objects.create_user(
-        username=request.POST['username'],
-        password=request.POST['password'],
-        email=request.POST['email']
+    # create request
+    models.Request.objects.create(
+        user=user,
+        created=datetime.datetime.now(),
+        request='ACCOUNT_OPEN',
+        permission=0,
+        user_type=request.POST['user_type'],
+        phone=request.POST['phone'],
+        email=request.POST['email'],
+        address=request.POST['address'],
     )
-    models.BankUser.objects.create(user=user, user_type=request.POST['user_type'])
 
-    context = {'msg': 'user created'}
+    context = {'msg': 'Account Open Request Sent'}
     return render(request, 'success.html', context)
 
 
 # ----- admin -----
 def admin_view(request):
+    # check if a valid user
     if not request.user.is_authenticated():
         context = {'msg': 'not authenticated'}
-        return render(request, 'error.html', context, status=401) # add for is_authenticated
+        return render(request, 'error.html', context, status=401)
+
+    # check if it is an admin user
+    try:
+        bank_user = models.BankUser.objects.get(user=request.user)
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+    if bank_user.user_type != 'ADMIN':
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
 
     context = {}
     return render(request, 'admin.html', context)

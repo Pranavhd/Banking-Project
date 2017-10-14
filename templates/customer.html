@@ -1,10 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-this is custom
-</body>
-</html>
+{% extends 'base_login_signup.html' %}
+
+{% block title %} Custom {% endblock%}
+{% block t1 %}<t1>Welcome to G1-Bank</t1>{% endblock %}
+
+{% block content %}
+    <form action="/account_update/" method="get">
+        <label class = "label" for="balance" >Balance: </label><br>
+
+
+
+        <button type="submit" id="account_update_btn">account update</button>
+    </form>
+
+
+    <form action="/make_transfer/" method="get">
+        <label class = "label" for="balance" > </label><br>
+
+            <button type="submit" id="account_update_btn">Transfer</button>
+
+    </form>
+
+
+
+{% endblock %}

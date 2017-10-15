@@ -1,19 +1,112 @@
 {% extends 'base_login_signup.html' %}
 
 {% block title %} ADMIN {% endblock%}
-{% block t1 %}<t1>Users</t1>{% endblock %}
-{% block style%}
 
+{  {% block style %}
+<style>
+    table, th, tr, td{
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+            width : ;
+
+        }
+    table{
+        position: relative;
+
+]
+    }
+    </style>
 {% endblock%}
+{% block t1 %}<t1  >Users</t1>{% endblock %}
+
 {% block content %}
 
-        <label class = "label" for="balance" > </label><br>
-        <table>
+        <!--User Info-->
+        <table >
             <tr>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Address</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Update</th>
+                <th>Delete</th>
+            </tr>
+            {% for user in users %}
+            <tr>
+                <td> {{ user.username }}</td>
+                <td> {{ user.email }}</td>
+                <td> {{ user.phone }}</td>
+                <td> {{ user.address }}</td>
+                <td>
+                    <form action="/account_update/" method="get">
+                        <button type="submit" id="account_update_btn" > update</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="/account_delete/" method="get">
+                        <button type="submit" id="account_delete_btn"> delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </table>
+
+        <br>
+
+        <!--Account open request-->
+        <t1>Account open </t1>
+        <table >
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Approve</th>
+                <th>Decline</th>
+            </tr>
+            {% for user in users %}
+            <tr>
+                <td> {{ request.username }}</td>
+                <td> {{ request.email }}</td>
+                <td> {{ request.phone }}</td>
+                <td> {{ request.address }}</td>
+                <td>
+
+                    <form action="/handle_request_post/" method="POST">
+
+                        <script>
+                            if (request.state=="APPROVED"){
+                                <label> Approved</label>
+                            }else if (request.state=="DECLINED"){
+                                <label> Declined</label>
+                            }else{
+                                <button type="submit" id = "{{ user.id }}" name="approve_btn" > Approve</button>
+                            }
+
+                        </script>>
+
+
+                    </form>
+
+                </td>
+                <td>
+                    <form action="/handle_request_post/" method="POST">
+                        <button type="submit" id = "{{ user.id }}" name="decline_btn"> Decline</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </table>
+        <br>
+
+        <!--Account update request-->
+        <t1>Account update </t1>
+        <table >
+            <tr>
+              <th>1</th>
+              <th>2</th>
+              <th>3</th>
+              <th>4</th>
             </tr>
             {% for user in users %}
             <tr>
@@ -23,10 +116,52 @@
               <td> {{ user.address }}</td>
             </tr>
             {% endfor %}
-            </table>
-
-
-
-
-
+        </table>
+        <br>
+        <!--Fund transfer request-->
+        <t1>Fund transfer </t1>
+        <table >
+            <tr>
+              <th>1</th>
+              <th>2</th>
+              <th>3</th>
+              <th>4</th>
+            </tr>
+            {% for user in users %}
+            <tr>
+              <td> {{ user.username }}</td>
+              <td> {{ user.email }}</td>
+              <td> {{ user.phone }}</td>
+              <td> {{ user.address }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <!--payment request-->
+        <t1>Payment </t1>
+        <table >
+            <tr>
+              <th>1</th>
+              <th>2</th>
+              <th>3</th>
+              <th>4</th>
+            </tr>
+            {% for user in users %}
+            <tr>
+              <td> {{ user.username }}</td>
+              <td> {{ user.email }}</td>
+              <td> {{ user.phone }}</td>
+              <td> {{ user.address }}</td>
+            </tr>
+            {% endfor %}
+        </table>
 {% endblock %}
+
+<script>
+    function myfunction() {
+        //if (request.state=="APPROVED"){
+        button.approve_btn.style.display == "none";
+        //}
+
+    }
+</script>>

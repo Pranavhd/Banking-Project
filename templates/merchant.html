@@ -1,10 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    this is merchant
-</body>
-</html>
+{% extends 'base_login_signup.html' %}
+
+{% block title %}Merchant {% endblock%}
+{% block t1 %}<t1></t1>{% endblock %}
+
+
+{% block logout%}
+    <button type="button" id="account_update_btn"  onclick="window.location.href='/logout/'">Logout</button>
+{% endblock %}
+
+
+{% block content %}
+    This is merchant
+{% endblock %}

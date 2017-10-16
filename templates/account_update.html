@@ -4,6 +4,7 @@
 {% block t1 %}<t1>Account update</t1>{% endblock %}
 
 {% block content %}
+    <a onclick="myFunction()">Try it</a>
     <form action="/login_post/" method="post">{% csrf_token %}
         <!--label class = "label"for="Uname" >UserName: </label>
         <text type="text" id="Uname" name="username" value = {{  user.username }}><br-->
@@ -22,6 +23,20 @@
 
     </form>
 
+<script>
+    function myFunction() {
+    var url = location.href;
+    alert(url);
+    var temp = url.split("?");
+
+    var vars = temp[1].split("&");
+
+    for (var i = 0; i < vars.length; i++) {
+        alert(vars[i]);
+
+    };
+}
+</script>
 {% endblock %}
 <!--
 {% load static %}<!DOCTYPE html>

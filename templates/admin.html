@@ -7,9 +7,7 @@
     table, th, tr, td{
             border-collapse: collapse;
             border: 1px solid #ddd;
-            width : ;
-
-        }
+           }
     table{
         position: relative;
 
@@ -17,7 +15,10 @@
     }
     </style>
 {% endblock%}
-{% block t1 %}<t1  >Users</t1>{% endblock %}
+{% block t1 %}<t1 >Users</t1>{% endblock %}
+{% block logout%}
+    <button type="button" id="logout_btn"  onclick="window.location.href='/logout/'">Logout</button>
+{% endblock %}
 
 {% block content %}
 
@@ -38,7 +39,7 @@
                 <td> {{ user.phone }}</td>
                 <td> {{ user.address }}</td>
                 <td>
-                    <form action="/account_update/?123123" method="get">
+                    <form action="/account_update/" method="get">
                         <button type="submit" id="account_update_btn" > update</button>
                     </form>
                 </td>

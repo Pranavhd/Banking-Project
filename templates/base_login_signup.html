@@ -67,8 +67,8 @@
     {% block style %}{% endblock %}
 </head>
 <body>
+    {% block logout%}{% endblock %}
 
-    <button type="button" id="account_update_btn"  onclick="window.location.href='/logout/'">Logout</button>
     <div class = "center">
     {% block t1 %}{% endblock %}
     {% block content %}{% endblock %}

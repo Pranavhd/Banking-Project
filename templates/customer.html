@@ -2,22 +2,26 @@
 
 {% block title %} Custom {% endblock%}
 {% block t1 %}<t1>Welcome to G1-Bank</t1>{% endblock %}
+{% block logout%}<button type="button" id="account_update_btn"  onclick="window.location.href='/logout/'">Logout</button>{% endblock %}
 
 {% block content %}
 
+
     <br><label class = "label" for="balance" >Balance: </label><br>
+    <button type="submit" id="account_update_btn"  onclick="window.location.href='/account_update/?{{user.username}}&{{ user.id }}'">123</button>
 
-    <form action="/account_update/" method="get">
+    <!--form action="/account_update/?username='123'" method="get">
         <button type="submit" id="account_update_btn">account update</button>
-    </form>
-
+    </form-->
+<label class = "label" > {{ user.id }}</label><br>
 
     <form action="/make_transfer/" method="get">
         <label class = "label" > </label><br>
-            <button type="submit" id="account_update_btn">Transfer</button>
+            <button type="submit" id="make_trans_btn">Transfer</button>
 
     </form>
 
 
 
 {% endblock %}
+

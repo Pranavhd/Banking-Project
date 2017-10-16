@@ -2,6 +2,9 @@
 
 {% block title %} Transfer {% endblock%}
 {% block t1 %}<t1>Make a transfer</t1>{% endblock %}
+{% block logout%}
+    <button type="button" id="logout_btn"  onclick="window.location.href='/logout/'">Logout</button>
+{% endblock %}
 
 {% block content %}
     <form action="/account_update/" method="get">

@@ -38,7 +38,7 @@
                 <td> {{ user.phone }}</td>
                 <td> {{ user.address }}</td>
                 <td>
-                    <form action="/account_update/" method="get">
+                    <form action="/account_update/?123123" method="get">
                         <button type="submit" id="account_update_btn" > update</button>
                     </form>
                 </td>
@@ -61,8 +61,7 @@
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Address</th>
-                <th>Approve</th>
-                <th>Decline</th>
+                <th>Status</th>
             </tr>
             {% for request in account_open_requests %}
             <tr>
@@ -70,7 +69,6 @@
                 <td> {{ request.email }}</td>
                 <td> {{ request.phone }}</td>
                 <td> {{ request.address }}</td>
-                <td></td>
                 <td>
 
                     {% if request.state == "PENDING" %}
@@ -82,7 +80,7 @@
 
                         <form action="/handle_request_post/" method="POST"> {% csrf_token %}
                             <input type="hidden" value="{{ request.id }}" name="id" />
-                            <input type="hidden" value="1" name="approve" />
+                            <input type="hidden" value="0" name="approve" />
                             <button type="submit" name="decline_btn"> Decline</button>
                         </form>
 
@@ -101,10 +99,11 @@
         <t1>Account update </t1>
         <table >
             <tr>
-              <th>1</th>
-              <th>2</th>
-              <th>3</th>
-              <th>4</th>
+                <th>1</th>
+                <th>2</th>
+                <th>3</th>
+                <th>4</th>
+                <th>Status</th>
             </tr>
             {% for request in account_update_requests %}
             <tr>
@@ -112,6 +111,26 @@
               <td> {{ user.email }}</td>
               <td> {{ user.phone }}</td>
               <td> {{ user.address }}</td>
+              <td>
+                  {% if request.state == "PENDING" %}
+                      <form action="/handle_request_post/" method="POST"> {% csrf_token %}
+                          <input type="hidden" value="{{ request.id }}" name="id" />
+                          <input type="hidden" value="1" name="approve" />
+                          <button type="submit" name="decline_btn"> APPROVE</button>
+                      </form>
+
+                      <form action="/handle_request_post/" method="POST"> {% csrf_token %}
+                          <input type="hidden" value="{{ request.id }}" name="id" />
+                          <input type="hidden" value="0" name="approve" />
+                          <button type="submit" name="decline_btn"> Decline</button>
+                      </form>
+
+                {% else %}
+                    {{ request.state }}
+
+                {% endif %}
+
+                </td>
             </tr>
             {% endfor %}
         </table>
@@ -131,6 +150,7 @@
               <td> {{ request.email }}</td>
               <td> {{ request.phone }}</td>
               <td> {{ request.address }}</td>
+
             </tr>
             {% endfor %}
         </table>

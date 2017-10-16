@@ -155,8 +155,67 @@ def account_update_view(request):
         context = {'msg': 'not authenticated'}
         return render(request, 'error.html', context, status=401)
 
+    # GET data
+    f = form.AccountUpdateGetForm(request.GET)
+    if not f.is_valid():
+        context = {'msg': 'not valid post data ' + str(f.errors)}
+        return render(request, 'error.html', context, status=400)
+
+    # update bank_user
+    update_bank_user = models.BankUser.objects.get(id=request.GET['id'])
+
     context = {}
-    return render(request, 'account_update.html', context)
+    if bank_user.user_type == 'ADMIN':
+        context['username'] = update_bank_user.username
+        context['id'] = update_bank_user.id
+        context['phone'] = update_bank_user.phone
+        context['email'] = update_bank_user.email
+        context['address'] = update_bank_user.address
+        return render(request, 'account_update.html', context)
+    elif bank_user.user_type == 'TIER2':
+        if update_bank_user.user_type in ['TIER2', 'TIER1', 'MERCHANT', 'CUSTOMER']:
+            context['username'] = update_bank_user.username
+            context['id'] = update_bank_user.id
+            context['phone'] = update_bank_user.phone
+            context['email'] = update_bank_user.email
+            context['address'] = update_bank_user.address
+            return render(request, 'account_update.html', context)
+        else:
+            context = {'msg': 'not authenticated'}
+            return render(request, 'error.html', context, status=401)
+    elif bank_user.user_type == 'TIER1':
+        if update_bank_user.user_type in ['TIER1', 'MERCHANT', 'CUSTOMER']:
+            context['username'] = update_bank_user.username
+            context['id'] = update_bank_user.id
+            context['phone'] = update_bank_user.phone
+            context['email'] = update_bank_user.email
+            context['address'] = update_bank_user.address
+            return render(request, 'account_update.html', context)
+        else:
+            context = {'msg': 'not authenticated'}
+            return render(request, 'error.html', context, status=401)
+    elif bank_user.user_type == 'MERCHANT':
+        if update_bank_user.id == bank_user.id:
+            context['username'] = update_bank_user.username
+            context['id'] = update_bank_user.id
+            context['phone'] = update_bank_user.phone
+            context['email'] = update_bank_user.email
+            context['address'] = update_bank_user.address
+            return render(request, 'account_update.html', context)
+        else:
+            context = {'msg': 'not authenticated'}
+            return render(request, 'error.html', context, status=401)
+    elif bank_user.user_type == 'CUSTOMER':
+        if update_bank_user.id == bank_user.id:
+            context['username'] = update_bank_user.username
+            context['id'] = update_bank_user.id
+            context['phone'] = update_bank_user.phone
+            context['email'] = update_bank_user.email
+            context['address'] = update_bank_user.address
+            return render(request, 'account_update.html', context)
+        else:
+            context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
 
 
 def account_update_post_view(request):
@@ -173,7 +232,7 @@ def account_update_post_view(request):
         return render(request, 'error.html', context, status=401)
 
     # POST data
-    f = form.AccountUpdateForm(request.POST)
+    f = form.AccountUpdatePostForm(request.POST)
     if not f.is_valid():
         context = {'msg': 'not valid post data ' + str(f.errors)}
         return render(request, 'error.html', context, status=400)
@@ -186,20 +245,22 @@ def account_update_post_view(request):
         return render(request, 'error.html', context, status=401)
 
     # check phone
-    try:
-        _ = models.BankUser.objects.get(phone=request.POST['phone'])
-        context = {'msg': 'phone exist'}
-        return render(request, 'error.html', context, status=400)
-    except models.BankUser.DoesNotExist:
-        pass
+    if update_bank_user.phone != request.POST['phone']:
+        try:
+            _ = models.BankUser.objects.get(phone=request.POST['phone'])
+            context = {'msg': 'phone exist'}
+            return render(request, 'error.html', context, status=400)
+        except models.BankUser.DoesNotExist:
+            pass
 
     # check email
-    try:
-        _ = models.BankUser.objects.get(email=request.POST['email'])
-        context = {'msg': 'email exist'}
-        return render(request, 'error.html', context, status=400)
-    except models.BankUser.DoesNotExist:
-        pass
+    if update_bank_user.email != request.POST['email']:
+        try:
+            _ = models.BankUser.objects.get(email=request.POST['email'])
+            context = {'msg': 'email exist'}
+            return render(request, 'error.html', context, status=400)
+        except models.BankUser.DoesNotExist:
+            pass
 
     # permission
     if update_bank_user.user_type == 'ADMIN':
@@ -213,8 +274,8 @@ def account_update_post_view(request):
 
     # create Request
     models.Request.objects.create(
-        from_user=bank_user.id,
-        to_user=update_bank_user.id,
+        from_id=bank_user.id,
+        to_id=update_bank_user.id,
         created=datetime.datetime.now(),
         state='PENDING',
         request='ACCOUNT_UPDATE',
@@ -224,7 +285,7 @@ def account_update_post_view(request):
         address=request.POST['address'],
     )
 
-    context = {}
+    context = {'Account Update Request sent'}
     return render(request, 'success.html', context)
 
 
@@ -303,9 +364,9 @@ def admin_view(request):
         'payment_requests': [],
     }
     users = models.BankUser.objects.all().exclude(user_type='ADMIN')
-    RenderUser = collections.namedtuple('RenderUser', 'username email phone address')
+    RenderUser = collections.namedtuple('RenderUser', 'username id email phone address')
     for u in users:
-        context['users'].append(RenderUser(u.username, u.email, u.phone, u.address))
+        context['users'].append(RenderUser(u.username, u.id, u.email, u.phone, u.address))
 
     # render request
     requests = models.Request.objects.all().exclude(user_type='ADMIN')

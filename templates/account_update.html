@@ -5,34 +5,26 @@
 
 {% block content %}
     <a onclick="myFunction()"></a>
-    <form action="/login_post/" method="post">{% csrf_token %}
+    <form action="/account_update_post/" method="post">{% csrf_token %}
         <!--label class = "label"for="Uname" >UserName: </label>
-        <text type="text" id="Uname" name="username" value = {{  user.username }}><br-->
+        <text type="text" id="Uname" name="username" value = {{  username }}><br-->
 
         <label >Email </label>
-        <input type="text" id="email" name="email"><br>
+        <input type="text" id="email" name="email" value="{{ email }}"><br>
 
         <label >Phone </label>
-        <input type="text" id="phone" name="phone"><br>
+        <input type="text" id="phone" name="phone" value="{{ phone }}"><br>
 
         <label >Address </label>
-        <input type="text" id="Address" name="address"><br>
+        <input type="text" id="Address" name="address" value="{{ address }}"><br>
 
+        <input type="hidden" value="{{ id }}" name="id" />
 
       <button type="submit" id="post-btn">Summit</button>
 
     </form>
 
 <script>
-
-    var url = location.href;
-    alert(url);
-    var temp = url.split("?");
-
-    var vars = temp[1].split("&");
-
-    var username = vars[0];
-    var user_id = vars[1]
 
 </script>
 {% endblock %}

@@ -39,7 +39,7 @@
                 <td> {{ user.phone }}</td>
                 <td> {{ user.address }}</td>
                 <td>
-                    <button type="submit" id="account_update_btn"  onclick="window.location.href='/account_update/?{{user.username}}&{{ user.id }}'">Update</button>
+                    <button type="submit" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Update</button>
 
                 </td>
                 <td>
@@ -57,7 +57,8 @@
         <t1>Account open </t1>
         <table >
             <tr>
-                <th>Username</th>
+                <th>From</th>
+                <th>To</th>
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Address</th>
@@ -65,7 +66,8 @@
             </tr>
             {% for request in account_open_requests %}
             <tr>
-                <td> {{ request.username }}</td>
+                <td> {{ request.from_username }}</td>
+                <td> {{ request.to_username }}</td>
                 <td> {{ request.email }}</td>
                 <td> {{ request.phone }}</td>
                 <td> {{ request.address }}</td>
@@ -99,18 +101,20 @@
         <t1>Account update </t1>
         <table >
             <tr>
-                <th>1</th>
-                <th>2</th>
-                <th>3</th>
-                <th>4</th>
+                <th>from</th>
+                <th>to</th>
+                <th>email</th>
+                <th>phone</th>
+                <th>aadress</th>
                 <th>Status</th>
             </tr>
             {% for request in account_update_requests %}
             <tr>
-              <td> {{ user.username }}</td>
-              <td> {{ user.email }}</td>
-              <td> {{ user.phone }}</td>
-              <td> {{ user.address }}</td>
+              <td> {{ request.from_username }}</td>
+              <td> {{ request.to_username }}</td>
+              <td> {{ request.email }}</td>
+              <td> {{ request.phone }}</td>
+              <td> {{ request.address }}</td>
               <td>
                   {% if request.state == "PENDING" %}
                       <form action="/handle_request_post/" method="POST"> {% csrf_token %}

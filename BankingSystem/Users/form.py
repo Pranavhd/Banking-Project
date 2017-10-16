@@ -23,7 +23,11 @@ class AccountOpenForm(forms.Form):
     address = forms.CharField(max_length=200, required=True)
 
 
-class AccountUpdateForm(forms.Form):
+class AccountUpdateGetForm(forms.Form):
+    id = forms.IntegerField(required=True)
+
+
+class AccountUpdatePostForm(forms.Form):
     id = forms.IntegerField(required=True)
 
     email = forms.EmailField(max_length=100, required=True)

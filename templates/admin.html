@@ -64,35 +64,33 @@
                 <th>Approve</th>
                 <th>Decline</th>
             </tr>
-            {% for user in users %}
+            {% for request in account_open_requests %}
             <tr>
                 <td> {{ request.username }}</td>
                 <td> {{ request.email }}</td>
                 <td> {{ request.phone }}</td>
                 <td> {{ request.address }}</td>
+                <td></td>
                 <td>
 
-                    <form action="/handle_request_post/" method="POST">
+                    {% if request.state == "PENDING" %}
+                        <form action="/handle_request_post/" method="POST"> {% csrf_token %}
+                            <input type="hidden" value="{{ request.id }}" name="id" />
+                            <input type="hidden" value="1" name="approve" />
+                            <button type="submit" name="decline_btn"> APPROVE</button>
+                        </form>
 
-                        <script>
-                            if (request.state=="APPROVED"){
-                                <label> Approved</label>
-                            }else if (request.state=="DECLINED"){
-                                <label> Declined</label>
-                            }else{
-                                <button type="submit" id = "{{ user.id }}" name="approve_btn" > Approve</button>
-                            }
+                        <form action="/handle_request_post/" method="POST"> {% csrf_token %}
+                            <input type="hidden" value="{{ request.id }}" name="id" />
+                            <input type="hidden" value="1" name="approve" />
+                            <button type="submit" name="decline_btn"> Decline</button>
+                        </form>
 
-                        </script>>
+                    {% else %}
+                        {{ request.state }}
 
+                    {% endif %}
 
-                    </form>
-
-                </td>
-                <td>
-                    <form action="/handle_request_post/" method="POST">
-                        <button type="submit" id = "{{ user.id }}" name="decline_btn"> Decline</button>
-                    </form>
                 </td>
             </tr>
             {% endfor %}
@@ -108,7 +106,7 @@
               <th>3</th>
               <th>4</th>
             </tr>
-            {% for user in users %}
+            {% for request in account_update_requests %}
             <tr>
               <td> {{ user.username }}</td>
               <td> {{ user.email }}</td>
@@ -127,12 +125,12 @@
               <th>3</th>
               <th>4</th>
             </tr>
-            {% for user in users %}
+            {% for request in fund_requests %}
             <tr>
-              <td> {{ user.username }}</td>
-              <td> {{ user.email }}</td>
-              <td> {{ user.phone }}</td>
-              <td> {{ user.address }}</td>
+              <td> {{ request.username }}</td>
+              <td> {{ request.email }}</td>
+              <td> {{ request.phone }}</td>
+              <td> {{ request.address }}</td>
             </tr>
             {% endfor %}
         </table>
@@ -146,12 +144,12 @@
               <th>3</th>
               <th>4</th>
             </tr>
-            {% for user in users %}
+            {% for request in payment_requests %}
             <tr>
-              <td> {{ user.username }}</td>
-              <td> {{ user.email }}</td>
-              <td> {{ user.phone }}</td>
-              <td> {{ user.address }}</td>
+              <td> {{ request.username }}</td>
+              <td> {{ request.email }}</td>
+              <td> {{ request.phone }}</td>
+              <td> {{ request.address }}</td>
             </tr>
             {% endfor %}
         </table>

@@ -23,3 +23,6 @@ class AccountOpenForm(forms.Form):
     address = forms.CharField(max_length=200, required=True)
 
 
+class RequestForm(forms.Form):
+    id = forms.IntegerField(required=True)
+    approve = forms.IntegerField(min_value=0, max_value=1, required=True)

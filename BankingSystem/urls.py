@@ -39,5 +39,6 @@ urlpatterns = [
     # others
     url(r'^account_update/$', users_views.account_update_view),
     url(r'^make_transfer/$', users_views.make_transfer_view),
+    url(r'^handle_request_post/$', users_views.handle_request_post_view),
 
 ]

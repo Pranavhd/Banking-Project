@@ -34,6 +34,9 @@ class Request(models.Model):
     # create date
     created = models.DateTimeField()
 
+    # state 'PENDING', 'APPROVED', 'DECLINED'
+    state = models.CharField(max_length=20)
+
     # 'FUND', 'PAYMENT', 'ACCOUNT_OPEN', 'ACCOUNT_UPDATE'
     request = models.CharField(max_length=20)
 

@@ -27,6 +27,7 @@ def login_post_view(request):
         return render(request, 'error.html', context, status=400)
 
     # login by using 'username' & password
+    print(request.POST['username'], request.POST['password'])
     user = authenticate(username=request.POST['username'], password=request.POST['password'])
     if user is None:
         context = {'msg': 'not valid user or password'}
@@ -61,7 +62,7 @@ def logout_view(request):
     return render(request, 'logout.html', context)
 
 
-# ------ signup -----
+# ------ 1. account open -----
 def account_open_view(request):
     context = {}
     return render(request, 'account_open.html', context)
@@ -127,6 +128,7 @@ def account_open_post_view(request):
     models.Request.objects.create(
         user=user,
         created=datetime.datetime.now(),
+        state='PENDING',
         request='ACCOUNT_OPEN',
         permission=0,
         user_type=request.POST['user_type'],
@@ -136,6 +138,39 @@ def account_open_post_view(request):
     )
 
     context = {'msg': 'Account Open Request Sent'}
+    return render(request, 'success.html', context)
+
+
+# ------ 2. account update -----
+def account_update_view(request):
+    context = {}
+    return render(request, 'account_update.html', context)
+
+
+def account_update_post_view(request):
+    context = {}
+    return render(request, 'success.html', context)
+
+
+# ------ 3. fund transfer -----
+def make_transfer_view(request):
+    context = {}
+    return render(request, 'make_transfer.html', context)
+
+
+def make_transfer_post_view(request):
+    context = {}
+    return render(request, 'success.html', context)
+
+
+# ------ 4. payment -----
+def make_payment_view(request):
+    context = {}
+    return render(request, 'make_payment.html', context)
+
+
+def make_payment_post_view(request):
+    context = {}
     return render(request, 'success.html', context)
 
 
@@ -157,12 +192,34 @@ def admin_view(request):
         return render(request, 'error.html', context, status=401)
 
     # render users
-    context = {'users': []}
+    context = {
+        'users': [],
+        'account_open_requests': [],
+        'account_update_requests': [],
+        'fund_requests': [],
+        'payment_requests': [],
+    }
     users = models.BankUser.objects.all().exclude(user_type='ADMIN')
     RenderUser = collections.namedtuple('RenderUser', 'username email phone address')
     for u in users:
         context['users'].append(RenderUser(u.username, u.email, u.phone, u.address))
-    print(context)
+
+    # render request
+    requests = models.Request.objects.all().exclude(user_type='ADMIN')
+    RenderAccountOpenRequest = collections.namedtuple('RenderAccountOpenRequest',
+                                                      'username id state created request email phone address ')
+    for req in requests:
+        # account open
+        if req.request == 'ACCOUNT_OPEN':
+            context['account_open_requests'].append(RenderAccountOpenRequest(
+                req.user.username, req.id, req.state, req.created, req.request, req.email, req.phone, req.address
+            ))
+        # account update
+
+        # fund
+
+        # payment
+    # return HttpResponse(str(context))
     return render(request, 'admin.html', context)
 
 
@@ -190,12 +247,67 @@ def merchant_view(request):
     return render(request, 'merchant.html', context)
 
 
-# ----- others -----
-def account_update_view(request):
-    context = {}
-    return render(request, 'account_update.html', context)
+# ----- request ----
+def handle_request_post_view(request):
 
-
-def make_transfer_view(request):
     context = {}
-    return render(request, 'make_transfer.html', context)
+
+    # check if a valid user
+    if not request.user.is_authenticated():
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+    try:
+        bank_user = models.BankUser.objects.get(user=request.user)
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # check if a valid request
+    f = form.RequestForm(request.POST)
+    if not f.is_valid():
+        context = {'msg': 'not valid request ' + str(f.errors)}
+        return render(request, 'error.html', context, status=400)
+
+    # get request
+    try:
+        inner_request = models.Request.objects.get(id=request.POST['id'])
+    except models.Request.DoesNotExist:
+        context = {'msg': 'not valid request '}
+        return render(request, 'error.html', context, status=401)
+    if inner_request.state != 'PENDING':
+        context = {'msg': 'not a pending request '}
+        return render(request, 'error.html', context, status=401)
+
+    # ADMIN
+    if bank_user.user_type == 'ADMIN':
+        # ACCOUNT OPEN
+        if inner_request.request == 'ACCOUNT_OPEN':
+            if int(request.POST['approve']):
+                inner_request.state = 'APPROVED'
+                inner_request.save()
+                bank_user.state = 'ACTIVE'
+                bank_user.save()
+                context['msg'] = 'APPROVED'
+            else:
+                inner_request.state = 'DECLINED'
+                inner_request.save()
+                context['msg'] = 'DECLINED'
+
+        # ACCOUNT UPDATE
+        elif inner_request.request == 'ACCOUNT_UPDATE':
+            pass
+
+        # FUND TRANSFER
+
+        # PAYMENT
+
+    elif bank_user.user_type == 'TIER1':
+        pass
+    elif bank_user.user_type == 'TIER2':
+        pass
+    elif bank_user.user_type == 'MERCHANT':
+        pass
+    elif bank_user.user_type == 'CUSTOMER':
+        pass
+
+    return render(request, 'success.html', context)

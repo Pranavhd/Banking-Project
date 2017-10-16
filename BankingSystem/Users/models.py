@@ -29,7 +29,9 @@ class BankUser(models.Model):
 
 
 class Request(models.Model):
-    user = models.ForeignKey(User)
+    # from to
+    from_id = models.IntegerField()
+    to_id = models.IntegerField()
 
     # create date
     created = models.DateTimeField()

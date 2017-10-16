@@ -23,6 +23,14 @@ class AccountOpenForm(forms.Form):
     address = forms.CharField(max_length=200, required=True)
 
 
-class RequestForm(forms.Form):
+class AccountUpdateForm(forms.Form):
+    id = forms.IntegerField(required=True)
+
+    email = forms.EmailField(max_length=100, required=True)
+    phone = forms.RegexField(regex=r'^\+?1?\d{10}$')
+    address = forms.CharField(max_length=200, required=True)
+
+
+class HandleRequestForm(forms.Form):
     id = forms.IntegerField(required=True)
     approve = forms.IntegerField(min_value=0, max_value=1, required=True)

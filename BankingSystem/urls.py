@@ -20,7 +20,6 @@ from BankingSystem.Users import views as users_views
 
 urlpatterns = [
     # login & logout
-
     url(r'^login/$', users_views.login_view),
     url(r'^login_post/$', users_views.login_post_view),
     url(r'^logout/$', users_views.logout_view),
@@ -28,6 +27,18 @@ urlpatterns = [
     # account open
     url(r'^account_open/$', users_views.account_open_view),
     url(r'^account_open_post/$', users_views.account_open_post_view),
+
+    # account update
+    url(r'^account_update/$', users_views.account_update_view),
+    url(r'^account_update_post/$', users_views.account_update_post_view),
+
+    # fund
+    url(r'^make_transfer/$', users_views.make_transfer_view),
+    url(r'^make_transfer_post/$', users_views.make_transfer_post_view),
+
+    # payment
+    url(r'^make_payment/$', users_views.make_payment_view),
+    url(r'^make_payment_post/$', users_views.make_payment_post_view),
 
     # users
     url(r'^$', users_views.index_view),
@@ -37,9 +48,7 @@ urlpatterns = [
     url(r'^customer/$', users_views.customer_view),
     url(r'^merchant/$', users_views.merchant_view),
 
-    # others
-    url(r'^account_update/$', users_views.account_update_view),
-    url(r'^make_transfer/$', users_views.make_transfer_view),
+    # request
     url(r'^handle_request_post/$', users_views.handle_request_post_view),
 
 ]

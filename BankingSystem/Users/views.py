@@ -68,12 +68,12 @@ def account_open_view(request):
 
 
 def account_open_post_view(request):
-    # not pos data
+    # POST method
     if request.method != "POST":
         context = {'msg': 'not post'}
         return render(request, 'error.html', context, status=400)
 
-    # check format of POST data
+    # POST data
     f = form.AccountOpenForm(request.POST)
     if not f.is_valid():
         context = {'msg': 'not valid post data ' + str(f.errors)}
@@ -82,7 +82,7 @@ def account_open_post_view(request):
         context = {'msg': 'not valid user type'}
         return render(request, 'error.html', context, status=400)
 
-    # check if username already exist
+    # get user
     try:
         _ = User.objects.get(username=request.POST['username'])
         context = {'msg': 'username exist'}
@@ -90,7 +90,7 @@ def account_open_post_view(request):
     except User.DoesNotExist:
         pass
 
-    # check phone unique
+    # check phone
     try:
         _ = models.BankUser.objects.get(phone=request.POST['phone'])
         context = {'msg': 'phone exist'}
@@ -98,7 +98,7 @@ def account_open_post_view(request):
     except models.BankUser.DoesNotExist:
         pass
 
-    # check email unique
+    # check email
     try:
         _ = models.BankUser.objects.get(email=request.POST['email'])
         context = {'msg': 'email exist'}
@@ -113,7 +113,7 @@ def account_open_post_view(request):
     )
 
     # create bank user
-    models.BankUser.objects.create(
+    bank_user = models.BankUser.objects.create(
         user=user,
         state='INACTIVE',
         user_type=request.POST['user_type'],
@@ -125,7 +125,8 @@ def account_open_post_view(request):
 
     # create request
     models.Request.objects.create(
-        user=user,
+        from_id=bank_user.id,
+        to_id=bank_user.id,
         created=datetime.datetime.now(),
         state='PENDING',
         request='ACCOUNT_OPEN',
@@ -142,11 +143,87 @@ def account_open_post_view(request):
 
 # ------ 2. account update -----
 def account_update_view(request):
+    # valid user
+    if not request.user.is_authenticated():
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # bank user
+    try:
+        bank_user = models.BankUser.objects.get(user=request.user)
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
     context = {}
     return render(request, 'account_update.html', context)
 
 
 def account_update_post_view(request):
+    # valid user
+    if not request.user.is_authenticated():
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # bank user
+    try:
+        bank_user = models.BankUser.objects.get(user=request.user)
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # POST data
+    f = form.AccountUpdateForm(request.POST)
+    if not f.is_valid():
+        context = {'msg': 'not valid post data ' + str(f.errors)}
+        return render(request, 'error.html', context, status=400)
+
+    # update user
+    try:
+        update_bank_user = models.BankUser.objects.get(user=request.POST['id'])
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'updating user not exist'}
+        return render(request, 'error.html', context, status=401)
+
+    # check phone
+    try:
+        _ = models.BankUser.objects.get(phone=request.POST['phone'])
+        context = {'msg': 'phone exist'}
+        return render(request, 'error.html', context, status=400)
+    except models.BankUser.DoesNotExist:
+        pass
+
+    # check email
+    try:
+        _ = models.BankUser.objects.get(email=request.POST['email'])
+        context = {'msg': 'email exist'}
+        return render(request, 'error.html', context, status=400)
+    except models.BankUser.DoesNotExist:
+        pass
+
+    # permission
+    if update_bank_user.user_type == 'ADMIN':
+        permission = 3
+    elif update_bank_user.user_type == 'TIER2':
+        permission = 2
+    elif update_bank_user.user_type == 'TIER1':
+        permission = 1
+    else:
+        permission = 0
+
+    # create Request
+    models.Request.objects.create(
+        from_user=bank_user.id,
+        to_user=update_bank_user.id,
+        created=datetime.datetime.now(),
+        state='PENDING',
+        request='ACCOUNT_UPDATE',
+        permission=permission,
+        phone=request.POST['phone'],
+        email=request.POST['email'],
+        address=request.POST['address'],
+    )
+
     context = {}
     return render(request, 'success.html', context)
 
@@ -233,15 +310,25 @@ def admin_view(request):
     # render request
     requests = models.Request.objects.all().exclude(user_type='ADMIN')
     RenderAccountOpenRequest = collections.namedtuple('RenderAccountOpenRequest',
-                                                      'username id state created request email phone address ')
+                                                      'from_username to_username id state created request email phone address ')
+    RenderAccountUpdateRequest = collections.namedtuple('RenderAccountUpdateRequest',
+                                                      'from_username to_username id state created request email phone address ')
+
     for req in requests:
         # account open
         if req.request == 'ACCOUNT_OPEN':
+            from_bank_user = models.BankUser.objects.get(id=req.from_id)
+            to_bank_user = models.BankUser.objects.get(id=req.to_id)
             context['account_open_requests'].append(RenderAccountOpenRequest(
-                req.user.username, req.id, req.state, req.created, req.request, req.email, req.phone, req.address
+                from_bank_user.username, to_bank_user.username, req.id, req.state, req.created, req.request, req.email, req.phone, req.address
             ))
         # account update
-
+        if req.request == 'ACCOUNT_UPDATE':
+            from_bank_user = models.BankUser.objects.get(id=req.from_id)
+            to_bank_user = models.BankUser.objects.get(id=req.to_id)
+            context['account_update_requests'].append(RenderAccountUpdateRequest(
+                from_bank_user.username, to_bank_user.username, req.id, req.state, req.created, req.request, req.email, req.phone, req.address
+            ))
         # fund
 
         # payment
@@ -289,7 +376,7 @@ def handle_request_post_view(request):
         return render(request, 'error.html', context, status=401)
 
     # check if a valid request
-    f = form.RequestForm(request.POST)
+    f = form.HandleRequestForm(request.POST)
     if not f.is_valid():
         context = {'msg': 'not valid request ' + str(f.errors)}
         return render(request, 'error.html', context, status=400)
@@ -311,8 +398,10 @@ def handle_request_post_view(request):
             if int(request.POST['approve']):
                 inner_request.state = 'APPROVED'
                 inner_request.save()
-                bank_user.state = 'ACTIVE'
-                bank_user.save()
+                # update bank_user
+                update_bank_user = models.BankUser.objects.get(id=inner_request.to_id)
+                update_bank_user.state = 'ACTIVE'
+                update_bank_user.save()
                 context['msg'] = 'APPROVED'
             else:
                 inner_request.state = 'DECLINED'
@@ -321,7 +410,20 @@ def handle_request_post_view(request):
 
         # ACCOUNT UPDATE
         elif inner_request.request == 'ACCOUNT_UPDATE':
-            pass
+            if int(request.POST['approve']):
+                inner_request.state = 'APPROVED'
+                inner_request.save()
+                # update bank_user
+                update_bank_user = models.BankUser.objects.get(id=inner_request.to_id)
+                update_bank_user.phone = inner_request.phone
+                update_bank_user.email = inner_request.email
+                update_bank_user.address = inner_request.address
+                update_bank_user.save()
+                context['msg'] = 'APPROVED'
+            else:
+                inner_request.state = 'DECLINED'
+                inner_request.save()
+                context['msg'] = 'DECLINED'
 
         # FUND TRANSFER
 

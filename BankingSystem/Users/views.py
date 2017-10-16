@@ -27,7 +27,6 @@ def login_post_view(request):
         return render(request, 'error.html', context, status=400)
 
     # login by using 'username' & password
-    print(request.POST['username'], request.POST['password'])
     user = authenticate(username=request.POST['username'], password=request.POST['password'])
     if user is None:
         context = {'msg': 'not valid user or password'}
@@ -172,6 +171,33 @@ def make_payment_view(request):
 def make_payment_post_view(request):
     context = {}
     return render(request, 'success.html', context)
+
+
+# ----- index -----
+def index_view(request):
+    if not request.user.is_authenticated():
+        return redirect('/login/')
+
+    # check if it is an admin user
+    try:
+        bank_user = models.BankUser.objects.get(user=request.user)
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # redirect
+    if bank_user.user_type == 'ADMIN':
+        return redirect('/admin/')
+    elif bank_user.user_type == 'TIER1':
+        return redirect('/tier1/')
+    elif bank_user.user_type == 'TIER2':
+        return redirect('/tier2/')
+    elif bank_user.user_type == 'CUSTOMER':
+        return redirect('/customer/')
+    elif bank_user.user_type == 'MERCHANT':
+        return redirect('/merchant/')
+    else:
+        return redirect('/login/')
 
 
 # ----- admin -----

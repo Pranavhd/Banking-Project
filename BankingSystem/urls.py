@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^account_open_post/$', users_views.account_open_post_view),
 
     # users
+    url(r'^$', users_views.index_view),
     url(r'^admin/$', users_views.admin_view),
     url(r'^tier1/$', users_views.tier1_view),
     url(r'^tier2/$', users_views.tier2_view),

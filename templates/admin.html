@@ -39,9 +39,8 @@
                 <td> {{ user.phone }}</td>
                 <td> {{ user.address }}</td>
                 <td>
-                    <form action="/account_update/" method="get">
-                        <button type="submit" id="account_update_btn" > update</button>
-                    </form>
+                    <button type="submit" id="account_update_btn"  onclick="window.location.href='/account_update/?{{user.username}}&{{ user.id }}'">Update</button>
+
                 </td>
                 <td>
                     <form action="/account_delete/" method="get">

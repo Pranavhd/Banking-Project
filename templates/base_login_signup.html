@@ -21,6 +21,19 @@
             cursor: pointer;
             width: 80px;
         }
+        button[type=button]{
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 8px 8px;
+            text-decoration: none;
+            margin: 4px 2px;
+            cursor: pointer;
+            width: 80px;
+            position: absolute;
+            top: 1%;
+            right: 1%;
+        }
         input[type=text],input[type=password] {
 
             padding: 12px 20px;
@@ -35,6 +48,8 @@
              background-color: lightblue;
         }
         label{
+            position: relative;
+            left : 0%;
             display: inline-block;
             width: 100px;
         }
@@ -52,6 +67,8 @@
     {% block style %}{% endblock %}
 </head>
 <body>
+
+    <button type="button" id="account_update_btn"  onclick="window.location.href='/logout/'">Logout</button>
     <div class = "center">
     {% block t1 %}{% endblock %}
     {% block content %}{% endblock %}

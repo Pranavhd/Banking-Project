@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    this is logout
-</body>
-</html>
+{% extends 'base_login_signup.html' %}
+
+{% block title %}Logout {% endblock%}
+{% block t1 %}<t1>Logout</t1>{% endblock %}
+
+{% block content %}
+    <meta http-equiv="refresh" content="3;url=/" />
+    <h1>Redirecting to login in 3 seconds...</h1>
+{% endblock %}

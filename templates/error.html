@@ -1,10 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-Error: {{ msg }}
-</body>
-</html>
+{% extends 'base_login_signup.html' %}
+
+{% block title %}Error {% endblock%}
+{% block t1 %}<t1></t1>{% endblock %}
+
+{% block content %}
+    Error: {{ msg }}
+    <meta http-equiv="refresh" content="3;url=/" />
+    <h1>Redirecting to login in 3 seconds...</h1>
+{% endblock %}

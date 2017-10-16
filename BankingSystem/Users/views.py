@@ -285,7 +285,7 @@ def account_update_post_view(request):
         address=request.POST['address'],
     )
 
-    context = {'Account Update Request sent'}
+    context = {'msg': 'Account Update Request sent'}
     return render(request, 'success.html', context)
 
 
@@ -364,9 +364,9 @@ def admin_view(request):
         'payment_requests': [],
     }
     users = models.BankUser.objects.all().exclude(user_type='ADMIN')
-    RenderUser = collections.namedtuple('RenderUser', 'username id email phone address')
+    RenderUser = collections.namedtuple('RenderUser', 'username user_type id email phone address')
     for u in users:
-        context['users'].append(RenderUser(u.username, u.id, u.email, u.phone, u.address))
+        context['users'].append(RenderUser(u.username, u.user_type, u.id, u.email, u.phone, u.address))
 
     # render request
     requests = models.Request.objects.all().exclude(user_type='ADMIN')

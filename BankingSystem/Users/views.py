@@ -31,7 +31,6 @@ def login_post_view(request):
     if user is None:
         context = {'msg': 'not valid user or password'}
         return render(request, 'error.html', context, status=401)
-    login(request, user)
 
     # check if bank user exist
     try:
@@ -39,6 +38,12 @@ def login_post_view(request):
     except models.BankUser.DoesNotExist:
         context = {'msg': 'no BankUser found'}
         return render(request, 'error.html', context, status=400)
+
+    if bank_user.state == 'INACTIVE':
+        context = {'msg': 'not active BankUser'}
+        return render(request, 'error.html', context, status=400)
+
+    login(request, user)
 
     # redirect
     if bank_user.user_type == 'ADMIN':

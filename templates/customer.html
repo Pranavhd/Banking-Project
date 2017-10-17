@@ -8,12 +8,7 @@
 
 
     <br><label class = "label" for="balance" >Balance: </label><br>
-    <button type="submit" id="account_update_btn"  onclick="window.location.href='/account_update/?{{user.username}}&{{ user.id }}'">123</button>
-
-    <!--form action="/account_update/?username='123'" method="get">
-        <button type="submit" id="account_update_btn">account update</button>
-    </form-->
-<label class = "label" > {{ user.id }}</label><br>
+    <button type="submit" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
 
     <form action="/make_transfer/" method="get">
         <label class = "label" > </label><br>

@@ -15,7 +15,7 @@
     }
     </style>
 {% endblock%}
-{% block t1 %}<t1 >Users</t1>{% endblock %}
+{% block t1 %}{% endblock %}
 {% block logout%}
     <button type="button" id="logout_btn"  onclick="window.location.href='/logout/'">Logout</button>
 {% endblock %}
@@ -23,6 +23,8 @@
 {% block content %}
 
         <!--User Info-->
+        <t1 >Users</t1>
+        <button type="submit" id="logout_btn"  onclick="window.location.href='/account_open/'">open new account</button>
         <table >
             <tr>
                 <th>Username</th>
@@ -56,7 +58,7 @@
         <br>
 
         <!--Account open request-->
-        <t1>Account open </t1>
+        <t1>Account open request</t1>
         <table >
             <tr>
                 <th>From</th>
@@ -100,7 +102,7 @@
         <br>
 
         <!--Account update request-->
-        <t1>Account update </t1>
+        <t1>Account update request</t1>
         <table >
             <tr>
                 <th>from</th>

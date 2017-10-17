@@ -17,14 +17,14 @@
 
 
         <label class = "label" for="trans_to" > TO: </label><br>
-        <input type="radio" name="location" value="Taipei"> My account
+        <input type="radio" name="myaccount" onclick="if(this.checked){notshow()}"> My account
 
         <select id="trans_from" name="trans_from">
             <option value="Saving">Saving</option>
             <option value="Checking">Checking</option>
         </select><br>
-        <input type="radio" name="location" value="Taoyuan"> Other
-
+        <input type="radio" name="myaccount" value="" onclick="if(this.checked){show()}"> Other
+        <input type="text" id="to_account" style="visibility:hidden">
     </form>
 
 
@@ -33,6 +33,15 @@
 
     </form>
 
+    <script>
+    function show() {
+        // alert("test")
+        document.getElementById("to_account").style.visibility="visible";
+    }
 
-
+    function notshow() {
+        // alert("test")
+        document.getElementById("to_account").style.visibility="hidden";
+    }
+    </script>
 {% endblock %}

@@ -4,27 +4,20 @@
 
 {  {% block style %}
 <style>
-    table, th, tr, td{
-            border-collapse: collapse;
-            border: 1px solid #ddd;
-           }
-    table{
-        position: relative;
 
-]
-    }
     </style>
 {% endblock%}
-{% block t1 %}{% endblock %}
+{% block t1 %} <br>{% endblock %}
 {% block logout%}
     <button type="button" id="logout_btn"  onclick="window.location.href='/logout/'">Logout</button>
+    <button type="button" id="open_account_btn"  onclick="window.location.href='/account_open/'">open new account</button>
+
 {% endblock %}
 
 {% block content %}
 
         <!--User Info-->
-        <t1 >Users</t1>
-        <button type="submit" id="open_account_btn"  onclick="window.location.href='/account_open/'">open new account</button>
+        <t1 >Internal Users</t1>
         <table >
             <tr>
                 <th>Username</th>
@@ -69,7 +62,7 @@
         <br>
 
         <!--Account open request-->
-        <t1>Account open request</t1>
+        <t1>Account Open Request</t1>
         <table >
             <tr>
                 <th>From</th>
@@ -113,7 +106,7 @@
         <br>
 
         <!--Account update request-->
-        <t1>Account update request</t1>
+        <t1>Account Update Request</t1>
         <table >
             <tr>
                 <th>from</th>
@@ -154,44 +147,7 @@
             {% endfor %}
         </table>
         <br>
-        <!--Fund transfer request-->
-        <t1>Fund transfer </t1>
-        <table >
-            <tr>
-              <th>1</th>
-              <th>2</th>
-              <th>3</th>
-              <th>4</th>
-            </tr>
-            {% for request in fund_requests %}
-            <tr>
-              <td> {{ request.username }}</td>
-              <td> {{ request.email }}</td>
-              <td> {{ request.phone }}</td>
-              <td> {{ request.address }}</td>
 
-            </tr>
-            {% endfor %}
-        </table>
-        <br>
-        <!--payment request-->
-        <t1>Payment </t1>
-        <table >
-            <tr>
-              <th>1</th>
-              <th>2</th>
-              <th>3</th>
-              <th>4</th>
-            </tr>
-            {% for request in payment_requests %}
-            <tr>
-              <td> {{ request.username }}</td>
-              <td> {{ request.email }}</td>
-              <td> {{ request.phone }}</td>
-              <td> {{ request.address }}</td>
-            </tr>
-            {% endfor %}
-        </table>
 {% endblock %}
 
 <script>

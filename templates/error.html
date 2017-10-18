@@ -5,6 +5,13 @@
 
 {% block content %}
     Error: {{ msg }}
+    {% if form.errors %}
+        <ul>
+        {% for error in form.errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+{% endif %}
     <meta http-equiv="refresh" content="3;url=/" />
     <h1>Redirecting to login in 3 seconds...</h1>
 {% endblock %}

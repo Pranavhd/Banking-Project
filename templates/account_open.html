@@ -4,6 +4,12 @@
 
 {% block t1 %}<t1>Create account</t1>{% endblock %}
 
+{% block logout%}
+
+    <button type="button" id="logout_btn"  onclick="window.location.href='/logout/'">Logout</button>
+
+{% endblock %}
+
 {% block content %}
     <form action="/account_open_post/" method="post">{% csrf_token %}
         <label class = "label"for="Uname" >UserName: </label>
@@ -23,11 +29,18 @@
         <input type="text" id="address" name="address"><br>
 
         <label for="user_type">User Type: </label>
+        {% if user_type == "ADMIN"%}
+            <select id="user_type" name="user_type">
+                <option value='TIER1'>TIER1</option>
+                <option value='TIER2'>TIER2</option>
+            </select><br>
 
-      <select id="user_type" name="user_type">
-        <option value="CUSTOMER">Customer</option>
-        <option value="MERCHANT">Merchant</option>
-      </select><br>
+        {% else %}
+            <select id="user_type" name="user_type">
+                <option value="CUSTOMER">Customer</option>
+                <option value="MERCHANT">Merchant</option>
+            </select><br>
+        {% endif %}
 
       <button type="submit" id="post-btn">Summit</button>
 

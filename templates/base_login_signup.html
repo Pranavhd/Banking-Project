@@ -4,12 +4,17 @@
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
     <style>
+        body{
+            font-family: 'Roboto Condensed', sans-serif;
+
+        }
         .center {
-            position: absolute;
+            position: relative;
             left: 10%;
             top: 5%;
             width: 60%;
         }
+        .clearFloat { clear: both; }
 
         button[type=submit]{
             background-color: #4CAF50;
@@ -17,9 +22,10 @@
             color: white;
             padding: 8px 8px;
             text-decoration: none;
-            margin: 4px 2px;
+            margin: 10px 2px;
             cursor: pointer;
             width: 80px;
+            position: relative;
         }
         button[type=button]{
             background-color: #4CAF50;
@@ -32,8 +38,11 @@
             position: relative;
             margin-top: 1%;
             margin-left: 95%;
+            float:right;
+            display: inline-block;
 
         }
+
         input[type=text],input[type=password] {
 
             padding: 12px 20px;
@@ -57,10 +66,23 @@
             font-size: 40px;
 
         }
+        admin{
+            font-size: 50px;
+
+        }
         end{
             position: absolute;
             bottom: 0;
             left: 0%;
+        }
+        table, th, tr, td{
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+           }
+        table{
+            background-color:  #F5F5F5;
+            position: relative;
+
         }
 
     </style>

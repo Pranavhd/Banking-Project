@@ -797,7 +797,6 @@ def request_approve_post_view(request):
                 else:
                     inner_request.state = 'DECLINED'
                     inner_request.save()
-                    context['msg'] = 'admin can update open admin, tier2, tier1'
                     context['msg'] = 'DECLINED'
                     return render(request, 'success.html', context, status=401)
             else:
@@ -863,7 +862,7 @@ def request_approve_post_view(request):
                     inner_request.state = 'DECLINED'
                     inner_request.save()
                     context['msg'] = 'DECLINED'
-                    return render(request, 'error.html', context, status=401)
+                    return render(request, 'success.html', context, status=401)
             else:
                 context = {'msg': 'tier1 can only approve customer, merchant account update'}
                 return render(request, 'error.html', context, status=401)

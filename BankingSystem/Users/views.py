@@ -515,7 +515,6 @@ def admin_view(request):
         context = {'msg': 'not active BankUser'}
         return render(request, 'error.html', context, status=400)
 
-    # render users
     context = {
         'users': [],
         'account_open_requests': [],
@@ -523,6 +522,8 @@ def admin_view(request):
         'fund_requests': [],
         'payment_requests': [],
     }
+
+    # render users
     users = models.BankUser.objects.all(
     ).exclude(user_type='ADMIN').exclude(
         user_type='CUSTOMER').exclude(
@@ -531,7 +532,7 @@ def admin_view(request):
         context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, u.email, u.phone, u.address))
 
     # render request
-    inner_requests = models.Request.objects.all().exclude(user_type='ADMIN')
+    inner_requests = models.Request.objects.all()
 
     for inner_request in inner_requests:
         try:
@@ -628,7 +629,65 @@ def tier1_view(request):
         context = {'msg': 'not active BankUser'}
         return render(request, 'error.html', context, status=400)
 
-    context = {}
+    context = {
+        'users': [],
+        'account_open_requests': [],
+        'account_update_requests': [],
+        'fund_requests': [],
+        'payment_requests': [],
+    }
+
+    # render users
+    users = models.BankUser.objects.all(
+    ).exclude(user_type='ADMIN').exclude(
+        user_type='TIER2').exclude(
+        user_type='TIER1')
+    for u in users:
+        context['users'].append(RenderUser(u.username, u.user_type, users.state, u.id, u.email, u.phone, u.address))
+
+    # render request
+    inner_requests = models.Request.objects.all()
+
+    for inner_request in inner_requests:
+        try:
+            from_bank_user = models.BankUser.objects.get(id=inner_request.from_id)
+        except models.BankUser.DoesNotExist:
+            from_bank_user = None
+        try:
+            to_bank_user = models.BankUser.objects.get(id=inner_request.to_id)
+        except models.BankUser.DoesNotExist:
+            to_bank_user = None
+
+        # ACCOUNT OPEN
+        if inner_request.request == 'ACCOUNT_OPEN':
+            if to_bank_user.user_type in ['CUSTOMER', 'MERCHANT']:
+                context['account_open_requests'].append(RenderAccountUpdateRequest(
+                    from_bank_user.username if from_bank_user else 'obsolete user',
+                    to_bank_user.username if to_bank_user else 'obsolete user',
+                    inner_request.id,
+                    inner_request.state,
+                    inner_request.created,
+                    inner_request.request,
+                    inner_request.email,
+                    inner_request.phone,
+                    inner_request.address
+                ))
+
+        # ACCOUNT UPDATE
+        if inner_request.request == 'ACCOUNT_UPDATE':
+            if to_bank_user.user_type in ['CUSTOMER', 'MERCHANT']:
+                context['account_update_requests'].append(RenderAccountUpdateRequest(
+                    from_bank_user.username if from_bank_user else 'obsolete user',
+                    to_bank_user.username if to_bank_user else 'obsolete user',
+                    inner_request.id,
+                    inner_request.state,
+                    inner_request.created,
+                    inner_request.request,
+                    inner_request.email,
+                    inner_request.phone,
+                    inner_request.address
+                ))
+
     return render(request, 'tier1.html', context)
 
 

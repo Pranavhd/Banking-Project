@@ -19,8 +19,37 @@ RenderAccountUpdateRequest = collections.namedtuple(
 
 # ----- login -----
 def login_view(request):
-    context = {}
-    return render(request, 'login.html', context)
+
+    # valid user
+    if request.user.is_authenticated():
+        # from bank user
+        try:
+            login_bankuser = models.BankUser.objects.get(user=request.user)
+        except models.BankUser.DoesNotExist:
+            context = {'msg': 'from bank user not exist'}
+            return render(request, 'error.html', context, status=401)
+
+        # active bank user
+        if login_bankuser.state == 'INACTIVE':
+            context = {'msg': 'not active BankUser'}
+            return render(request, 'error.html', context, status=400)
+
+        # redirect
+        if login_bankuser.user_type == 'ADMIN':
+            return redirect('/admin/')
+        elif login_bankuser.user_type == 'TIER1':
+            return redirect('/tier1/')
+        elif login_bankuser.user_type == 'TIER2':
+            return redirect('/tier2/')
+        elif login_bankuser.user_type == 'CUSTOMER':
+            return redirect('/customer/')
+        elif login_bankuser.user_type == 'MERCHANT':
+            return redirect('/merchant/')
+        else:
+            return redirect('/logout/')
+    else:
+        context = {}
+        return render(request, 'login.html', context)
 
 
 def login_post_view(request):

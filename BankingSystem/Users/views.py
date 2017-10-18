@@ -643,7 +643,7 @@ def tier1_view(request):
         user_type='TIER2').exclude(
         user_type='TIER1')
     for u in users:
-        context['users'].append(RenderUser(u.username, u.user_type, users.state, u.id, u.email, u.phone, u.address))
+        context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, u.email, u.phone, u.address))
 
     # render request
     inner_requests = models.Request.objects.all()

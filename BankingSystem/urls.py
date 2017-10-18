@@ -49,6 +49,6 @@ urlpatterns = [
     url(r'^merchant/$', users_views.merchant_view),
 
     # request
-    url(r'^handle_request_post/$', users_views.handle_request_post_view),
+    url(r'^request_approve_post/$', users_views.request_approve_post_view),
 
 ]

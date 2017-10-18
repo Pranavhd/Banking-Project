@@ -8,6 +8,12 @@ from . import models
 import collections
 
 
+RenderAccountOpenRequest = collections.namedtuple(
+    'RenderAccountOpenRequest', 'from_username to_username id state created request email phone address')
+RenderAccountUpdateRequest = collections.namedtuple(
+    'RenderAccountUpdateRequest', 'from_username to_username id state created request email phone address')
+
+
 # ----- login -----
 def login_view(request):
     context = {}
@@ -15,46 +21,46 @@ def login_view(request):
 
 
 def login_post_view(request):
-    # not pos data
+    # POST method
     if request.method != "POST":
         context = {'msg': 'not post'}
         return render(request, 'error.html', context, status=400)
 
-    # check format of POST data
+    # POST data format
     f = form.LoginForm(request.POST)
     if not f.is_valid():
         context = {'msg': 'not valid post data'}
         return render(request, 'error.html', context, status=400)
 
-    # login by using 'username' & password
+    # login
     user = authenticate(username=request.POST['username'], password=request.POST['password'])
     if user is None:
         context = {'msg': 'not valid user or password'}
         return render(request, 'error.html', context, status=401)
 
-    # check if bank user exist
+    # active BankUser
     try:
-        bank_user = models.BankUser.objects.get(user=user)
+        from_bank_user = models.BankUser.objects.get(user=user)
     except models.BankUser.DoesNotExist:
         context = {'msg': 'no BankUser found'}
         return render(request, 'error.html', context, status=400)
 
-    if bank_user.state == 'INACTIVE':
+    if from_bank_user.state == 'INACTIVE':
         context = {'msg': 'not active BankUser'}
         return render(request, 'error.html', context, status=400)
 
     login(request, user)
 
     # redirect
-    if bank_user.user_type == 'ADMIN':
+    if from_bank_user.user_type == 'ADMIN':
         return redirect('/admin/')
-    elif bank_user.user_type == 'TIER1':
+    elif from_bank_user.user_type == 'TIER1':
         return redirect('/tier1/')
-    elif bank_user.user_type == 'TIER2':
+    elif from_bank_user.user_type == 'TIER2':
         return redirect('/tier2/')
-    elif bank_user.user_type == 'CUSTOMER':
+    elif from_bank_user.user_type == 'CUSTOMER':
         return redirect('/customer/')
-    elif bank_user.user_type == 'MERCHANT':
+    elif from_bank_user.user_type == 'MERCHANT':
         return redirect('/merchant/')
     else:
         return redirect('/logout/')
@@ -78,7 +84,7 @@ def account_open_post_view(request):
         context = {'msg': 'not post'}
         return render(request, 'error.html', context, status=400)
 
-    # POST data
+    # POST data format
     f = form.AccountOpenForm(request.POST)
     if not f.is_valid():
         context = {'msg': 'not valid post data ' + str(f.errors)}
@@ -87,7 +93,7 @@ def account_open_post_view(request):
         context = {'msg': 'not valid user type'}
         return render(request, 'error.html', context, status=400)
 
-    # get user
+    # unique user
     try:
         _ = User.objects.get(username=request.POST['username'])
         context = {'msg': 'username exist'}
@@ -95,7 +101,7 @@ def account_open_post_view(request):
     except User.DoesNotExist:
         pass
 
-    # check phone
+    # unique phone
     try:
         _ = models.BankUser.objects.get(phone=request.POST['phone'])
         context = {'msg': 'phone exist'}
@@ -103,13 +109,47 @@ def account_open_post_view(request):
     except models.BankUser.DoesNotExist:
         pass
 
-    # check email
+    # unique email
     try:
         _ = models.BankUser.objects.get(email=request.POST['email'])
         context = {'msg': 'email exist'}
         return render(request, 'error.html', context, status=400)
     except models.BankUser.DoesNotExist:
         pass
+
+    # valid user
+    if request.user.is_authenticated():
+
+        # from bank user
+        try:
+            from_bankuser = models.BankUser.objects.get(user=request.user)
+        except models.BankUser.DoesNotExist:
+            context = {'msg': 'not authenticated'}
+            return render(request, 'error.html', context, status=401)
+
+        # ADMIN
+        if from_bankuser.user_type == 'ADMIN':
+            if request.POST['user_type'] not in ['TIER2', 'TIER1']:
+                context = {'msg': 'admin only create tier2 tier1'}
+                return render(request, 'error.html', context, status=401)
+        # TIER2
+        elif from_bankuser.user_type == 'TIER2':
+            if request.POST['user_type'] not in ['CUSTOMER', 'MERCHANT']:
+                context = {'msg': 'tier2 only create customer merchant'}
+                return render(request, 'error.html', context, status=401)
+        # TIER1
+        elif from_bankuser.user_type == 'TIER1':
+            if request.POST['user_type'] not in ['CUSTOMER', 'MERCHANT']:
+                context = {'msg': 'tier1 only create customer merchant'}
+                return render(request, 'error.html', context, status=401)
+        else:
+            context = {'msg': 'customer merchant cannot create user'}
+            return render(request, 'error.html', context, status=401)
+    else:
+        from_bankuser = None
+        if request.POST['user_type'] not in ['CUSTOMER', 'MERCHANT']:
+            context = {'msg': 'unknown user only create customer merchant'}
+            return render(request, 'error.html', context, status=401)
 
     # create user
     user = User.objects.create_user(
@@ -130,7 +170,7 @@ def account_open_post_view(request):
 
     # create request
     models.Request.objects.create(
-        from_id=bank_user.id,
+        from_id=from_bankuser.id if from_bankuser else bank_user.id,
         to_id=bank_user.id,
         created=datetime.datetime.now(),
         state='PENDING',
@@ -153,74 +193,53 @@ def account_update_view(request):
         context = {'msg': 'not authenticated'}
         return render(request, 'error.html', context, status=401)
 
-    # bank user
+    # from bank user
     try:
-        bank_user = models.BankUser.objects.get(user=request.user)
+        from_bankuser = models.BankUser.objects.get(user=request.user)
     except models.BankUser.DoesNotExist:
-        context = {'msg': 'not authenticated'}
+        context = {'msg': 'from bank user not exist'}
         return render(request, 'error.html', context, status=401)
 
-    # GET data
+    # GET data format
     f = form.AccountUpdateGetForm(request.GET)
     if not f.is_valid():
-        context = {'msg': 'not valid post data ' + str(f.errors)}
+        context = {'msg': 'not valid get data ' + str(f.errors)}
         return render(request, 'error.html', context, status=400)
 
-    # update bank_user
-    update_bank_user = models.BankUser.objects.get(id=request.GET['id'])
+    # to bank user
+    try:
+        to_bankuser = models.BankUser.objects.get(user=request.POST['id'])
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'to bank user not exist'}
+        return render(request, 'error.html', context, status=401)
+
+    # ADMIN
+    if from_bankuser.user_type == 'ADMIN':
+        if to_bankuser.user_type not in ['TIER2', 'TIER1']:
+            context = {'msg': 'admin only update tier2 tier1'}
+            return render(request, 'error.html', context, status=401)
+    # TIER2
+    elif from_bankuser.user_type == 'TIER2':
+        if to_bankuser.user_type not in ['CUSTOMER', 'MERCHANT']:
+            context = {'msg': 'tie2 only update customer merchant'}
+            return render(request, 'error.html', context, status=401)
+    # TIER1
+    elif from_bankuser.user_type == 'TIER1':
+        if to_bankuser.user_type not in ['CUSTOMER', 'MERCHANT']:
+            context = {'msg': 'tie1 only update customer merchant'}
+            return render(request, 'error.html', context, status=401)
+    else:
+        if from_bankuser.id != to_bankuser.id:
+            context = {'msg': 'customer merchant only update self'}
+            return render(request, 'error.html', context, status=401)
 
     context = {}
-    if bank_user.user_type == 'ADMIN':
-        context['username'] = update_bank_user.username
-        context['id'] = update_bank_user.id
-        context['phone'] = update_bank_user.phone
-        context['email'] = update_bank_user.email
-        context['address'] = update_bank_user.address
-        return render(request, 'account_update.html', context)
-    elif bank_user.user_type == 'TIER2':
-        if update_bank_user.user_type in ['TIER2', 'TIER1', 'MERCHANT', 'CUSTOMER']:
-            context['username'] = update_bank_user.username
-            context['id'] = update_bank_user.id
-            context['phone'] = update_bank_user.phone
-            context['email'] = update_bank_user.email
-            context['address'] = update_bank_user.address
-            return render(request, 'account_update.html', context)
-        else:
-            context = {'msg': 'not authenticated'}
-            return render(request, 'error.html', context, status=401)
-    elif bank_user.user_type == 'TIER1':
-        if update_bank_user.user_type in ['TIER1', 'MERCHANT', 'CUSTOMER']:
-            context['username'] = update_bank_user.username
-            context['id'] = update_bank_user.id
-            context['phone'] = update_bank_user.phone
-            context['email'] = update_bank_user.email
-            context['address'] = update_bank_user.address
-            return render(request, 'account_update.html', context)
-        else:
-            context = {'msg': 'not authenticated'}
-            return render(request, 'error.html', context, status=401)
-    elif bank_user.user_type == 'MERCHANT':
-        if update_bank_user.id == bank_user.id:
-            context['username'] = update_bank_user.username
-            context['id'] = update_bank_user.id
-            context['phone'] = update_bank_user.phone
-            context['email'] = update_bank_user.email
-            context['address'] = update_bank_user.address
-            return render(request, 'account_update.html', context)
-        else:
-            context = {'msg': 'not authenticated'}
-            return render(request, 'error.html', context, status=401)
-    elif bank_user.user_type == 'CUSTOMER':
-        if update_bank_user.id == bank_user.id:
-            context['username'] = update_bank_user.username
-            context['id'] = update_bank_user.id
-            context['phone'] = update_bank_user.phone
-            context['email'] = update_bank_user.email
-            context['address'] = update_bank_user.address
-            return render(request, 'account_update.html', context)
-        else:
-            context = {'msg': 'not authenticated'}
-        return render(request, 'error.html', context, status=401)
+    context['username'] = to_bankuser.username
+    context['id'] = to_bankuser.id
+    context['phone'] = to_bankuser.phone
+    context['email'] = to_bankuser.email
+    context['address'] = to_bankuser.address
+    return render(request, 'account_update.html', context)
 
 
 def account_update_post_view(request):
@@ -229,28 +248,28 @@ def account_update_post_view(request):
         context = {'msg': 'not authenticated'}
         return render(request, 'error.html', context, status=401)
 
-    # bank user
+    # from bank user
     try:
-        bank_user = models.BankUser.objects.get(user=request.user)
+        from_bankuser = models.BankUser.objects.get(user=request.user)
     except models.BankUser.DoesNotExist:
-        context = {'msg': 'not authenticated'}
+        context = {'msg': 'from bank user not exist'}
         return render(request, 'error.html', context, status=401)
 
-    # POST data
+    # POST data format
     f = form.AccountUpdatePostForm(request.POST)
     if not f.is_valid():
         context = {'msg': 'not valid post data ' + str(f.errors)}
         return render(request, 'error.html', context, status=400)
 
-    # update user
+    # to bank user
     try:
-        update_bank_user = models.BankUser.objects.get(user=request.POST['id'])
+        to_bankuser = models.BankUser.objects.get(user=request.POST['id'])
     except models.BankUser.DoesNotExist:
-        context = {'msg': 'updating user not exist'}
+        context = {'msg': 'to bank user not exist'}
         return render(request, 'error.html', context, status=401)
 
     # check phone
-    if update_bank_user.phone != request.POST['phone']:
+    if to_bankuser.phone != request.POST['phone']:
         try:
             _ = models.BankUser.objects.get(phone=request.POST['phone'])
             context = {'msg': 'phone exist'}
@@ -259,7 +278,7 @@ def account_update_post_view(request):
             pass
 
     # check email
-    if update_bank_user.email != request.POST['email']:
+    if to_bankuser.email != request.POST['email']:
         try:
             _ = models.BankUser.objects.get(email=request.POST['email'])
             context = {'msg': 'email exist'}
@@ -267,24 +286,35 @@ def account_update_post_view(request):
         except models.BankUser.DoesNotExist:
             pass
 
-    # permission
-    if update_bank_user.user_type == 'ADMIN':
-        permission = 3
-    elif update_bank_user.user_type == 'TIER2':
-        permission = 2
-    elif update_bank_user.user_type == 'TIER1':
-        permission = 1
+    # ADMIN
+    if from_bankuser.user_type == 'ADMIN':
+        if to_bankuser.user_type not in ['TIER2', 'TIER1']:
+            context = {'msg': 'admin only update tier2 tier1'}
+            return render(request, 'error.html', context, status=401)
+    # TIER2
+    elif from_bankuser.user_type == 'TIER2':
+        if to_bankuser.user_type not in ['CUSTOMER', 'MERCHANT']:
+            context = {'msg': 'tie2 only update customer merchant'}
+            return render(request, 'error.html', context, status=401)
+    # TIER1
+    elif from_bankuser.user_type == 'TIER1':
+        if to_bankuser.user_type not in ['CUSTOMER', 'MERCHANT']:
+            context = {'msg': 'tie1 only update customer merchant'}
+            return render(request, 'error.html', context, status=401)
     else:
-        permission = 0
+        if from_bankuser.id != to_bankuser.id:
+            context = {'msg': 'customer merchant only update self'}
+            return render(request, 'error.html', context, status=401)
 
     # create Request
     models.Request.objects.create(
-        from_id=bank_user.id,
-        to_id=update_bank_user.id,
+        from_id=from_bankuser.id,
+        to_id=to_bankuser.id,
+        user_type=to_bankuser.user_type,
         created=datetime.datetime.now(),
         state='PENDING',
         request='ACCOUNT_UPDATE',
-        permission=permission,
+        permission=0,
         phone=request.POST['phone'],
         email=request.POST['email'],
         address=request.POST['address'],
@@ -294,7 +324,60 @@ def account_update_post_view(request):
     return render(request, 'success.html', context)
 
 
-# ------ 3. fund transfer -----
+# ----- 3. account delete -----
+def account_delete_post_view(request):
+    # valid user
+    if not request.user.is_authenticated():
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # from bank user
+    try:
+        from_bankuser = models.BankUser.objects.get(user=request.user)
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'from bank user not exist'}
+        return render(request, 'error.html', context, status=401)
+
+    # POST data format
+    f = form.AccountDeleteGetForm(request.POST)
+    if not f.is_valid():
+        context = {'msg': 'not valid post data ' + str(f.errors)}
+        return render(request, 'error.html', context, status=400)
+
+    # to bank user
+    try:
+        to_bankuser = models.BankUser.objects.get(user=request.POST['id'])
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'to bank user not exist'}
+        return render(request, 'error.html', context, status=401)
+
+    # ADMIN
+    if from_bankuser.user_type == 'ADMIN':
+        if to_bankuser.user_type not in ['TIER2', 'TIER1']:
+            context = {'msg': 'admin only delete tier2 tier1'}
+            return render(request, 'error.html', context, status=401)
+    # TIER2
+    elif from_bankuser.user_type == 'TIER2':
+        if to_bankuser.user_type not in ['CUSTOMER', 'MERCHANT']:
+            context = {'msg': 'tie2 only delete customer merchant'}
+            return render(request, 'error.html', context, status=401)
+    # TIER1
+    elif from_bankuser.user_type == 'TIER1':
+        context = {'msg': 'tie1 cannot delete any account'}
+        return render(request, 'error.html', context, status=401)
+    else:
+        context = {'msg': 'customer merchant cannot delete any account'}
+        return render(request, 'error.html', context, status=401)
+
+    to_user = to_bankuser.user
+    to_bankuser.delete()
+    to_user.delete()
+
+    context = {'msg': 'Account deleted successfully'}
+    return render(request, 'success.html', context)
+
+
+# ------ 4. fund transfer -----
 def make_transfer_view(request):
     context = {}
     return render(request, 'make_transfer.html', context)
@@ -305,7 +388,7 @@ def make_transfer_post_view(request):
     return render(request, 'success.html', context)
 
 
-# ------ 4. payment -----
+# ------ 5. payment -----
 def make_payment_view(request):
     context = {}
     return render(request, 'make_payment.html', context)
@@ -368,36 +451,52 @@ def admin_view(request):
         'fund_requests': [],
         'payment_requests': [],
     }
-    users = models.BankUser.objects.all().exclude(user_type='ADMIN')
+    users = models.BankUser.objects.all(
+    ).exclude(user_type='ADMIN').exclude(
+        user_type='CUSTOMER').exclude(
+        user_type='MERCHANT')
     RenderUser = collections.namedtuple('RenderUser', 'username user_type id email phone address')
     for u in users:
         context['users'].append(RenderUser(u.username, u.user_type, u.id, u.email, u.phone, u.address))
 
     # render request
-    requests = models.Request.objects.all().exclude(user_type='ADMIN')
-    RenderAccountOpenRequest = collections.namedtuple('RenderAccountOpenRequest',
-                                                      'from_username to_username id state created request email phone address ')
-    RenderAccountUpdateRequest = collections.namedtuple('RenderAccountUpdateRequest',
-                                                      'from_username to_username id state created request email phone address ')
+    inner_requests = models.Request.objects.all().exclude(user_type='ADMIN')
 
-    for req in requests:
-        # account open
-        if req.request == 'ACCOUNT_OPEN':
-            from_bank_user = models.BankUser.objects.get(id=req.from_id)
-            to_bank_user = models.BankUser.objects.get(id=req.to_id)
-            context['account_open_requests'].append(RenderAccountOpenRequest(
-                from_bank_user.username, to_bank_user.username, req.id, req.state, req.created, req.request, req.email, req.phone, req.address
-            ))
-        # account update
-        if req.request == 'ACCOUNT_UPDATE':
-            from_bank_user = models.BankUser.objects.get(id=req.from_id)
-            to_bank_user = models.BankUser.objects.get(id=req.to_id)
-            context['account_update_requests'].append(RenderAccountUpdateRequest(
-                from_bank_user.username, to_bank_user.username, req.id, req.state, req.created, req.request, req.email, req.phone, req.address
-            ))
-        # fund
+    for inner_request in inner_requests:
+        from_bank_user = models.BankUser.objects.get(id=inner_request.from_id)
+        to_bank_user = models.BankUser.objects.get(id=inner_request.to_id)
 
-        # payment
+        # ACCOUNT OPEN for to bank user user_type tier2, tier1
+        if inner_request.request == 'ACCOUNT_OPEN':
+            if to_bank_user.user_type in ['TIER2', 'TIER1']:
+                # from_username to_username id state created request email phone address
+                context['account_open_requests'].append(RenderAccountUpdateRequest(
+                    from_bank_user.username,
+                    to_bank_user.username,
+                    inner_request.id,
+                    inner_request.state,
+                    inner_request.created,
+                    inner_request.request,
+                    inner_request.email,
+                    inner_request.phone,
+                    inner_request.address
+                ))
+
+        # ACCOUNT UPDATE for to bank user user_type admin, tier2, tier1
+        if inner_request.request == 'ACCOUNT_UPDATE':
+            if to_bank_user.user_type in ['ADMIN', 'TIER2', 'TIER1']:
+                # from_username to_username id state created request email phone address
+                context['account_update_requests'].append(RenderAccountUpdateRequest(
+                    from_bank_user.username,
+                    to_bank_user.username,
+                    inner_request.id,
+                    inner_request.state,
+                    inner_request.created,
+                    inner_request.request,
+                    inner_request.email,
+                    inner_request.phone,
+                    inner_request.address
+                ))
     # return HttpResponse(str(context))
     return render(request, 'admin.html', context)
 
@@ -427,7 +526,7 @@ def merchant_view(request):
 
 
 # ----- request ----
-def handle_request_post_view(request):
+def request_approve_post_view(request):
 
     context = {}
 
@@ -457,44 +556,66 @@ def handle_request_post_view(request):
         context = {'msg': 'not a pending request '}
         return render(request, 'error.html', context, status=401)
 
+    # get user
+    from_bankuser = models.BankUser.objects.get(id=inner_request.from_id)
+    to_bankuser = models.BankUser.objects.get(id=inner_request.to_id)
+
     # ADMIN
     if bank_user.user_type == 'ADMIN':
         # ACCOUNT OPEN
         if inner_request.request == 'ACCOUNT_OPEN':
-            if int(request.POST['approve']):
-                inner_request.state = 'APPROVED'
-                inner_request.save()
-                # update bank_user
-                update_bank_user = models.BankUser.objects.get(id=inner_request.to_id)
-                update_bank_user.state = 'ACTIVE'
-                update_bank_user.save()
-                context['msg'] = 'APPROVED'
+            if to_bankuser.user_type in ['TIER2', 'TIER1']:
+                if int(request.POST['approve']):
+                    inner_request.state = 'APPROVED'
+                    inner_request.save()
+                    # update bank_user
+                    to_bankuser.state = 'ACTIVE'
+                    to_bankuser.save()
+                    context['msg'] = 'APPROVED'
+                    return render(request, 'success.html', context)
+                else:
+                    inner_request.state = 'DECLINED'
+                    inner_request.save()
+                    context['msg'] = 'admin can only open tier2, tier1'
             else:
-                inner_request.state = 'DECLINED'
-                inner_request.save()
-                context['msg'] = 'DECLINED'
+                return render(request, 'error.html', context, status=401)
 
         # ACCOUNT UPDATE
-        elif inner_request.request == 'ACCOUNT_UPDATE':
+        elif inner_request.request == 'ACCOUNT_UPDATE' and to_bankuser.user_type in ['ADMIN', 'TIER2', 'TIER1']:
             if int(request.POST['approve']):
                 inner_request.state = 'APPROVED'
                 inner_request.save()
                 # update bank_user
-                update_bank_user = models.BankUser.objects.get(id=inner_request.to_id)
-                update_bank_user.phone = inner_request.phone
-                update_bank_user.email = inner_request.email
-                update_bank_user.address = inner_request.address
-                update_bank_user.save()
+                to_bankuser.phone = inner_request.phone
+                to_bankuser.email = inner_request.email
+                to_bankuser.address = inner_request.address
+                to_bankuser.save()
+                context['msg'] = 'APPROVED'
+                return render(request, 'success.html', context)
+            else:
+                inner_request.state = 'DECLINED'
+                inner_request.save()
+                context['msg'] = 'admin can update open admin, tier2, tier1'
+                context['msg'] = 'DECLINED'
+                return render(request, 'error.html', context, status=401)
+
+        # ACCOUNT DELETE
+        elif inner_request.request == 'ACCOUNT_DELETE' and to_bankuser.user_type in ['TIER2', 'TIER2']:
+            if int(request.POST['approve']):
+                inner_request.state = 'APPROVED'
+                inner_request.save()
+                # delete bank_user
+                to_user = to_bankuser.user
+                to_bankuser.delete()
+                to_user.delete()
                 context['msg'] = 'APPROVED'
             else:
                 inner_request.state = 'DECLINED'
                 inner_request.save()
                 context['msg'] = 'DECLINED'
-
-        # FUND TRANSFER
-
-        # PAYMENT
-
+        else:
+            context['msg'] = 'admin can only approve or decline internal account open/update/delete'
+            return render(request, 'error.html', context, status=401)
     elif bank_user.user_type == 'TIER1':
         pass
     elif bank_user.user_type == 'TIER2':
@@ -504,4 +625,5 @@ def handle_request_post_view(request):
     elif bank_user.user_type == 'CUSTOMER':
         pass
 
-    return render(request, 'success.html', context)
+    context['msg'] = 'DECLINED'
+    return render(request, 'error.html', context, status=401)

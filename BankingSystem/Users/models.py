@@ -60,4 +60,4 @@ class Request(models.Model):
     # ----- PAYMENT related -----
 
     # ----- FUND related -----
-
+    critical = models.IntegerField()

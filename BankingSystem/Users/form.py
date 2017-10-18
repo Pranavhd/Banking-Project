@@ -35,6 +35,10 @@ class AccountUpdatePostForm(forms.Form):
     address = forms.CharField(max_length=200, required=True)
 
 
+class AccountDeleteGetForm(forms.Form):
+    id = forms.IntegerField(required=True)
+
+
 class HandleRequestForm(forms.Form):
     id = forms.IntegerField(required=True)
     approve = forms.IntegerField(min_value=0, max_value=1, required=True)

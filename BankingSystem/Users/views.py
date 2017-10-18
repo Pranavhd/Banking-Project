@@ -109,10 +109,7 @@ def account_open_post_view(request):
     if not f.is_valid():
         context = {'msg': 'not valid post data ' + str(f.errors)}
         return render(request, 'error.html', context, status=400)
-    if request.POST['user_type'] not in ['CUSTOMER', 'MERCHANT']:
-        context = {'msg': 'not valid user type'}
-        return render(request, 'error.html', context, status=400)
-
+    
     # unique user
     try:
         _ = User.objects.get(username=request.POST['username'])

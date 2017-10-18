@@ -310,22 +310,24 @@ def account_update_post_view(request):
         return render(request, 'error.html', context, status=401)
 
     # check phone
-    if request.POST['phone'].strip():
-        try:
-            _ = models.BankUser.objects.get(phone=request.POST['phone'].strip())
-            context = {'msg': 'phone exist'}
-            return render(request, 'error.html', context, status=400)
-        except models.BankUser.DoesNotExist:
-            pass
+    if request.POST.get('phone', '').strip():
+        if request.POST['phone'].strip() != to_bankuser.phone:
+            try:
+                _ = models.BankUser.objects.get(phone=request.POST['phone'].strip())
+                context = {'msg': 'phone exist'}
+                return render(request, 'error.html', context, status=400)
+            except models.BankUser.DoesNotExist:
+                pass
 
     # check email
-    if request.POST['email'].strip():
-        try:
-            _ = models.BankUser.objects.get(email=request.POST['email'].strip())
-            context = {'msg': 'email exist'}
-            return render(request, 'error.html', context, status=400)
-        except models.BankUser.DoesNotExist:
-            pass
+    if request.POST.get('email', '').strip():
+        if request.POST['email'].strip() != to_bankuser.email:
+            try:
+                _ = models.BankUser.objects.get(email=request.POST['email'].strip())
+                context = {'msg': 'email exist'}
+                return render(request, 'error.html', context, status=400)
+            except models.BankUser.DoesNotExist:
+                pass
 
     # ADMIN
     if from_bankuser.user_type == 'ADMIN':
@@ -365,9 +367,9 @@ def account_update_post_view(request):
         request='ACCOUNT_UPDATE',
         permission=0,
         critical=0,
-        phone=request.POST['phone'].strip(),
-        email=request.POST['email'].strip(),
-        address=request.POST['address'].strip(),
+        phone=request.POST.get('phone', '').strip(),
+        email=request.POST.get('email', '').strip(),
+        address=request.POST.get('address', '').strip(),
     )
 
     context = {'msg': 'Account Update Request sent'}
@@ -770,7 +772,7 @@ def request_approve_post_view(request):
             if to_bankuser.user_type in ['ADMIN', 'TIER2', 'TIER1']:
                 if int(request.POST['approve']):
                     # check phone
-                    if inner_request.phone:
+                    if inner_request.phone and inner_request.phone != to_bankuser.phone:
                         try:
                             _ = models.BankUser.objects.get(phone=inner_request.phone)
                             context = {'msg': 'DECLINE ONLY, phone exist'}
@@ -778,7 +780,7 @@ def request_approve_post_view(request):
                         except models.BankUser.DoesNotExist:
                             pass
                     # check email
-                    if inner_request.email:
+                    if inner_request.email and inner_request.email != to_bankuser.email:
                         try:
                             _ = models.BankUser.objects.get(email=inner_request.email)
                             context = {'msg': 'DECLINE ONLY, email exist'}
@@ -786,9 +788,12 @@ def request_approve_post_view(request):
                         except models.BankUser.DoesNotExist:
                             pass
                     # update bank_user
-                    to_bankuser.phone = inner_request.phone
-                    to_bankuser.email = inner_request.email
-                    to_bankuser.address = inner_request.address
+                    if inner_request.phone:
+                        to_bankuser.phone = inner_request.phone
+                    if inner_request.email:
+                        to_bankuser.email = inner_request.email
+                    if inner_request.address:
+                        to_bankuser.address = inner_request.address
                     to_bankuser.save()
                     inner_request.state = 'APPROVED'
                     inner_request.save()
@@ -834,7 +839,7 @@ def request_approve_post_view(request):
             if to_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
                 if int(request.POST['approve']):
                     # check phone
-                    if inner_request.phone:
+                    if inner_request.phone and inner_request.phone != to_bankuser.phone:
                         try:
                             _ = models.BankUser.objects.get(phone=inner_request.phone)
                             context = {'msg': 'DECLINE ONLY, phone exist'}
@@ -842,7 +847,7 @@ def request_approve_post_view(request):
                         except models.BankUser.DoesNotExist:
                             pass
                     # check email
-                    if inner_request.email:
+                    if inner_request.email and inner_request.email != to_bankuser.email:
                         try:
                             _ = models.BankUser.objects.get(email=inner_request.email)
                             context = {'msg': 'DECLINE ONLY, email exist'}
@@ -850,9 +855,12 @@ def request_approve_post_view(request):
                         except models.BankUser.DoesNotExist:
                             pass
                     # update bank_user
-                    to_bankuser.phone = inner_request.phone
-                    to_bankuser.email = inner_request.email
-                    to_bankuser.address = inner_request.address
+                    if inner_request.phone:
+                        to_bankuser.phone = inner_request.phone
+                    if inner_request.email:
+                        to_bankuser.email = inner_request.email
+                    if inner_request.address:
+                        to_bankuser.address = inner_request.address
                     to_bankuser.save()
                     inner_request.state = 'APPROVED'
                     inner_request.save()

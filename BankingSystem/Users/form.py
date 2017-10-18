@@ -30,9 +30,9 @@ class AccountUpdateGetForm(forms.Form):
 class AccountUpdatePostForm(forms.Form):
     id = forms.IntegerField(required=True)
 
-    email = forms.EmailField(max_length=100, required=True)
-    phone = forms.RegexField(regex=r'^\+?1?\d{10}$', required=True)
-    address = forms.CharField(max_length=200, required=True)
+    email = forms.EmailField(max_length=100, required=False)
+    phone = forms.RegexField(regex=r'^\+?1?\d{10}$', required=False)
+    address = forms.CharField(max_length=200, required=False)
 
 
 class AccountDeleteGetForm(forms.Form):

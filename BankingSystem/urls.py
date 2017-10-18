@@ -32,6 +32,9 @@ urlpatterns = [
     url(r'^account_update/$', users_views.account_update_view),
     url(r'^account_update_post/$', users_views.account_update_post_view),
 
+    # account delete
+    url(r'^account_delete_post/$', users_views.account_delete_post_view),
+
     # fund
     url(r'^make_transfer/$', users_views.make_transfer_view),
     url(r'^make_transfer_post/$', users_views.make_transfer_post_view),

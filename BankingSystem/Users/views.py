@@ -32,7 +32,7 @@ def login_post_view(request):
     # POST data format
     f = form.LoginForm(request.POST)
     if not f.is_valid():
-        context = {'msg': 'not valid post data'}
+        context = {'msg': 'not valid post data', 'form': f}
         return render(request, 'error.html', context, status=400)
 
     # login
@@ -107,9 +107,9 @@ def account_open_post_view(request):
     # POST data format
     f = form.AccountOpenForm(request.POST)
     if not f.is_valid():
-        context = {'msg': 'not valid post data ' + str(f.errors)}
+        context = {'msg': 'not valid post data ', 'form': f}
         return render(request, 'error.html', context, status=400)
-    
+
     # unique user
     try:
         _ = User.objects.get(username=request.POST['username'])
@@ -231,7 +231,7 @@ def account_update_view(request):
     # GET data format
     f = form.AccountUpdateGetForm(request.GET)
     if not f.is_valid():
-        context = {'msg': 'not valid get data ' + str(f.errors)}
+        context = {'msg': 'not valid get data ', 'form': f}
         return render(request, 'error.html', context, status=400)
 
     # to bank user
@@ -291,7 +291,7 @@ def account_update_post_view(request):
     # POST data format
     f = form.AccountUpdatePostForm(request.POST)
     if not f.is_valid():
-        context = {'msg': 'not valid post data ' + str(f.errors)}
+        context = {'msg': 'not valid post data ', 'form': f}
         return render(request, 'error.html', context, status=400)
 
     # to bank user
@@ -380,7 +380,7 @@ def account_delete_post_view(request):
     # POST data format
     f = form.AccountDeleteGetForm(request.POST)
     if not f.is_valid():
-        context = {'msg': 'not valid post data ' + str(f.errors)}
+        context = {'msg': 'not valid post data ', 'form': f}
         return render(request, 'error.html', context, status=400)
 
     # to bank user
@@ -609,7 +609,7 @@ def request_approve_post_view(request):
     # check if a valid request
     f = form.HandleRequestForm(request.POST)
     if not f.is_valid():
-        context = {'msg': 'not valid request ' + str(f.errors)}
+        context = {'msg': 'not valid request ', 'form': f}
         return render(request, 'error.html', context, status=400)
 
     # get request

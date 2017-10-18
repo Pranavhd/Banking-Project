@@ -48,7 +48,8 @@
                 </td>
                 <td>{{ user.id }}</td>
                 <td>
-                    <form action="/account_delete/" method="get">
+                    <form action="/account_delete_post/" method="POST">
+                        <input type="hidden" value="{{ user.id }}" name="id" />
                         <button type="submit" id="account_delete_btn"> delete</button>
                     </form>
                 </td>

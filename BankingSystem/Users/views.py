@@ -492,6 +492,17 @@ def make_payment_post_view(request):
     return render(request, 'success.html', context)
 
 
+# ------ 6. debit/credit -----
+def make_debit_view(request):
+    context = {}
+    return render(request, 'make_payment.html', context)
+
+
+def make_debit_post_view(request):
+    context = {}
+    return render(request, 'success.html', context)
+
+
 # ----- index -----
 def index_view(request):
     if not request.user.is_authenticated():

@@ -7,6 +7,7 @@
     table, th, tr, td{
             border-collapse: collapse;
             border: 1px solid #ddd;
+            width: 75%;
            }
     table{
         position: relative;
@@ -35,7 +36,6 @@
                 <th>Phone</th>
                 <th>Address</th>
                 <th>Update</th>
-                <th>Delete</th>
             </tr>
             {% for user in users %}
             <tr>
@@ -45,14 +45,16 @@
                 <td> {{ user.phone }}</td>
                 <td> {{ user.address }}</td>
                 <td>
-                    <button type="submit" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Update</button>
+                    {% if user.state == 'INACTIVE' %}
+                        INACTIVE
 
+                    {% else %}
+
+                        <button type="submit" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Update</button>
+
+                    {% endif %}
                 </td>
-                <td>
-                    <form action="/account_delete/" method="get">
-                        <button type="submit" id="account_delete_btn"> delete</button>
-                    </form>
-                </td>
+
             </tr>
             {% endfor %}
             </table>
@@ -60,7 +62,7 @@
         <br>
 
         <!--Account open request-->
-        <t1>Account open request</t1>
+        <t1>Account Open Request</t1>
         <table >
             <tr>
                 <th>From</th>

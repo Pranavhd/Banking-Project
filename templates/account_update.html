@@ -6,8 +6,6 @@
 {% block content %}
     <a onclick="myFunction()"></a>
     <form action="/account_update_post/" method="post">{% csrf_token %}
-        <!--label class = "label"for="Uname" >UserName: </label>
-        <text type="text" id="Uname" name="username" value = {{  username }}><br-->
 
         <label >Email </label>
         <input type="text" id="email" name="email" value="{{ email }}"><br>

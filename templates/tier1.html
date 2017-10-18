@@ -80,13 +80,13 @@
                 <td>
 
                     {% if request.state == "PENDING" %}
-                        <form action="/handle_request_post/" method="POST"> {% csrf_token %}
+                        <form action="/request_approve_post/" method="POST"> {% csrf_token %}
                             <input type="hidden" value="{{ request.id }}" name="id" />
                             <input type="hidden" value="1" name="approve" />
                             <button type="submit" name="decline_btn"> APPROVE</button>
                         </form>
 
-                        <form action="/handle_request_post/" method="POST"> {% csrf_token %}
+                        <form action="/request_approve_post/" method="POST"> {% csrf_token %}
                             <input type="hidden" value="{{ request.id }}" name="id" />
                             <input type="hidden" value="0" name="approve" />
                             <button type="submit" name="decline_btn"> Decline</button>
@@ -123,13 +123,13 @@
               <td> {{ request.address }}</td>
               <td>
                   {% if request.state == "PENDING" %}
-                      <form action="/handle_request_post/" method="POST"> {% csrf_token %}
+                      <form action="/request_approve_post/" method="POST"> {% csrf_token %}
                           <input type="hidden" value="{{ request.id }}" name="id" />
                           <input type="hidden" value="1" name="approve" />
                           <button type="submit" name="decline_btn"> APPROVE</button>
                       </form>
 
-                      <form action="/handle_request_post/" method="POST"> {% csrf_token %}
+                      <form action="/request_approve_post/" method="POST"> {% csrf_token %}
                           <input type="hidden" value="{{ request.id }}" name="id" />
                           <input type="hidden" value="0" name="approve" />
                           <button type="submit" name="decline_btn"> Decline</button>

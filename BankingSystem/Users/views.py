@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from . import form
 from . import models
 import collections
+from django.db.models import Q
 
 
 RenderAccountOpenRequest = collections.namedtuple(
@@ -465,16 +466,22 @@ def admin_view(request):
     inner_requests = models.Request.objects.all().exclude(user_type='ADMIN')
 
     for inner_request in inner_requests:
-        from_bank_user = models.BankUser.objects.get(id=inner_request.from_id)
-        to_bank_user = models.BankUser.objects.get(id=inner_request.to_id)
+        try:
+            from_bank_user = models.BankUser.objects.get(id=inner_request.from_id)
+        except models.BankUser.DoesNotExist:
+            from_bank_user = None
+        try:
+            to_bank_user = models.BankUser.objects.get(id=inner_request.to_id)
+        except models.BankUser.DoesNotExist:
+            to_bank_user = None
 
         # ACCOUNT OPEN for to bank user user_type tier2, tier1
         if inner_request.request == 'ACCOUNT_OPEN':
             if to_bank_user.user_type in ['TIER2', 'TIER1']:
                 # from_username to_username id state created request email phone address
                 context['account_open_requests'].append(RenderAccountUpdateRequest(
-                    from_bank_user.username,
-                    to_bank_user.username,
+                    from_bank_user.username if from_bank_user else 'obsolete user',
+                    to_bank_user.username if to_bank_user else 'obsolete user',
                     inner_request.id,
                     inner_request.state,
                     inner_request.created,
@@ -489,8 +496,8 @@ def admin_view(request):
             if to_bank_user.user_type in ['ADMIN', 'TIER2', 'TIER1']:
                 # from_username to_username id state created request email phone address
                 context['account_update_requests'].append(RenderAccountUpdateRequest(
-                    from_bank_user.username,
-                    to_bank_user.username,
+                    from_bank_user.username if from_bank_user else 'obsolete user',
+                    to_bank_user.username if to_bank_user else 'obsolete user',
                     inner_request.id,
                     inner_request.state,
                     inner_request.created,
@@ -611,6 +618,15 @@ def request_approve_post_view(request):
                 to_bankuser.delete()
                 to_user.delete()
                 context['msg'] = 'APPROVED'
+                # declined all related requests
+                inner_requests = models.Request.objects.filter(Q(from_id=to_bankuser.id) | Q(to_id=to_bankuser.id))
+                for inner_request in inner_requests:
+                    if inner_request.from_id == to_bankuser.id:
+                        inner_request.from_id = -1
+                    if inner_request.to_id == to_bankuser.id:
+                        inner_request.to_id = -1
+                    inner_request.state = 'DECLINED'
+                    inner_request.save()
             else:
                 inner_request.state = 'DECLINED'
                 inner_request.save()

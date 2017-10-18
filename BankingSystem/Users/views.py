@@ -9,6 +9,8 @@ import collections
 from django.db.models import Q
 
 
+RenderUser = collections.namedtuple(
+    'RenderUser', 'username user_type state id email phone address')
 RenderAccountOpenRequest = collections.namedtuple(
     'RenderAccountOpenRequest', 'from_username to_username id state created request email phone address')
 RenderAccountUpdateRequest = collections.namedtuple(
@@ -495,9 +497,8 @@ def admin_view(request):
     ).exclude(user_type='ADMIN').exclude(
         user_type='CUSTOMER').exclude(
         user_type='MERCHANT')
-    RenderUser = collections.namedtuple('RenderUser', 'username user_type id email phone address')
     for u in users:
-        context['users'].append(RenderUser(u.username, u.user_type, u.id, u.email, u.phone, u.address))
+        context['users'].append(RenderUser(u.username, u.user_type, users.state, u.id, u.email, u.phone, u.address))
 
     # render request
     inner_requests = models.Request.objects.all().exclude(user_type='ADMIN')

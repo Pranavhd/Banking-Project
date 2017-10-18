@@ -248,13 +248,21 @@ def account_update_view(request):
             return render(request, 'error.html', context, status=401)
     # TIER2
     elif from_bankuser.user_type == 'TIER2':
-        if to_bankuser.user_type not in ['CUSTOMER', 'MERCHANT']:
-            context = {'msg': 'tie2 only update customer merchant'}
+        if to_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
+            pass
+        elif to_bankuser.id == from_bankuser.id:
+            pass
+        else:
+            context = {'msg': 'tier1 only update self, customer, merchant'}
             return render(request, 'error.html', context, status=401)
     # TIER1
     elif from_bankuser.user_type == 'TIER1':
-        if to_bankuser.user_type not in ['CUSTOMER', 'MERCHANT']:
-            context = {'msg': 'tie1 only update customer merchant'}
+        if to_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
+            pass
+        elif to_bankuser.id == from_bankuser.id:
+            pass
+        else:
+            context = {'msg': 'tier1 only update self, customer, merchant'}
             return render(request, 'error.html', context, status=401)
     else:
         if from_bankuser.id != to_bankuser.id:
@@ -326,13 +334,21 @@ def account_update_post_view(request):
             return render(request, 'error.html', context, status=401)
     # TIER2
     elif from_bankuser.user_type == 'TIER2':
-        if to_bankuser.user_type not in ['CUSTOMER', 'MERCHANT']:
-            context = {'msg': 'tie2 only update customer merchant'}
+        if to_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
+            pass
+        elif to_bankuser.id == from_bankuser.id:
+            pass
+        else:
+            context = {'msg': 'tier1 only update self, customer, merchant'}
             return render(request, 'error.html', context, status=401)
     # TIER1
     elif from_bankuser.user_type == 'TIER1':
-        if to_bankuser.user_type not in ['CUSTOMER', 'MERCHANT']:
-            context = {'msg': 'tie1 only update customer merchant'}
+        if to_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
+            pass
+        elif to_bankuser.id == from_bankuser.id:
+            pass
+        else:
+            context = {'msg': 'tier1 only update self, customer, merchant'}
             return render(request, 'error.html', context, status=401)
     else:
         if from_bankuser.id != to_bankuser.id:
@@ -562,16 +578,58 @@ def admin_view(request):
     return render(request, 'admin.html', context)
 
 
-# ----- tier1 -----
-def tier1_view(request):
-    context = {}
-    return render(request, 'tier1.html', context)
-
-
 # ----- tier2 -----
 def tier2_view(request):
+
+    # check if a valid user
+    if not request.user.is_authenticated():
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # check if it is an admin user
+    try:
+        login_bankuser = models.BankUser.objects.get(user=request.user)
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+    if login_bankuser.user_type != 'TIER2':
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # active bank user
+    if login_bankuser.state == 'INACTIVE':
+        context = {'msg': 'not active BankUser'}
+        return render(request, 'error.html', context, status=400)
+
     context = {}
     return render(request, 'tier2.html', context)
+
+
+# ----- tier1 -----
+def tier1_view(request):
+
+    # check if a valid user
+    if not request.user.is_authenticated():
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # check if it is an admin user
+    try:
+        login_bankuser = models.BankUser.objects.get(user=request.user)
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+    if login_bankuser.user_type != 'TIER1':
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # active bank user
+    if login_bankuser.state == 'INACTIVE':
+        context = {'msg': 'not active BankUser'}
+        return render(request, 'error.html', context, status=400)
+
+    context = {}
+    return render(request, 'tier1.html', context)
 
 
 # ----- customer -----

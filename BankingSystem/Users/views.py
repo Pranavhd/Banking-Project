@@ -770,21 +770,23 @@ def request_approve_post_view(request):
                 if int(request.POST['approve']):
                     inner_request.state = 'APPROVED'
                     inner_request.save()
-                    # update bank_user
-                    # update bank_user
-                    try:
-                        _ = models.BankUser.objects.get(phone=request.POST['phone'])
-                        context = {'msg': 'DECLINE ONLY, phone exist'}
-                        return render(request, 'error.html', context, status=400)
-                    except models.BankUser.DoesNotExist:
-                        pass
+                    # check phone
+                    if to_bankuser.phone != inner_request.phone:
+                        try:
+                            _ = models.BankUser.objects.get(phone=inner_request.phone)
+                            context = {'msg': 'DECLINE ONLY, phone exist'}
+                            return render(request, 'error.html', context, status=400)
+                        except models.BankUser.DoesNotExist:
+                            pass
                     # check email
-                    try:
-                        _ = models.BankUser.objects.get(email=request.POST['email'])
-                        context = {'msg': 'DECLINE ONLY, email exist'}
-                        return render(request, 'error.html', context, status=400)
-                    except models.BankUser.DoesNotExist:
-                        pass
+                    if to_bankuser.email != inner_request.email:
+                        try:
+                            _ = models.BankUser.objects.get(email=inner_request.email)
+                            context = {'msg': 'DECLINE ONLY, email exist'}
+                            return render(request, 'error.html', context, status=400)
+                        except models.BankUser.DoesNotExist:
+                            pass
+                    # update bank_user
                     to_bankuser.phone = inner_request.phone
                     to_bankuser.email = inner_request.email
                     to_bankuser.address = inner_request.address
@@ -832,20 +834,23 @@ def request_approve_post_view(request):
                 if int(request.POST['approve']):
                     inner_request.state = 'APPROVED'
                     inner_request.save()
-                    # update bank_user
-                    try:
-                        _ = models.BankUser.objects.get(phone=request.POST['phone'])
-                        context = {'msg': 'DECLINE ONLY, phone exist'}
-                        return render(request, 'error.html', context, status=400)
-                    except models.BankUser.DoesNotExist:
-                        pass
+                    # check phone
+                    if to_bankuser.phone != inner_request.phone:
+                        try:
+                            _ = models.BankUser.objects.get(phone=inner_request.phone)
+                            context = {'msg': 'DECLINE ONLY, phone exist'}
+                            return render(request, 'error.html', context, status=400)
+                        except models.BankUser.DoesNotExist:
+                            pass
                     # check email
-                    try:
-                        _ = models.BankUser.objects.get(email=request.POST['email'])
-                        context = {'msg': 'DECLINE ONLY, email exist'}
-                        return render(request, 'error.html', context, status=400)
-                    except models.BankUser.DoesNotExist:
-                        pass
+                    if to_bankuser.email != inner_request.email:
+                        try:
+                            _ = models.BankUser.objects.get(email=inner_request.email)
+                            context = {'msg': 'DECLINE ONLY, email exist'}
+                            return render(request, 'error.html', context, status=400)
+                        except models.BankUser.DoesNotExist:
+                            pass
+                    # update bank_user
                     to_bankuser.phone = inner_request.phone
                     to_bankuser.email = inner_request.email
                     to_bankuser.address = inner_request.address

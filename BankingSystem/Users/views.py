@@ -310,18 +310,18 @@ def account_update_post_view(request):
         return render(request, 'error.html', context, status=401)
 
     # check phone
-    if to_bankuser.phone != request.POST['phone']:
+    if request.POST['phone'].strip():
         try:
-            _ = models.BankUser.objects.get(phone=request.POST['phone'])
+            _ = models.BankUser.objects.get(phone=request.POST['phone'].strip())
             context = {'msg': 'phone exist'}
             return render(request, 'error.html', context, status=400)
         except models.BankUser.DoesNotExist:
             pass
 
     # check email
-    if to_bankuser.email != request.POST['email']:
+    if request.POST['email'].strip():
         try:
-            _ = models.BankUser.objects.get(email=request.POST['email'])
+            _ = models.BankUser.objects.get(email=request.POST['email'].strip())
             context = {'msg': 'email exist'}
             return render(request, 'error.html', context, status=400)
         except models.BankUser.DoesNotExist:
@@ -364,10 +364,10 @@ def account_update_post_view(request):
         state='PENDING',
         request='ACCOUNT_UPDATE',
         permission=0,
-        phone=request.POST['phone'],
-        email=request.POST['email'],
         critical=0,
-        address=request.POST['address'],
+        phone=request.POST['phone'].strip(),
+        email=request.POST['email'].strip(),
+        address=request.POST['address'].strip(),
     )
 
     context = {'msg': 'Account Update Request sent'}
@@ -749,11 +749,11 @@ def request_approve_post_view(request):
         if inner_request.request == 'ACCOUNT_OPEN':
             if to_bankuser.user_type in ['TIER2', 'TIER1']:
                 if int(request.POST['approve']):
-                    inner_request.state = 'APPROVED'
-                    inner_request.save()
                     # update bank_user
                     to_bankuser.state = 'ACTIVE'
                     to_bankuser.save()
+                    inner_request.state = 'APPROVED'
+                    inner_request.save()
                     context['msg'] = 'APPROVED'
                     return render(request, 'success.html', context)
                 else:
@@ -769,10 +769,8 @@ def request_approve_post_view(request):
         elif inner_request.request == 'ACCOUNT_UPDATE':
             if to_bankuser.user_type in ['ADMIN', 'TIER2', 'TIER1']:
                 if int(request.POST['approve']):
-                    inner_request.state = 'APPROVED'
-                    inner_request.save()
                     # check phone
-                    if to_bankuser.phone != inner_request.phone:
+                    if inner_request.phone:
                         try:
                             _ = models.BankUser.objects.get(phone=inner_request.phone)
                             context = {'msg': 'DECLINE ONLY, phone exist'}
@@ -780,7 +778,7 @@ def request_approve_post_view(request):
                         except models.BankUser.DoesNotExist:
                             pass
                     # check email
-                    if to_bankuser.email != inner_request.email:
+                    if inner_request.email:
                         try:
                             _ = models.BankUser.objects.get(email=inner_request.email)
                             context = {'msg': 'DECLINE ONLY, email exist'}
@@ -792,6 +790,8 @@ def request_approve_post_view(request):
                     to_bankuser.email = inner_request.email
                     to_bankuser.address = inner_request.address
                     to_bankuser.save()
+                    inner_request.state = 'APPROVED'
+                    inner_request.save()
                     context['msg'] = 'APPROVED'
                     return render(request, 'success.html', context)
                 else:
@@ -813,11 +813,11 @@ def request_approve_post_view(request):
         if inner_request.request == 'ACCOUNT_OPEN':
             if to_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
                 if int(request.POST['approve']):
-                    inner_request.state = 'APPROVED'
-                    inner_request.save()
                     # update bank_user
                     to_bankuser.state = 'ACTIVE'
                     to_bankuser.save()
+                    inner_request.state = 'APPROVED'
+                    inner_request.save()
                     context['msg'] = 'APPROVED'
                     return render(request, 'success.html', context)
                 else:
@@ -833,10 +833,8 @@ def request_approve_post_view(request):
         elif inner_request.request == 'ACCOUNT_UPDATE':
             if to_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
                 if int(request.POST['approve']):
-                    inner_request.state = 'APPROVED'
-                    inner_request.save()
                     # check phone
-                    if to_bankuser.phone != inner_request.phone:
+                    if inner_request.phone:
                         try:
                             _ = models.BankUser.objects.get(phone=inner_request.phone)
                             context = {'msg': 'DECLINE ONLY, phone exist'}
@@ -844,7 +842,7 @@ def request_approve_post_view(request):
                         except models.BankUser.DoesNotExist:
                             pass
                     # check email
-                    if to_bankuser.email != inner_request.email:
+                    if inner_request.email:
                         try:
                             _ = models.BankUser.objects.get(email=inner_request.email)
                             context = {'msg': 'DECLINE ONLY, email exist'}
@@ -856,6 +854,8 @@ def request_approve_post_view(request):
                     to_bankuser.email = inner_request.email
                     to_bankuser.address = inner_request.address
                     to_bankuser.save()
+                    inner_request.state = 'APPROVED'
+                    inner_request.save()
                     context['msg'] = 'APPROVED'
                     return render(request, 'success.html', context)
                 else:

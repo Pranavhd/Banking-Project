@@ -498,7 +498,7 @@ def admin_view(request):
         user_type='CUSTOMER').exclude(
         user_type='MERCHANT')
     for u in users:
-        context['users'].append(RenderUser(u.username, u.user_type, users.state, u.id, u.email, u.phone, u.address))
+        context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, u.email, u.phone, u.address))
 
     # render request
     inner_requests = models.Request.objects.all().exclude(user_type='ADMIN')

@@ -1,13 +1,195 @@
 {% extends 'base_login_signup.html' %}
 
-{% block title %}Tier 2 {% endblock%}
-{% block t1 %}<t1></t1>{% endblock %}
+{% block title %} Tier2 {% endblock%}
+
+{  {% block style %}
+<style>
+    table, th, tr, td{
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+           }
+    table{
+        position: relative;
+
+]
+    }
+    </style>
+{% endblock%}
+{% block t1 %}{% endblock %}
 {% block logout%}
-    <button type="button" id="account_update_btn"  onclick="window.location.href='/logout/'">Logout</button>
+    <button type="button" id="logout_btn"  onclick="window.location.href='/logout/'">Logout</button>
+    <button type="button" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
+
 {% endblock %}
 
 {% block content %}
 
-    tier 2
+        <!--User Info-->
+        <t1 >Users</t1>
+        <button type="submit" id="logout_btn"  onclick="window.location.href='/account_open/'">open new account</button>
+        <table >
+            <tr>
+                <th>Username</th>
+                <th>TYPE</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Update</th>
+                <th>Delete</th>
+            </tr>
+            {% for user in users %}
+            <tr>
+                <td> {{ user.username }}</td>
+                <td> {{ user.user_type }}</td>
+                <td> {{ user.email }}</td>
+                <td> {{ user.phone }}</td>
+                <td> {{ user.address }}</td>
+                <td>
+                    <button type="submit" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Update</button>
 
+                </td>
+                <td>
+                    <form action="/account_delete/" method="get">
+                        <button type="submit" id="account_delete_btn"> delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </table>
+
+        <br>
+
+        <!--Account open request-->
+        <t1>Account open request</t1>
+        <table >
+            <tr>
+                <th>From</th>
+                <th>To</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Status</th>
+            </tr>
+            {% for request in account_open_requests %}
+            <tr>
+                <td> {{ request.from_username }}</td>
+                <td> {{ request.to_username }}</td>
+                <td> {{ request.email }}</td>
+                <td> {{ request.phone }}</td>
+                <td> {{ request.address }}</td>
+                <td>
+
+                    {% if request.state == "PENDING" %}
+                        <form action="/request_approve_post/" method="POST"> {% csrf_token %}
+                            <input type="hidden" value="{{ request.id }}" name="id" />
+                            <input type="hidden" value="1" name="approve" />
+                            <button type="submit" name="decline_btn"> APPROVE</button>
+                        </form>
+
+                        <form action="/request_approve_post/" method="POST"> {% csrf_token %}
+                            <input type="hidden" value="{{ request.id }}" name="id" />
+                            <input type="hidden" value="0" name="approve" />
+                            <button type="submit" name="decline_btn"> Decline</button>
+                        </form>
+
+                    {% else %}
+                        {{ request.state }}
+
+                    {% endif %}
+
+                </td>
+            </tr>
+            {% endfor %}
+            </table>
+        <br>
+
+        <!--Account update request-->
+        <t1>Account update request</t1>
+        <table >
+            <tr>
+                <th>from</th>
+                <th>to</th>
+                <th>email</th>
+                <th>phone</th>
+                <th>aadress</th>
+                <th>Status</th>
+            </tr>
+            {% for request in account_update_requests %}
+            <tr>
+              <td> {{ request.from_username }}</td>
+              <td> {{ request.to_username }}</td>
+              <td> {{ request.email }}</td>
+              <td> {{ request.phone }}</td>
+              <td> {{ request.address }}</td>
+              <td>
+                  {% if request.state == "PENDING" %}
+                      <form action="/request_approve_post/" method="POST"> {% csrf_token %}
+                          <input type="hidden" value="{{ request.id }}" name="id" />
+                          <input type="hidden" value="1" name="approve" />
+                          <button type="submit" name="decline_btn"> APPROVE</button>
+                      </form>
+
+                      <form action="/request_approve_post/" method="POST"> {% csrf_token %}
+                          <input type="hidden" value="{{ request.id }}" name="id" />
+                          <input type="hidden" value="0" name="approve" />
+                          <button type="submit" name="decline_btn"> Decline</button>
+                      </form>
+
+                {% else %}
+                    {{ request.state }}
+
+                {% endif %}
+
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <!--Fund transfer request-->
+        <t1>Fund transfer </t1>
+        <table >
+            <tr>
+              <th>1</th>
+              <th>2</th>
+              <th>3</th>
+              <th>4</th>
+            </tr>
+            {% for request in fund_requests %}
+            <tr>
+              <td> {{ request.username }}</td>
+              <td> {{ request.email }}</td>
+              <td> {{ request.phone }}</td>
+              <td> {{ request.address }}</td>
+
+            </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <!--payment request-->
+        <t1>Payment </t1>
+        <table >
+            <tr>
+              <th>1</th>
+              <th>2</th>
+              <th>3</th>
+              <th>4</th>
+            </tr>
+            {% for request in payment_requests %}
+            <tr>
+              <td> {{ request.username }}</td>
+              <td> {{ request.email }}</td>
+              <td> {{ request.phone }}</td>
+              <td> {{ request.address }}</td>
+            </tr>
+            {% endfor %}
+        </table>
 {% endblock %}
+
+<script>
+    function myfunction() {
+        //if (request.state=="APPROVED"){
+        button.approve_btn.style.display == "none";
+        //}
+
+    }
+</script>>

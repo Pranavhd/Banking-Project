@@ -24,7 +24,7 @@
 
         <!--User Info-->
         <t1 >Users</t1>
-        <button type="submit" id="logout_btn"  onclick="window.location.href='/account_open/'">open new account</button>
+        <button type="submit" id="open_account_btn"  onclick="window.location.href='/account_open/'">open new account</button>
         <table >
             <tr>
                 <th>Username</th>
@@ -43,15 +43,24 @@
                 <td> {{ user.phone }}</td>
                 <td> {{ user.address }}</td>
                 <td>
-                    <button type="submit" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Update</button>
+                    {% if user.state == 'INACTIVE' %}
+                        INACTIVE
 
+                    {% else %}
+
+                        <button type="submit" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Update</button>
+
+                    {% endif %}
                 </td>
-                <td>{{ user.id }}</td>
                 <td>
-                    <form action="/account_delete_post/" method="POST">
-                        <input type="hidden" value="{{ user.id }}" name="id" />
-                        <button type="submit" id="account_delete_btn"> delete</button>
-                    </form>
+                    {% if user.state == 'INACTIVE' %}
+                        INACTIVE
+                    {% else %}
+                        <form action="/account_delete_post/" method="POST">{% csrf_token %}
+                            <input type="hidden" value="{{ user.id }}" name="id" />
+                            <button type="submit" id="account_delete_btn"> delete</button>
+                        </form>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

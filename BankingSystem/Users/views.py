@@ -392,9 +392,16 @@ def account_delete_post_view(request):
         context = {'msg': 'customer merchant cannot delete any account'}
         return render(request, 'error.html', context, status=401)
 
-    to_user = to_bankuser.user
-    to_bankuser.delete()
-    to_user.delete()
+    # delete bank_user
+    to_bankuser.state = 'INACTIVE'
+    to_bankuser.save()
+
+    # decline related pending requests
+    to_bankuser_reqs = models.Request.objects.filter(Q(from_id=to_bankuser.id) | Q(to_id=to_bankuser.id))
+    for req in to_bankuser_reqs:
+        if req.state == 'PENDING':
+            req.state = 'DECLINED'
+            req.save()
 
     context = {'msg': 'Account deleted successfully'}
     return render(request, 'success.html', context)
@@ -622,49 +629,31 @@ def request_approve_post_view(request):
                     inner_request.save()
                     context['msg'] = 'admin can only open tier2, tier1'
             else:
+                context = {'msg': 'admin can only approve tier2, tie1 account open'}
                 return render(request, 'error.html', context, status=401)
 
         # ACCOUNT UPDATE
-        elif inner_request.request == 'ACCOUNT_UPDATE' and to_bankuser.user_type in ['ADMIN', 'TIER2', 'TIER1']:
-            if int(request.POST['approve']):
-                inner_request.state = 'APPROVED'
-                inner_request.save()
-                # update bank_user
-                to_bankuser.phone = inner_request.phone
-                to_bankuser.email = inner_request.email
-                to_bankuser.address = inner_request.address
-                to_bankuser.save()
-                context['msg'] = 'APPROVED'
-                return render(request, 'success.html', context)
+        elif inner_request.request == 'ACCOUNT_UPDATE':
+            if to_bankuser.user_type in ['ADMIN', 'TIER2', 'TIER1']:
+                if int(request.POST['approve']):
+                    inner_request.state = 'APPROVED'
+                    inner_request.save()
+                    # update bank_user
+                    to_bankuser.phone = inner_request.phone
+                    to_bankuser.email = inner_request.email
+                    to_bankuser.address = inner_request.address
+                    to_bankuser.save()
+                    context['msg'] = 'APPROVED'
+                    return render(request, 'success.html', context)
+                else:
+                    inner_request.state = 'DECLINED'
+                    inner_request.save()
+                    context['msg'] = 'admin can update open admin, tier2, tier1'
+                    context['msg'] = 'DECLINED'
+                    return render(request, 'error.html', context, status=401)
             else:
-                inner_request.state = 'DECLINED'
-                inner_request.save()
-                context['msg'] = 'admin can update open admin, tier2, tier1'
-                context['msg'] = 'DECLINED'
+                context = {'msg': 'admin can only approve admin, tier2, tie1 account update'}
                 return render(request, 'error.html', context, status=401)
-
-        # ACCOUNT DELETE
-        elif inner_request.request == 'ACCOUNT_DELETE' and to_bankuser.user_type in ['TIER2', 'TIER2']:
-            if int(request.POST['approve']):
-                # approve
-                inner_request.state = 'APPROVED'
-                inner_request.save()
-
-                # delete bank_user
-                to_bankuser.state = 'INACTIVE'
-                to_bankuser.save()
-
-                # decline related pending requests
-                to_bankuser_reqs = models.Request.objects.filter(Q(from_id=to_bankuser.id) | Q(to_id=to_bankuser.id))
-                for req in to_bankuser_reqs:
-                    if req.state == 'PENDING':
-                        req.state = 'DECLINED'
-                        req.save()
-                context['msg'] = 'APPROVED'
-            else:
-                inner_request.state = 'DECLINED'
-                inner_request.save()
-                context['msg'] = 'DECLINED'
         else:
             context['msg'] = 'admin can only approve or decline internal account open/update/delete'
             return render(request, 'error.html', context, status=401)

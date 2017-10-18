@@ -823,7 +823,7 @@ def request_approve_post_view(request):
                 else:
                     inner_request.state = 'DECLINED'
                     inner_request.save()
-                    context['msg'] = 'tier1 can only open customer, merchant'
+                    context['msg'] = 'DECLINED'
                     return render(request, 'success.html', context, status=401)
             else:
                 context = {'msg': 'tier1 can only approve customer, merchant account open'}

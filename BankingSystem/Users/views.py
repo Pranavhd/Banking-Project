@@ -177,6 +177,7 @@ def account_open_post_view(request):
         request='ACCOUNT_OPEN',
         permission=0,
         user_type=request.POST['user_type'],
+        critical=0,
         phone=request.POST['phone'],
         email=request.POST['email'],
         address=request.POST['address'],
@@ -317,6 +318,7 @@ def account_update_post_view(request):
         permission=0,
         phone=request.POST['phone'],
         email=request.POST['email'],
+        critical=0,
         address=request.POST['address'],
     )
 

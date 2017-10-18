@@ -77,11 +77,28 @@ def logout_view(request):
 
 # ------ 1. account open -----
 def account_open_view(request):
-    context = {}
-    return render(request, 'account_open.html', context)
+
+    # valid user
+    if request.user.is_authenticated():
+        # active BankUser
+        try:
+            login_bankuser = models.BankUser.objects.get(user=request.user)
+        except models.BankUser.DoesNotExist:
+            context = {'msg': 'no BankUser found'}
+            return render(request, 'error.html', context, status=400)
+        if login_bankuser.state == 'INACTIVE':
+            context = {'msg': 'not active BankUser'}
+            return render(request, 'error.html', context, status=400)
+
+        context = {'user_type': login_bankuser.user_type}
+        return render(request, 'account_open.html', context)
+    else:
+        context = {'user_type': ''}
+        return render(request, 'account_open.html', context)
 
 
 def account_open_post_view(request):
+
     # POST method
     if request.method != "POST":
         context = {'msg': 'not post'}

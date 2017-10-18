@@ -643,7 +643,7 @@ def tier1_view(request):
         user_type='TIER2').exclude(
         user_type='TIER1')
     for u in users:
-        context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, u.email, u.phone, u.address))
+        context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, '***', '***', '***'))
 
     # render request
     inner_requests = models.Request.objects.all()
@@ -668,9 +668,9 @@ def tier1_view(request):
                     inner_request.state,
                     inner_request.created,
                     inner_request.request,
-                    '***',
-                    '***',
-                    '***',
+                    inner_request.email,
+                    inner_request.phone,
+                    inner_request.address
                 ))
 
         # ACCOUNT UPDATE
@@ -683,9 +683,9 @@ def tier1_view(request):
                     inner_request.state,
                     inner_request.created,
                     inner_request.request,
-                    '***',
-                    '***',
-                    '***',
+                    inner_request.email,
+                    inner_request.phone,
+                    inner_request.address
                 ))
 
     return render(request, 'tier1.html', context)

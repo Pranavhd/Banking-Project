@@ -668,9 +668,9 @@ def tier1_view(request):
                     inner_request.state,
                     inner_request.created,
                     inner_request.request,
-                    inner_request.email,
-                    inner_request.phone,
-                    inner_request.address
+                    '***',
+                    '***',
+                    '***',
                 ))
 
         # ACCOUNT UPDATE
@@ -683,9 +683,9 @@ def tier1_view(request):
                     inner_request.state,
                     inner_request.created,
                     inner_request.request,
-                    inner_request.email,
-                    inner_request.phone,
-                    inner_request.address
+                    '***',
+                    '***',
+                    '***',
                 ))
 
     return render(request, 'tier1.html', context)
@@ -771,6 +771,20 @@ def request_approve_post_view(request):
                     inner_request.state = 'APPROVED'
                     inner_request.save()
                     # update bank_user
+                    # update bank_user
+                    try:
+                        _ = models.BankUser.objects.get(phone=request.POST['phone'])
+                        context = {'msg': 'DECLINE ONLY, phone exist'}
+                        return render(request, 'error.html', context, status=400)
+                    except models.BankUser.DoesNotExist:
+                        pass
+                    # check email
+                    try:
+                        _ = models.BankUser.objects.get(email=request.POST['email'])
+                        context = {'msg': 'DECLINE ONLY, email exist'}
+                        return render(request, 'error.html', context, status=400)
+                    except models.BankUser.DoesNotExist:
+                        pass
                     to_bankuser.phone = inner_request.phone
                     to_bankuser.email = inner_request.email
                     to_bankuser.address = inner_request.address
@@ -789,14 +803,70 @@ def request_approve_post_view(request):
         else:
             context['msg'] = 'admin can only approve or decline internal account open/update/delete'
             return render(request, 'error.html', context, status=401)
-    elif login_bankuser.user_type == 'TIER1':
-        pass
     elif login_bankuser.user_type == 'TIER2':
         pass
+    # TIER1
+    elif login_bankuser.user_type == 'TIER1':
+        # ACCOUNT OPEN
+        if inner_request.request == 'ACCOUNT_OPEN':
+            if to_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
+                if int(request.POST['approve']):
+                    inner_request.state = 'APPROVED'
+                    inner_request.save()
+                    # update bank_user
+                    to_bankuser.state = 'ACTIVE'
+                    to_bankuser.save()
+                    context['msg'] = 'APPROVED'
+                    return render(request, 'success.html', context)
+                else:
+                    inner_request.state = 'DECLINED'
+                    inner_request.save()
+                    context['msg'] = 'tier1 can only open customer, merchant'
+            else:
+                context = {'msg': 'tier1 can only approve customer, merchant account open'}
+                return render(request, 'error.html', context, status=401)
+
+        # ACCOUNT UPDATE
+        elif inner_request.request == 'ACCOUNT_UPDATE':
+            if to_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
+                if int(request.POST['approve']):
+                    inner_request.state = 'APPROVED'
+                    inner_request.save()
+                    # update bank_user
+                    try:
+                        _ = models.BankUser.objects.get(phone=request.POST['phone'])
+                        context = {'msg': 'DECLINE ONLY, phone exist'}
+                        return render(request, 'error.html', context, status=400)
+                    except models.BankUser.DoesNotExist:
+                        pass
+                    # check email
+                    try:
+                        _ = models.BankUser.objects.get(email=request.POST['email'])
+                        context = {'msg': 'DECLINE ONLY, email exist'}
+                        return render(request, 'error.html', context, status=400)
+                    except models.BankUser.DoesNotExist:
+                        pass
+                    to_bankuser.phone = inner_request.phone
+                    to_bankuser.email = inner_request.email
+                    to_bankuser.address = inner_request.address
+                    to_bankuser.save()
+                    context['msg'] = 'APPROVED'
+                    return render(request, 'success.html', context)
+                else:
+                    inner_request.state = 'DECLINED'
+                    inner_request.save()
+                    context['msg'] = 'DECLINED'
+                    return render(request, 'error.html', context, status=401)
+            else:
+                context = {'msg': 'tier1 can only approve customer, merchant account update'}
+                return render(request, 'error.html', context, status=401)
+        else:
+            context['msg'] = 'admin can only approve or decline internal account open/update/delete'
+            return render(request, 'error.html', context, status=401)
     elif login_bankuser.user_type == 'MERCHANT':
         pass
     elif login_bankuser.user_type == 'CUSTOMER':
         pass
 
-    context['msg'] = 'DECLINED'
+    context['msg'] = 'UNKNOWN'
     return render(request, 'error.html', context, status=401)

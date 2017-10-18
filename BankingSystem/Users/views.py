@@ -41,27 +41,27 @@ def login_post_view(request):
 
     # active BankUser
     try:
-        from_bank_user = models.BankUser.objects.get(user=user)
+        login_bankuser = models.BankUser.objects.get(user=user)
     except models.BankUser.DoesNotExist:
         context = {'msg': 'no BankUser found'}
         return render(request, 'error.html', context, status=400)
 
-    if from_bank_user.state == 'INACTIVE':
+    if login_bankuser.state == 'INACTIVE':
         context = {'msg': 'not active BankUser'}
         return render(request, 'error.html', context, status=400)
 
     login(request, user)
 
     # redirect
-    if from_bank_user.user_type == 'ADMIN':
+    if login_bankuser.user_type == 'ADMIN':
         return redirect('/admin/')
-    elif from_bank_user.user_type == 'TIER1':
+    elif login_bankuser.user_type == 'TIER1':
         return redirect('/tier1/')
-    elif from_bank_user.user_type == 'TIER2':
+    elif login_bankuser.user_type == 'TIER2':
         return redirect('/tier2/')
-    elif from_bank_user.user_type == 'CUSTOMER':
+    elif login_bankuser.user_type == 'CUSTOMER':
         return redirect('/customer/')
-    elif from_bank_user.user_type == 'MERCHANT':
+    elif login_bankuser.user_type == 'MERCHANT':
         return redirect('/merchant/')
     else:
         return redirect('/logout/')
@@ -127,6 +127,11 @@ def account_open_post_view(request):
         except models.BankUser.DoesNotExist:
             context = {'msg': 'not authenticated'}
             return render(request, 'error.html', context, status=401)
+
+        # active bank user
+        if from_bankuser.state == 'INACTIVE':
+            context = {'msg': 'not active BankUser'}
+            return render(request, 'error.html', context, status=400)
 
         # ADMIN
         if from_bankuser.user_type == 'ADMIN':
@@ -202,6 +207,11 @@ def account_update_view(request):
         context = {'msg': 'from bank user not exist'}
         return render(request, 'error.html', context, status=401)
 
+    # active bank user
+    if from_bankuser.state == 'INACTIVE':
+        context = {'msg': 'not active BankUser'}
+        return render(request, 'error.html', context, status=400)
+
     # GET data format
     f = form.AccountUpdateGetForm(request.GET)
     if not f.is_valid():
@@ -256,6 +266,11 @@ def account_update_post_view(request):
     except models.BankUser.DoesNotExist:
         context = {'msg': 'from bank user not exist'}
         return render(request, 'error.html', context, status=401)
+
+    # active bank user
+    if from_bankuser.state == 'INACTIVE':
+        context = {'msg': 'not active BankUser'}
+        return render(request, 'error.html', context, status=400)
 
     # POST data format
     f = form.AccountUpdatePostForm(request.POST)
@@ -341,6 +356,11 @@ def account_delete_post_view(request):
         context = {'msg': 'from bank user not exist'}
         return render(request, 'error.html', context, status=401)
 
+    # active bank user
+    if from_bankuser.state == 'INACTIVE':
+        context = {'msg': 'not active BankUser'}
+        return render(request, 'error.html', context, status=400)
+
     # POST data format
     f = form.AccountDeleteGetForm(request.POST)
     if not f.is_valid():
@@ -409,21 +429,26 @@ def index_view(request):
 
     # check if it is an admin user
     try:
-        bank_user = models.BankUser.objects.get(user=request.user)
+        from_bankuser = models.BankUser.objects.get(user=request.user)
     except models.BankUser.DoesNotExist:
         context = {'msg': 'not authenticated'}
         return render(request, 'error.html', context, status=401)
 
+    # active bank user
+    if from_bankuser.state == 'INACTIVE':
+        context = {'msg': 'not active BankUser'}
+        return render(request, 'error.html', context, status=400)
+
     # redirect
-    if bank_user.user_type == 'ADMIN':
+    if from_bankuser.user_type == 'ADMIN':
         return redirect('/admin/')
-    elif bank_user.user_type == 'TIER1':
+    elif from_bankuser.user_type == 'TIER1':
         return redirect('/tier1/')
-    elif bank_user.user_type == 'TIER2':
+    elif from_bankuser.user_type == 'TIER2':
         return redirect('/tier2/')
-    elif bank_user.user_type == 'CUSTOMER':
+    elif from_bankuser.user_type == 'CUSTOMER':
         return redirect('/customer/')
-    elif bank_user.user_type == 'MERCHANT':
+    elif from_bankuser.user_type == 'MERCHANT':
         return redirect('/merchant/')
     else:
         return redirect('/login/')
@@ -438,13 +463,18 @@ def admin_view(request):
 
     # check if it is an admin user
     try:
-        bank_user = models.BankUser.objects.get(user=request.user)
+        login_bankuser = models.BankUser.objects.get(user=request.user)
     except models.BankUser.DoesNotExist:
         context = {'msg': 'not authenticated'}
         return render(request, 'error.html', context, status=401)
-    if bank_user.user_type != 'ADMIN':
+    if login_bankuser.user_type != 'ADMIN':
         context = {'msg': 'not authenticated'}
         return render(request, 'error.html', context, status=401)
+
+    # active bank user
+    if login_bankuser.state == 'INACTIVE':
+        context = {'msg': 'not active BankUser'}
+        return render(request, 'error.html', context, status=400)
 
     # render users
     context = {
@@ -544,10 +574,15 @@ def request_approve_post_view(request):
         context = {'msg': 'not authenticated'}
         return render(request, 'error.html', context, status=401)
     try:
-        bank_user = models.BankUser.objects.get(user=request.user)
+        login_bankuser = models.BankUser.objects.get(user=request.user)
     except models.BankUser.DoesNotExist:
         context = {'msg': 'not authenticated'}
         return render(request, 'error.html', context, status=401)
+
+    # active bank user
+    if login_bankuser.state == 'INACTIVE':
+        context = {'msg': 'not active BankUser'}
+        return render(request, 'error.html', context, status=400)
 
     # check if a valid request
     f = form.HandleRequestForm(request.POST)
@@ -570,7 +605,7 @@ def request_approve_post_view(request):
     to_bankuser = models.BankUser.objects.get(id=inner_request.to_id)
 
     # ADMIN
-    if bank_user.user_type == 'ADMIN':
+    if login_bankuser.user_type == 'ADMIN':
         # ACCOUNT OPEN
         if inner_request.request == 'ACCOUNT_OPEN':
             if to_bankuser.user_type in ['TIER2', 'TIER1']:
@@ -611,22 +646,21 @@ def request_approve_post_view(request):
         # ACCOUNT DELETE
         elif inner_request.request == 'ACCOUNT_DELETE' and to_bankuser.user_type in ['TIER2', 'TIER2']:
             if int(request.POST['approve']):
+                # approve
                 inner_request.state = 'APPROVED'
                 inner_request.save()
+
                 # delete bank_user
-                to_user = to_bankuser.user
-                to_bankuser.delete()
-                to_user.delete()
+                to_bankuser.state = 'INACTIVE'
+                to_bankuser.save()
+
+                # decline related pending requests
+                to_bankuser_reqs = models.Request.objects.filter(Q(from_id=to_bankuser.id) | Q(to_id=to_bankuser.id))
+                for req in to_bankuser_reqs:
+                    if req.state == 'PENDING':
+                        req.state = 'DECLINED'
+                        req.save()
                 context['msg'] = 'APPROVED'
-                # declined all related requests
-                inner_requests = models.Request.objects.filter(Q(from_id=to_bankuser.id) | Q(to_id=to_bankuser.id))
-                for inner_request in inner_requests:
-                    if inner_request.from_id == to_bankuser.id:
-                        inner_request.from_id = -1
-                    if inner_request.to_id == to_bankuser.id:
-                        inner_request.to_id = -1
-                    inner_request.state = 'DECLINED'
-                    inner_request.save()
             else:
                 inner_request.state = 'DECLINED'
                 inner_request.save()
@@ -634,13 +668,13 @@ def request_approve_post_view(request):
         else:
             context['msg'] = 'admin can only approve or decline internal account open/update/delete'
             return render(request, 'error.html', context, status=401)
-    elif bank_user.user_type == 'TIER1':
+    elif login_bankuser.user_type == 'TIER1':
         pass
-    elif bank_user.user_type == 'TIER2':
+    elif login_bankuser.user_type == 'TIER2':
         pass
-    elif bank_user.user_type == 'MERCHANT':
+    elif login_bankuser.user_type == 'MERCHANT':
         pass
-    elif bank_user.user_type == 'CUSTOMER':
+    elif login_bankuser.user_type == 'CUSTOMER':
         pass
 
     context['msg'] = 'DECLINED'

@@ -558,12 +558,25 @@ def admin_view(request):
         return render(request, 'error.html', context, status=400)
 
     context = {
+        'user'
         'users': [],
         'account_open_requests': [],
         'account_update_requests': [],
         'fund_requests': [],
         'payment_requests': [],
     }
+
+    # render user
+    user = RenderUser(
+        login_bankuser.username,
+        login_bankuser.user_type,
+        login_bankuser.state,
+        login_bankuser.id,
+        login_bankuser.email,
+        login_bankuser.phone,
+        login_bankuser.address
+    )
+    context['user'] = user
 
     # render users
     users = models.BankUser.objects.all(
@@ -678,6 +691,18 @@ def tier1_view(request):
         'fund_requests': [],
         'payment_requests': [],
     }
+
+    # render user
+    user = RenderUser(
+        login_bankuser.username,
+        login_bankuser.user_type,
+        login_bankuser.state,
+        login_bankuser.id,
+        login_bankuser.email,
+        login_bankuser.phone,
+        login_bankuser.address
+    )
+    context['user'] = user
 
     # render users
     users = models.BankUser.objects.all(

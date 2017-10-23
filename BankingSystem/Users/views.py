@@ -558,7 +558,7 @@ def admin_view(request):
         return render(request, 'error.html', context, status=400)
 
     context = {
-        'user'
+        'user': None,
         'users': [],
         'account_open_requests': [],
         'account_update_requests': [],
@@ -685,6 +685,7 @@ def tier1_view(request):
         return render(request, 'error.html', context, status=400)
 
     context = {
+        'user': None,
         'users': [],
         'account_open_requests': [],
         'account_update_requests': [],

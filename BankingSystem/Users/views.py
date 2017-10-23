@@ -12,9 +12,9 @@ from django.db.models import Q
 RenderUser = collections.namedtuple(
     'RenderUser', 'username user_type state id email phone address')
 RenderAccountOpenRequest = collections.namedtuple(
-    'RenderAccountOpenRequest', 'from_username to_username id state created request email phone address')
+    'RenderAccountOpenRequest', 'from_username to_username id state sub_state created request email phone address')
 RenderAccountUpdateRequest = collections.namedtuple(
-    'RenderAccountUpdateRequest', 'from_username to_username id state created request email phone address')
+    'RenderAccountUpdateRequest', 'from_username to_username id state sub_state created request email phone address')
 
 
 # ----- login -----
@@ -225,6 +225,7 @@ def account_open_post_view(request):
         to_id=bank_user.id,
         created=datetime.datetime.now(),
         state='PENDING',
+        sub_state='WAITING_T2',
         request='ACCOUNT_OPEN',
         permission=0,
         user_type=request.POST['user_type'],
@@ -358,6 +359,9 @@ def account_update_post_view(request):
             except models.BankUser.DoesNotExist:
                 pass
 
+    # sub-state for T1, 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
+    sub_state = 'WAITING_T2_EX'
+
     # ADMIN
     if from_bankuser.user_type == 'ADMIN':
         if to_bankuser.user_type not in ['TIER2', 'TIER1']:
@@ -385,6 +389,7 @@ def account_update_post_view(request):
         if from_bankuser.id != to_bankuser.id:
             context = {'msg': 'customer merchant only update self'}
             return render(request, 'error.html', context, status=401)
+        sub_state = 'WAITING_T2'
 
     # create Request
     models.Request.objects.create(
@@ -393,6 +398,7 @@ def account_update_post_view(request):
         user_type=to_bankuser.user_type,
         created=datetime.datetime.now(),
         state='PENDING',
+        sub_state=sub_state,
         request='ACCOUNT_UPDATE',
         permission=0,
         critical=0,
@@ -503,6 +509,71 @@ def make_debit_post_view(request):
     return render(request, 'success.html', context)
 
 
+# ------ 7. request -----
+def make_approve_request_post_view(request):
+
+    # bank user
+    try:
+        login_bankuser = models.BankUser.objects.get(user=request.user)
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # active bank user
+    if login_bankuser.state == 'INACTIVE':
+        context = {'msg': 'not active BankUser'}
+        return render(request, 'error.html', context, status=400)
+
+    # t1
+    if login_bankuser.user_type != 'TIER2':
+        context = {'msg': 'only t1 can send APPROVE REQUEST'}
+        return render(request, 'error.html', context, status=400)
+
+    # POST data format
+    f = form.ApproveRequestForm(request.POST)
+    if not f.is_valid():
+        context = {'msg': 'not valid post data ', 'form': f}
+        return render(request, 'error.html', context, status=400)
+
+    # from bank user
+    from_bankuser = login_bankuser
+
+    # to bank user
+    try:
+        to_bankuser = models.BankUser.objects.get(user=request.POST['to_id'])
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'to bank user not exist'}
+        return render(request, 'error.html', context, status=401)
+
+    # to request id
+    try:
+        inner_request = models.BankUser.objects.get(user=request.POST['request_id'])
+    except models.Request.DoesNotExist:
+        context = {'msg': 'request not exist'}
+        return render(request, 'error.html', context, status=401)
+
+    # create Request
+    models.Request.objects.create(
+        from_id=from_bankuser.id,
+        to_id=to_bankuser.id,
+        user_type=to_bankuser.user_type,
+        created=datetime.datetime.now(),
+        state='PENDING',
+        # sub-state for T1, 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
+        sub_state='WAITING',
+        request='APPROVE_REQUEST',
+        request_id=inner_request.id,
+        permission=0,
+        critical=0,
+        phone=request.POST.get('phone', '').strip(),
+        email=request.POST.get('email', '').strip(),
+        address=request.POST.get('address', '').strip(),
+    )
+
+    context = {}
+    return render(request, 'make_payment.html', context)
+
+
 # ----- index -----
 def index_view(request):
     if not request.user.is_authenticated():
@@ -603,11 +674,12 @@ def admin_view(request):
         if inner_request.request == 'ACCOUNT_OPEN':
             if to_bank_user.user_type in ['TIER2', 'TIER1']:
                 # from_username to_username id state created request email phone address
-                context['account_open_requests'].append(RenderAccountUpdateRequest(
+                context['account_open_requests'].append(RenderAccountOpenRequest(
                     from_bank_user.username if from_bank_user else 'obsolete user',
                     to_bank_user.username if to_bank_user else 'obsolete user',
                     inner_request.id,
                     inner_request.state,
+                    inner_request.sub_state,
                     inner_request.created,
                     inner_request.request,
                     inner_request.email,
@@ -624,12 +696,14 @@ def admin_view(request):
                     to_bank_user.username if to_bank_user else 'obsolete user',
                     inner_request.id,
                     inner_request.state,
+                    inner_request.sub_state,
                     inner_request.created,
                     inner_request.request,
                     inner_request.email,
                     inner_request.phone,
                     inner_request.address
                 ))
+
     # return HttpResponse(str(context))
     return render(request, 'admin.html', context)
 
@@ -729,11 +803,12 @@ def tier1_view(request):
         # ACCOUNT OPEN
         if inner_request.request == 'ACCOUNT_OPEN':
             if to_bank_user.user_type in ['CUSTOMER', 'MERCHANT']:
-                context['account_open_requests'].append(RenderAccountUpdateRequest(
+                context['account_open_requests'].append(RenderAccountOpenRequest(
                     from_bank_user.username if from_bank_user else 'obsolete user',
                     to_bank_user.username if to_bank_user else 'obsolete user',
                     inner_request.id,
                     inner_request.state,
+                    inner_request.sub_state,
                     inner_request.created,
                     inner_request.request,
                     inner_request.email,
@@ -749,6 +824,7 @@ def tier1_view(request):
                     to_bank_user.username if to_bank_user else 'obsolete user',
                     inner_request.id,
                     inner_request.state,
+                    inner_request.sub_state,
                     inner_request.created,
                     inner_request.request,
                     inner_request.email,

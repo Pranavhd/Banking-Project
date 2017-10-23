@@ -42,3 +42,8 @@ class AccountDeleteGetForm(forms.Form):
 class HandleRequestForm(forms.Form):
     id = forms.IntegerField(required=True)
     approve = forms.IntegerField(min_value=0, max_value=1, required=True)
+
+
+class ApproveRequestForm(forms.Form):
+    to_id = forms.IntegerField(required=True)
+    request_id = forms.IntegerField(required=True)

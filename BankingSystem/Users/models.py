@@ -39,7 +39,10 @@ class Request(models.Model):
     # state 'PENDING', 'APPROVED', 'DECLINED'
     state = models.CharField(max_length=20)
 
-    # 'FUND', 'PAYMENT', 'ACCOUNT_OPEN', 'ACCOUNT_UPDATE'
+    # sub-state for T1, 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
+    sub_state = models.CharField(max_length=20)
+
+    # 'FUND', 'PAYMENT', 'ACCOUNT_OPEN', 'ACCOUNT_UPDATE', 'APPROVE_REQUEST'
     request = models.CharField(max_length=20)
 
     # permission
@@ -61,3 +64,7 @@ class Request(models.Model):
 
     # ----- FUND related -----
     critical = models.IntegerField()
+
+    # ----- APPROVE REQUEST related -----
+    request_id = models.IntegerField()
+

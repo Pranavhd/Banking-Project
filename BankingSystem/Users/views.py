@@ -230,6 +230,7 @@ def account_open_post_view(request):
         permission=0,
         user_type=request.POST['user_type'],
         critical=0,
+        request_id=-1,
         phone=request.POST['phone'],
         email=request.POST['email'],
         address=request.POST['address'],

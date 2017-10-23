@@ -541,7 +541,7 @@ def make_approve_request_post_view(request):
 
     # to bank user
     try:
-        to_bankuser = models.BankUser.objects.get(user=request.POST['to_id'])
+        to_bankuser = models.BankUser.objects.get(username=request.POST['to_username'])
     except models.BankUser.DoesNotExist:
         context = {'msg': 'to bank user not exist'}
         return render(request, 'error.html', context, status=401)
@@ -954,9 +954,6 @@ def request_approve_post_view(request):
             context['msg'] = 'admin can only approve or decline internal account open/update/delete'
             return render(request, 'error.html', context, status=401)
     elif login_bankuser.user_type == 'TIER2':
-        pass
-    # TIER1
-    elif login_bankuser.user_type == 'TIER1':
         # ACCOUNT OPEN
         if inner_request.request == 'ACCOUNT_OPEN':
             if to_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
@@ -974,9 +971,8 @@ def request_approve_post_view(request):
                     context['msg'] = 'DECLINED'
                     return render(request, 'success.html', context, status=401)
             else:
-                context = {'msg': 'tier1 can only approve customer, merchant account open'}
+                context = {'msg': 'tier2 can only approve customer, merchant account open'}
                 return render(request, 'error.html', context, status=401)
-
         # ACCOUNT UPDATE
         elif inner_request.request == 'ACCOUNT_UPDATE':
             if to_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
@@ -1017,8 +1013,81 @@ def request_approve_post_view(request):
             else:
                 context = {'msg': 'tier1 can only approve customer, merchant account update'}
                 return render(request, 'error.html', context, status=401)
+        elif inner_request.request == 'APPROVE_REQUEST':
+            pass
         else:
-            context['msg'] = 'admin can only approve or decline internal account open/update/delete'
+            context['msg'] = 't2 can only approve or decline internal account open/update/delete, approve_request'
+    # TIER1
+    elif login_bankuser.user_type == 'TIER1':
+        # ACCOUNT OPEN
+        if inner_request.request == 'ACCOUNT_OPEN':
+            if to_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
+                if int(request.POST['approve']):
+                    # sub-state waiting
+                    if inner_request.sub_state != 'WAITING':
+                        context['msg'] = 'DECLINED sub-state is not waiting'
+                        return render(request, 'error.html', context, status=400)
+                    # update bank_user
+                    to_bankuser.state = 'ACTIVE'
+                    to_bankuser.save()
+                    inner_request.state = 'APPROVED'
+                    inner_request.save()
+                    context['msg'] = 'APPROVED'
+                    return render(request, 'success.html', context)
+                else:
+                    inner_request.state = 'DECLINED'
+                    inner_request.save()
+                    context['msg'] = 'DECLINED'
+                    return render(request, 'success.html', context, status=401)
+            else:
+                context = {'msg': 'tier1 can only approve customer, merchant account open'}
+                return render(request, 'error.html', context, status=401)
+        # ACCOUNT UPDATE
+        elif inner_request.request == 'ACCOUNT_UPDATE':
+            if to_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
+                if int(request.POST['approve']):
+                    # sub-state waiting
+                    if inner_request.sub_state != 'WAITING':
+                        context['msg'] = 'DECLINED sub-state is not waiting'
+                        return render(request, 'error.html', context, status=400)
+                    # check phone
+                    if inner_request.phone and inner_request.phone != to_bankuser.phone:
+                        try:
+                            _ = models.BankUser.objects.get(phone=inner_request.phone)
+                            context = {'msg': 'DECLINE ONLY, phone exist'}
+                            return render(request, 'error.html', context, status=400)
+                        except models.BankUser.DoesNotExist:
+                            pass
+                    # check email
+                    if inner_request.email and inner_request.email != to_bankuser.email:
+                        try:
+                            _ = models.BankUser.objects.get(email=inner_request.email)
+                            context = {'msg': 'DECLINE ONLY, email exist'}
+                            return render(request, 'error.html', context, status=400)
+                        except models.BankUser.DoesNotExist:
+                            pass
+                    # update bank_user
+                    if inner_request.phone:
+                        to_bankuser.phone = inner_request.phone
+                    if inner_request.email:
+                        to_bankuser.email = inner_request.email
+                    if inner_request.address:
+                        to_bankuser.address = inner_request.address
+                    to_bankuser.save()
+                    inner_request.state = 'APPROVED'
+                    inner_request.save()
+                    context['msg'] = 'APPROVED'
+                    return render(request, 'success.html', context)
+                else:
+                    inner_request.state = 'DECLINED'
+                    inner_request.save()
+                    context['msg'] = 'DECLINED'
+                    return render(request, 'success.html', context, status=401)
+            else:
+                context = {'msg': 'tier1 can only approve customer, merchant account update'}
+                return render(request, 'error.html', context, status=401)
+        else:
+            context['msg'] = 't1 can only approve or decline internal account open/update/delete'
             return render(request, 'error.html', context, status=401)
     elif login_bankuser.user_type == 'MERCHANT':
         pass

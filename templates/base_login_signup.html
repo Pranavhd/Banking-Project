@@ -12,10 +12,9 @@
         .center {
             position: absolute;
             left: 10%;
-            top: 5%;
+            top: 8%;
             width: 60%;
         }
-        .clearFloat { clear: both; }
 
         button[type=submit]{
             background-color: #4CAF50;
@@ -68,6 +67,12 @@
             font-size: 40px;
 
         }
+        usertype{
+            position: absolute;
+            left: 10%;
+            top: 0%;
+            width: 60%;
+        }
         admin{
             font-size: 50px;
 
@@ -85,6 +90,7 @@
         table{
             background-color:  #F5F5F5;
             position: relative;
+            margin-left: 3%;
 
         }
 
@@ -93,7 +99,7 @@
 </head>
 <body>
     {% block logout%}{% endblock %}
-
+    {% block usertype  %} {% endblock %}
     <div class = "center">
     {% block t1 %}{% endblock %}
     {% block content %}{% endblock %}

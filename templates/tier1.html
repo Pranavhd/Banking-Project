@@ -24,7 +24,7 @@
     <button type="button" id="account_open_btn"  onclick="window.location.href='/account_open/'">open new account</button>
 
 {% endblock %}
-
+{% block usertype %}<usertype>{{ user.username }}, {{ user.user_type }}, {{ user.email }}, {{ user.phone }}</usertype>{% endblock %}
 {% block content %}
 
         <!--User Info-->
@@ -45,6 +45,7 @@
                 <td> {{ user.email }}</td>
                 <td> {{ user.phone }}</td>
                 <td> {{ user.address }}</td>
+
                 <td>
                     {% if user.state == 'INACTIVE' %}
                         INACTIVE
@@ -68,7 +69,10 @@
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Address</th>
+                <th>Request T2</th>
+                <th>Request CUS</th>
                 <th>Status</th>
+
             </tr>
             {% for request in account_open_requests %}
             <tr>
@@ -77,6 +81,24 @@
                 <td> {{ request.email }}</td>
                 <td> {{ request.phone }}</td>
                 <td> {{ request.address }}</td>
+                <td>
+                        <form action="/make_approve_request/" method="POST"> {% csrf_token %}
+                            <input type="hidden" value="" name="to_username" />
+                            <input type="hidden" value="{{ request.id }}" name="request_id" />
+                            <input type="hidden" value="TIER1" name="usertype" />
+                            <button type="submit" name="send_request_t1"> SEND</button>
+                        </form>
+
+                </td>
+                <td>
+                        <form action="/make_approve_request/" method="POST"> {% csrf_token %}
+                            <input type="hidden" value="{{ request.to_username }}" name="to_username" />
+                            <input type="hidden" value="{{ request.id }}" name="request_id" />
+                            <input type="hidden" value="CUSTOMER" name="usertype" />
+                            <button type="submit" name="send_request_cus"> SEND</button>
+                        </form>
+
+                </td>
                 <td>
 
                     {% if request.state == "PENDING" %}
@@ -107,11 +129,13 @@
         <t1>Account update request</t1>
         <table >
             <tr>
-                <th>from</th>
-                <th>to</th>
-                <th>email</th>
-                <th>phone</th>
-                <th>aadress</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Request T2</th>
+                <th>Request CUS</th>
                 <th>Status</th>
             </tr>
             {% for request in account_update_requests %}
@@ -121,6 +145,25 @@
               <td> {{ request.email }}</td>
               <td> {{ request.phone }}</td>
               <td> {{ request.address }}</td>
+                <td>
+                        <form action="/make_approve_request/" method="POST"> {% csrf_token %}
+                            <input type="hidden" value="" name="to_id" />
+                            <input type="hidden" value="{{ request.id }}" name="request_id" />
+                            <input type="hidden" value="TIER1" name="usertype" />
+                            <button type="submit" name="send_request_t1"> SEND</button>
+                        </form>
+
+                </td>
+                <td>
+                        <form action="/make_approve_request/" method="POST"> {% csrf_token %}
+                            <input type="hidden" value="{{ request.from_username }}" name="to_id" />
+                            <input type="hidden" value="{{ request.id }}" name="request_id" />
+                            <input type="hidden" value="CUSTOMER" name="usertype" />
+
+                            <button type="submit" name="send_request_cus"> SEND</button>
+                        </form>
+
+                </td>
               <td>
                   {% if request.state == "PENDING" %}
                       <form action="/request_approve_post/" method="POST"> {% csrf_token %}

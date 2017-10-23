@@ -7,15 +7,16 @@
 
     </style>
 {% endblock%}
-{% block t1 %} <br>{% endblock %}
+
 {% block logout%}
     <button type="button" id="logout_btn"  onclick="window.location.href='/logout/'">Logout</button>
     <button type="button" id="twofa_manage" onclick="window.location.href='/two_factor/'">Two factor manage</button>
     <button type="button" id="open_account_btn"  onclick="window.location.href='/account_open/'">open new account</button>
 
 {% endblock %}
-
+{% block usertype %}<usertype>{{ user.username }}, {{ user.user_type }}, {{ user.email }}, {{ user.phone }}</usertype>{% endblock %}
 {% block content %}
+
 
         <!--User Info-->
         <t1 >Internal Users</t1>

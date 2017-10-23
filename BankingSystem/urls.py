@@ -21,7 +21,7 @@ from django.conf.urls import include
 
 urlpatterns = [
     # login & logout
-    url(r'^login/$', users_views.login_view),
+    # url(r'^login/$', users_views.login_view),
     url(r'^login_post/$', users_views.login_post_view),
     url(r'^logout/$', users_views.logout_view),
 
@@ -59,6 +59,6 @@ urlpatterns = [
     url(r'^request_approve_post/$', users_views.request_approve_post_view),
 
     # 2fa
-    #url(r'', include('two_factor.urls', 'two_factor')),
+    url(r'', include('two_factor.urls', 'two_factor')),
 
 ]

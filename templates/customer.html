@@ -6,11 +6,29 @@
     <button type="button" id="logout_btn"  onclick="window.location.href='/logout/'">Logout</button>
     <button type="button" id="twofa_manage" onclick="window.location.href='/two_factor/'">Two factor manage</button>
 {% endblock %}
+{% block usertype %}<usertype>{{ user.username }}, {{ user.user_type }}, {{ user.email }}, {{ user.phone }}</usertype>{% endblock %}
 
 {% block content %}
 
 
     <br><label class = "label" for="balance" >Balance: </label><br>
+    <br>
+    <table>
+        <tr>
+            <th>credit</th>
+            <td>$$</td>
+        </tr>
+        <tr>
+            <th>checking</th>
+            <td>$$</td>
+        </tr>
+        <tr>
+            <th>saving</th>
+            <td>$$</td>
+
+        </tr>
+    </table>
+    <br>
     <button type="submit" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
 
     <form action="/make_transfer/" method="get">

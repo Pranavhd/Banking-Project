@@ -18,6 +18,7 @@
 {% block t1 %}{% endblock %}
 {% block logout%}
     <button type="button" id="logout_btn"  onclick="window.location.href='/logout/'">Logout</button>
+    <button type="button" id="twofa_manage" onclick="window.location.href='/two_factor/'">Two factor manage</button>
     <button type="button" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
 
 {% endblock %}

@@ -17,6 +17,7 @@ from django.conf.urls import url
 from django.contrib import admin, auth
 from django.contrib.auth import views as auth_views
 from BankingSystem.Users import views as users_views
+from django.conf.urls import include
 
 urlpatterns = [
     # login & logout
@@ -53,5 +54,8 @@ urlpatterns = [
 
     # request
     url(r'^request_approve_post/$', users_views.request_approve_post_view),
+
+    # 2fa
+    #url(r'', include('two_factor.urls', 'two_factor')),
 
 ]

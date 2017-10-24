@@ -45,5 +45,6 @@ class HandleRequestForm(forms.Form):
 
 
 class ApproveRequestForm(forms.Form):
-    to_id = forms.IntegerField(required=True)
+    to_username = forms.CharField(max_length=100, required=False)
+    user_type = forms.CharField(max_length=10, required=True)
     request_id = forms.IntegerField(required=True)

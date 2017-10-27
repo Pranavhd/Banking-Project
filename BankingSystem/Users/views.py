@@ -15,6 +15,8 @@ RenderAccountOpenRequest = collections.namedtuple(
     'RenderAccountOpenRequest', 'from_username to_username id state sub_state created request email phone address')
 RenderAccountUpdateRequest = collections.namedtuple(
     'RenderAccountUpdateRequest', 'from_username to_username id state sub_state created request email phone address')
+RenderApproveRequest = collections.namedtuple(
+    'RenderApproveRequest', 'from_username to_username id state sub_state created request email phone address')
 
 
 # ----- login -----
@@ -735,7 +737,97 @@ def tier2_view(request):
         context = {'msg': 'not active BankUser'}
         return render(request, 'error.html', context, status=400)
 
-    context = {}
+    context = {
+        'user': None,
+        'users': [],
+        'account_open_requests': [],
+        'account_update_requests': [],
+        'approve_requests': [],
+        'fund_requests': [],
+        'payment_requests': [],
+    }
+
+    # render user
+    user = RenderUser(
+        login_bankuser.username,
+        login_bankuser.user_type,
+        login_bankuser.state,
+        login_bankuser.id,
+        login_bankuser.email,
+        login_bankuser.phone,
+        login_bankuser.address
+    )
+    context['user'] = user
+
+    # render users
+    users = models.BankUser.objects.all(
+    ).exclude(user_type='ADMIN').exclude(
+        user_type='TIER2').exclude(
+        user_type='TIER1')
+    for u in users:
+        context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, '***', '***', '***'))
+
+    # render request
+    inner_requests = models.Request.objects.all()
+
+    for inner_request in inner_requests:
+        try:
+            from_bank_user = models.BankUser.objects.get(id=inner_request.from_id)
+        except models.BankUser.DoesNotExist:
+            from_bank_user = None
+        try:
+            to_bank_user = models.BankUser.objects.get(id=inner_request.to_id)
+        except models.BankUser.DoesNotExist:
+            to_bank_user = None
+
+        # ACCOUNT OPEN
+        if inner_request.request == 'ACCOUNT_OPEN':
+            if to_bank_user.user_type in ['CUSTOMER', 'MERCHANT']:
+                context['account_open_requests'].append(RenderAccountOpenRequest(
+                    from_bank_user.username if from_bank_user else 'obsolete user',
+                    to_bank_user.username if to_bank_user else 'obsolete user',
+                    inner_request.id,
+                    inner_request.state,
+                    inner_request.sub_state,
+                    inner_request.created,
+                    inner_request.request,
+                    inner_request.email,
+                    inner_request.phone,
+                    inner_request.address
+                ))
+
+        # ACCOUNT UPDATE
+        if inner_request.request == 'ACCOUNT_UPDATE':
+            if to_bank_user.user_type in ['CUSTOMER', 'MERCHANT']:
+                context['account_update_requests'].append(RenderAccountUpdateRequest(
+                    from_bank_user.username if from_bank_user else 'obsolete user',
+                    to_bank_user.username if to_bank_user else 'obsolete user',
+                    inner_request.id,
+                    inner_request.state,
+                    inner_request.sub_state,
+                    inner_request.created,
+                    inner_request.request,
+                    inner_request.email,
+                    inner_request.phone,
+                    inner_request.address
+                ))
+
+        # APPROVE REQUEST
+        if inner_request.request == 'APPROVE_REQUEST':
+            if inner_request.user_type == 'TIER2':
+                context['approve_requests'].append(RenderApproveRequest(
+                    from_bank_user.username if from_bank_user else 'obsolete user',
+                    to_bank_user.username if to_bank_user else 'obsolete user',
+                    inner_request.id,
+                    inner_request.state,
+                    inner_request.sub_state,
+                    inner_request.created,
+                    inner_request.request,
+                    inner_request.email,
+                    inner_request.phone,
+                    inner_request.address
+                ))
+
     return render(request, 'tier2.html', context)
 
 
@@ -1017,7 +1109,21 @@ def request_approve_post_view(request):
                 context = {'msg': 'tier1 can only approve customer, merchant account update'}
                 return render(request, 'error.html', context, status=401)
         elif inner_request.request == 'APPROVE_REQUEST':
-            pass
+            # get request
+            try:
+                target_inner_request = models.Request.objects.get(inner_request.request_id)
+            except models.Request.DoesNotExist:
+                context = {'msg': 'not valid request '}
+                return render(request, 'error.html', context, status=401)
+
+            # 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
+            if target_inner_request.sub_state == 'WAITING_T2':
+                target_inner_request.sub_state = 'WAITING'
+                
+            if target_inner_request.sub_state == 'WAITING_T2_EX':
+                target_inner_request.sub_state = 'WAITING_EX'
+            target_inner_request.save()
+
         else:
             context['msg'] = 't2 can only approve or decline internal account open/update/delete, approve_request'
     # TIER1

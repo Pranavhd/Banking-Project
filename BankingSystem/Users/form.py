@@ -48,3 +48,8 @@ class ApproveRequestForm(forms.Form):
     to_username = forms.CharField(max_length=100, required=False)
     user_type = forms.CharField(max_length=10, required=True)
     request_id = forms.IntegerField(required=True)
+
+
+class MakeTransferPostForm(forms.Form):
+    to_email = forms.EmailField(required=True)
+    money = MoneyField(required=True, min_value=0.01, max_digits=6, decimal_places=2, default_currency='USD')

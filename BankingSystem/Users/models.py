@@ -60,10 +60,9 @@ class Request(models.Model):
     address = models.CharField(max_length=200)
     password = models.CharField(max_length=200)
 
-    # ----- PAYMENT related -----
-
-    # ----- FUND related -----
+    # ----- PAYMENT/FUND related -----
     critical = models.IntegerField()
+    money = MoneyField(max_digits=6, decimal_places=2, default_currency='USD')
 
     # ----- APPROVE REQUEST related -----
     request_id = models.IntegerField()

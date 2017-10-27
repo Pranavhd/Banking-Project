@@ -482,12 +482,97 @@ def account_delete_post_view(request):
 
 # ------ 4. fund transfer -----
 def make_transfer_view(request):
+    # valid user
+    if not request.user.is_authenticated():
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # login bank user
+    try:
+        login_bankuser = models.BankUser.objects.get(user=request.user)
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'from bank user not exist'}
+        return render(request, 'error.html', context, status=401)
+
+    # active bank user
+    if login_bankuser.state == 'INACTIVE':
+        context = {'msg': 'not active BankUser'}
+        return render(request, 'error.html', context, status=400)
+
     context = {}
     return render(request, 'make_transfer.html', context)
 
 
 def make_transfer_post_view(request):
-    context = {}
+
+    # valid user
+    if not request.user.is_authenticated():
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # login bank user
+    try:
+        login_bankuser = models.BankUser.objects.get(user=request.user)
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'from bank user not exist'}
+        return render(request, 'error.html', context, status=401)
+
+    # active bank user
+    if login_bankuser.state == 'INACTIVE':
+        context = {'msg': 'not active BankUser'}
+        return render(request, 'error.html', context, status=400)
+
+    # POST data format
+    f = form.MakeTransferPostForm(request.POST)
+    if not f.is_valid():
+        context = {'msg': 'not valid post data ', 'form': f}
+        return render(request, 'error.html', context, status=400)
+
+    sub_state = 'WAITING_T2_EX'
+    if login_bankuser.user_type == 'ADMIN':
+        context = {'msg': 'admin can not transfer money'}
+        return render(request, 'error.html', context, status=400)
+    elif login_bankuser.user_type == 'TIER2':
+        context = {'msg': 't2 can not transfer money'}
+        return render(request, 'error.html', context, status=400)
+    elif login_bankuser.user_type == 'TIER1':
+        context = {'msg': 't1 can not transfer money'}
+        return render(request, 'error.html', context, status=400)
+    elif login_bankuser.user_type == 'CUSTOMER':
+        sub_state = 'WAITING_T2'
+    elif login_bankuser.user_type == 'MERCHANT':
+        sub_state = 'WAITING_T2'
+    else:
+        context = {'msg': 'unknown user'}
+        return render(request, 'error.html', context, status=400)
+
+    from_bankuser = login_bankuser
+    try:
+        to_bankuser = models.BankUser.objects.get(email=request.POST['to_email'])
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'to bank user not exist'}
+        return render(request, 'error.html', context, status=401)
+
+    # create Request
+    models.Request.objects.create(
+        from_id=from_bankuser.id,
+        to_id=to_bankuser.id if to_bankuser else -1,
+        user_type='CUSTOMER',
+        created=datetime.datetime.now(),
+        state='PENDING',
+        # sub-state for T1, 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
+        sub_state=sub_state,
+        request='FUND',
+        request_id=-1,
+        permission=-1,
+        critical=1 if int(request.POST['money']) > 1000 else 0,
+        money=request.POST['money'],
+        phone=request.POST.get('phone', '').strip(),
+        email=request.POST.get('email', '').strip(),
+        address=request.POST.get('address', '').strip(),
+    )
+
+    context = {'msg': 'TRANSFER REQUEST sent'}
     return render(request, 'success.html', context)
 
 

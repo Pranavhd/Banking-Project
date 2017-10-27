@@ -499,7 +499,19 @@ def make_transfer_view(request):
         context = {'msg': 'not active BankUser'}
         return render(request, 'error.html', context, status=400)
 
+    # render user
     context = {}
+    user = RenderUser(
+        login_bankuser.username,
+        login_bankuser.user_type,
+        login_bankuser.state,
+        login_bankuser.id,
+        login_bankuser.email,
+        login_bankuser.phone,
+        login_bankuser.address
+    )
+    context['user'] = user
+
     return render(request, 'make_transfer.html', context)
 
 

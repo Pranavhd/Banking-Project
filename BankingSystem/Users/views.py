@@ -16,7 +16,7 @@ RenderAccountOpenRequest = collections.namedtuple(
 RenderAccountUpdateRequest = collections.namedtuple(
     'RenderAccountUpdateRequest', 'from_username to_username id state sub_state created request email phone address')
 RenderApproveRequest = collections.namedtuple(
-    'RenderApproveRequest', 'from_username to_username id state sub_state created request email phone address')
+    'RenderApproveRequest', 'from_username to_username id state sub_state target_state created request email phone address')
 
 
 # ----- login -----
@@ -815,12 +815,18 @@ def tier2_view(request):
         # APPROVE REQUEST
         if inner_request.request == 'APPROVE_REQUEST':
             if inner_request.user_type == 'TIER2':
+                try:
+                    target_inner_request = models.Request.objects.get(inner_request.request_id)
+                except models.Request.DoesNotExist:
+                    context = {'msg': 'not valid request '}
+                    return render(request, 'error.html', context, status=401)
                 context['approve_requests'].append(RenderApproveRequest(
                     from_bank_user.username if from_bank_user else 'obsolete user',
                     to_bank_user.username if to_bank_user else 'obsolete user',
                     inner_request.id,
                     inner_request.state,
                     inner_request.sub_state,
+                    target_inner_request.request,
                     inner_request.created,
                     inner_request.request,
                     inner_request.email,
@@ -1119,7 +1125,7 @@ def request_approve_post_view(request):
             # 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
             if target_inner_request.sub_state == 'WAITING_T2':
                 target_inner_request.sub_state = 'WAITING'
-                
+
             if target_inner_request.sub_state == 'WAITING_T2_EX':
                 target_inner_request.sub_state = 'WAITING_EX'
             target_inner_request.save()

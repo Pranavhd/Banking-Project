@@ -1310,7 +1310,37 @@ def request_approve_post_view(request):
     elif login_bankuser.user_type == 'MERCHANT':
         pass
     elif login_bankuser.user_type == 'CUSTOMER':
-        pass
+        if inner_request.request == 'APPROVE_REQUEST':
+            # get request
+            try:
+                target_inner_request = models.Request.objects.get(id=inner_request.request_id)
+            except models.Request.DoesNotExist:
+                context = {'msg': 'target request not found'}
+                return render(request, 'error.html', context, status=401)
 
+            if int(request.POST['approve']):
+                # 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
+                if target_inner_request.sub_state == 'WAITING_T2':
+                    target_inner_request.sub_state = 'WAITING'
+
+                if target_inner_request.sub_state == 'WAITING_T2_EX':
+                    target_inner_request.sub_state = 'WAITING_EX'
+                target_inner_request.save()
+
+                inner_request.state = 'APPROVED'
+                inner_request.save()
+
+                context = {'msg': 'APPROVE'}
+                return render(request, 'success.html', context, status=200)
+            else:
+
+                inner_request.state = 'DECLINED'
+                inner_request.save()
+
+                context = {'msg': 'Decline'}
+                return render(request, 'success.html', context, status=200)
+        else:
+            context = {'msg': 'customer can only approve'}
+            return render(request, 'error.html', context, status=401)
     context['msg'] = 'UNKNOWN'
     return render(request, 'error.html', context, status=401)

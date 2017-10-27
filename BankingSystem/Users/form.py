@@ -55,4 +55,4 @@ class MakeTransferPostForm(forms.Form):
     to_email = forms.EmailField(required=True)
     from_balance = forms.CharField(max_length=10, required=True)
     to_balance = forms.CharField(max_length=10, required=True)
-    money = MoneyField(required=True, min_value=0.01, max_digits=6, decimal_places=2)
+    money = MoneyField(required=True, min_value=0.01, max_digits=6)

@@ -165,8 +165,6 @@ def account_open_post_view(request):
     except models.BankUser.DoesNotExist:
         pass
 
-    sub_state = 'WAITING_T2_EX'
-
     # valid user
     if request.user.is_authenticated():
 
@@ -205,7 +203,6 @@ def account_open_post_view(request):
         if request.POST['user_type'] not in ['CUSTOMER', 'MERCHANT']:
             context = {'msg': 'unknown user only create customer merchant'}
             return render(request, 'error.html', context, status=401)
-        sub_state = 'WAITING_T2'
 
     # create user
     user = User.objects.create_user(
@@ -230,7 +227,7 @@ def account_open_post_view(request):
         to_id=bank_user.id,
         created=datetime.datetime.now(),
         state='PENDING',
-        sub_state=sub_state,
+        sub_state='WAITING_T2',
         request='ACCOUNT_OPEN',
         permission=0,
         user_type=request.POST['user_type'],

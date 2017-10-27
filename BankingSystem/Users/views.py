@@ -539,12 +539,15 @@ def make_approve_request_post_view(request):
     # from bank user
     from_bankuser = login_bankuser
 
-    # to bank user
-    try:
-        to_bankuser = models.BankUser.objects.get(username=request.POST['to_username'])
-    except models.BankUser.DoesNotExist:
-        context = {'msg': 'to bank user not exist'}
-        return render(request, 'error.html', context, status=401)
+    # user_type is customer or tier2
+    if request.POST['user_type'] == 'CUSTOMER':
+        try:
+            to_bankuser = models.BankUser.objects.get(username=request.POST['to_username'])
+        except models.BankUser.DoesNotExist:
+            context = {'msg': 'to bank user not exist'}
+            return render(request, 'error.html', context, status=401)
+    else:
+        to_bankuser = None
 
     # to request id
     try:
@@ -556,8 +559,8 @@ def make_approve_request_post_view(request):
     # create Request
     models.Request.objects.create(
         from_id=from_bankuser.id,
-        to_id=to_bankuser.id,
-        user_type=to_bankuser.user_type,
+        to_id=to_bankuser.id if to_bankuser else -1,
+        user_type=request.POST['user_type'],
         created=datetime.datetime.now(),
         state='PENDING',
         # sub-state for T1, 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'

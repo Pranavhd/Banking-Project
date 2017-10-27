@@ -21,6 +21,11 @@ class AccountOpenForm(forms.Form):
     phone = forms.RegexField(regex=r'^\+?1?\d{10}$')
     address = forms.CharField(max_length=200, required=True)
 
+    # deposit
+    credit_balance = forms.DecimalField(max_digits=6, decimal_places=2)
+    checking_balance = forms.DecimalField(max_digits=6, decimal_places=2)
+    saving_balance = forms.DecimalField(max_digits=6, decimal_places=2)
+
 
 class AccountUpdateGetForm(forms.Form):
     id = forms.IntegerField(required=True)

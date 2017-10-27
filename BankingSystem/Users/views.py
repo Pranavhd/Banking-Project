@@ -10,7 +10,7 @@ from django.db.models import Q
 
 
 RenderUser = collections.namedtuple(
-    'RenderUser', 'username user_type state id email phone address')
+    'RenderUser', 'username user_type state id email phone address credit_balance checking_balance saving_balance')
 RenderAccountOpenRequest = collections.namedtuple(
     'RenderAccountOpenRequest', 'from_username to_username id state sub_state created request email phone address')
 RenderAccountUpdateRequest = collections.namedtuple(
@@ -219,6 +219,9 @@ def account_open_post_view(request):
         phone=request.POST['phone'],
         email=request.POST['email'],
         address=request.POST['address'],
+        credit_balance=request.POST['credit_balance'],
+        checking_balance=request.POST['checking_balance'],
+        saving_balance=request.POST['saving_balance'],
     )
 
     # create request
@@ -231,11 +234,14 @@ def account_open_post_view(request):
         request='ACCOUNT_OPEN',
         permission=0,
         user_type=request.POST['user_type'],
-        critical=0,
         request_id=-1,
         phone=request.POST['phone'],
         email=request.POST['email'],
         address=request.POST['address'],
+        critical=0,
+        money=0.0,
+        from_balance='',
+        to_balance='',
     )
 
     context = {'msg': 'Account Open Request Sent'}
@@ -404,11 +410,14 @@ def account_update_post_view(request):
         sub_state=sub_state,
         request='ACCOUNT_UPDATE',
         permission=0,
-        critical=0,
         request_id=-1,
         phone=request.POST.get('phone', '').strip(),
         email=request.POST.get('email', '').strip(),
         address=request.POST.get('address', '').strip(),
+        critical=0,
+        money=0.0,
+        from_balance='',
+        to_balance='',
     )
 
     context = {'msg': 'Account Update Request sent'}
@@ -508,7 +517,10 @@ def make_transfer_view(request):
         login_bankuser.id,
         login_bankuser.email,
         login_bankuser.phone,
-        login_bankuser.address
+        login_bankuser.address,
+        login_bankuser.credit_balance,
+        login_bankuser.checking_balance,
+        login_bankuser.saving_balance,
     )
     context['user'] = user
 
@@ -593,11 +605,13 @@ def make_transfer_post_view(request):
         request='FUND',
         request_id=-1,
         permission=-1,
-        critical=1 if int(request.POST['money']) > 1000 else 0,
-        money=request.POST['money'],
         phone=request.POST.get('phone', '').strip(),
         email=request.POST.get('email', '').strip(),
         address=request.POST.get('address', '').strip(),
+        critical=1 if int(request.POST['money']) > 1000 else 0,
+        money=request.POST['money'],
+        from_balance='',
+        to_balance='',
     )
 
     context = {'msg': 'TRANSFER REQUEST sent'}
@@ -688,6 +702,9 @@ def make_approve_request_post_view(request):
         phone=request.POST.get('phone', '').strip(),
         email=request.POST.get('email', '').strip(),
         address=request.POST.get('address', '').strip(),
+        money=0.0,
+        from_balance='',
+        to_balance='',
     )
 
     context = {'msg': 'APPROVE REQUEST sent'}
@@ -765,7 +782,10 @@ def admin_view(request):
         login_bankuser.id,
         login_bankuser.email,
         login_bankuser.phone,
-        login_bankuser.address
+        login_bankuser.address,
+        login_bankuser.credit_balance,
+        login_bankuser.checking_balance,
+        login_bankuser.saving_balance,
     )
     context['user'] = user
 
@@ -775,7 +795,18 @@ def admin_view(request):
         user_type='CUSTOMER').exclude(
         user_type='MERCHANT')
     for u in users:
-        context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, u.email, u.phone, u.address))
+        context['users'].append(RenderUser(
+            u.username,
+            u.user_type,
+            u.state,
+            u.id,
+            u.email,
+            u.phone,
+            u.address,
+            u.credit_balance,
+            u.checking_balance,
+            u.saving_balance,
+        ))
 
     # render request
     inner_requests = models.Request.objects.all()
@@ -869,7 +900,10 @@ def tier2_view(request):
         login_bankuser.id,
         login_bankuser.email,
         login_bankuser.phone,
-        login_bankuser.address
+        login_bankuser.address,
+        login_bankuser.credit_balance,
+        login_bankuser.checking_balance,
+        login_bankuser.saving_balance,
     )
     context['user'] = user
 
@@ -879,7 +913,7 @@ def tier2_view(request):
         user_type='TIER2').exclude(
         user_type='TIER1')
     for u in users:
-        context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, '***', '***', '***'))
+        context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, '***', '***', '***', '***', '***', '***'))
 
     # render request
     inner_requests = models.Request.objects.all()
@@ -991,7 +1025,10 @@ def tier1_view(request):
         login_bankuser.id,
         login_bankuser.email,
         login_bankuser.phone,
-        login_bankuser.address
+        login_bankuser.address,
+        login_bankuser.credit_balance,
+        login_bankuser.checking_balance,
+        login_bankuser.saving_balance,
     )
     context['user'] = user
 
@@ -1001,7 +1038,7 @@ def tier1_view(request):
         user_type='TIER2').exclude(
         user_type='TIER1')
     for u in users:
-        context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, '***', '***', '***'))
+        context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, '***', '***', '***', '***', '***', '***'))
 
     # render request
     inner_requests = models.Request.objects.all()
@@ -1092,7 +1129,10 @@ def customer_view(request):
         login_bankuser.id,
         login_bankuser.email,
         login_bankuser.phone,
-        login_bankuser.address
+        login_bankuser.address,
+        login_bankuser.credit_balance,
+        login_bankuser.checking_balance,
+        login_bankuser.saving_balance,
     )
     context['user'] = user
 
@@ -1174,7 +1214,10 @@ def merchant_view(request):
         login_bankuser.id,
         login_bankuser.email,
         login_bankuser.phone,
-        login_bankuser.address
+        login_bankuser.address,
+        login_bankuser.credit_balance,
+        login_bankuser.checking_balance,
+        login_bankuser.saving_balance,
     )
     context['user'] = user
 

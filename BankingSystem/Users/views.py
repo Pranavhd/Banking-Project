@@ -566,7 +566,7 @@ def make_approve_request_post_view(request):
         created=datetime.datetime.now(),
         state='PENDING',
         # sub-state for T1, 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
-        sub_state='WAITING',
+        sub_state='WAITING_T2_EX',
         request='APPROVE_REQUEST',
         request_id=inner_request.id,
         permission=0,
@@ -1151,7 +1151,7 @@ def request_approve_post_view(request):
 
                 inner_request.state = 'DECLINED'
                 inner_request.save()
-                
+
                 context = {'msg': 'Decline'}
                 return render(request, 'success.html', context, status=200)
 

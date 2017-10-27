@@ -554,7 +554,7 @@ def make_approve_request_post_view(request):
 
     # to request id
     try:
-        inner_request = models.BankUser.objects.get(id=request.POST['request_id'])
+        inner_request = models.Request.objects.get(id=request.POST['request_id'])
     except models.Request.DoesNotExist:
         context = {'msg': 'request not exist'}
         return render(request, 'error.html', context, status=401)

@@ -526,7 +526,7 @@ def make_approve_request_post_view(request):
         return render(request, 'error.html', context, status=400)
 
     # t1
-    if login_bankuser.user_type != 'TIER2':
+    if login_bankuser.user_type != 'TIER1':
         context = {'msg': 'only t1 can send APPROVE REQUEST'}
         return render(request, 'error.html', context, status=400)
 
@@ -571,8 +571,8 @@ def make_approve_request_post_view(request):
         address=request.POST.get('address', '').strip(),
     )
 
-    context = {}
-    return render(request, 'make_payment.html', context)
+    context = {'msg': 'APPROVE REQUEST sent'}
+    return render(request, 'success.html', context)
 
 
 # ----- index -----

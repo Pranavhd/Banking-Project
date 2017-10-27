@@ -7,6 +7,7 @@
     table, th, tr, td{
             border-collapse: collapse;
             border: 1px solid #ddd;
+            width: 75%;
            }
     table{
         position: relative;
@@ -20,14 +21,14 @@
     <button type="button" id="logout_btn"  onclick="window.location.href='/logout/'">Logout</button>
     <button type="button" id="twofa_manage" onclick="window.location.href='/two_factor/'">Two factor manage</button>
     <button type="button" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
-
+    <button type="button" id="account_open_btn"  onclick="window.location.href='/account_open/'">open new account</button>
 {% endblock %}
+{% block usertype %}<usertype>{{ user.username }}, {{ user.user_type }}, {{ user.email }}, {{ user.phone }}</usertype>{% endblock %}
 
 {% block content %}
 
         <!--User Info-->
         <t1 >Users</t1>
-        <button type="submit" id="logout_btn"  onclick="window.location.href='/account_open/'">open new account</button>
         <table >
             <tr>
                 <th>Username</th>
@@ -46,13 +47,22 @@
                 <td> {{ user.phone }}</td>
                 <td> {{ user.address }}</td>
                 <td>
-                    <button type="submit" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Update</button>
+                    {% if user.state != "INACTIVE" %}
+                        <button type="submit" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Update</button>
+                    {% else %}
+                        INACTIVE
+                    {% endif %}
 
                 </td>
                 <td>
-                    <form action="/account_delete/" method="get">
-                        <button type="submit" id="account_delete_btn"> delete</button>
-                    </form>
+                    {% if user.state != "INACTIVE" %}
+                        <form action="/account_delete_post/" method="POST">{% csrf_token %}
+                            <input type="hidden" value="{{ user.id }}" name="id" />
+                            <button type="submit" id="account_delete_btn"> delete</button>
+                        </form>
+                    {% else %}
+                        INACTIVE
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
@@ -144,7 +154,46 @@
                 </td>
             </tr>
             {% endfor %}
+
         </table>
+        <!--Account approve request-->
+        <t1>Account Approve Request</t1>
+        <table >
+            <tr>
+                <th>target state</th>
+                <th>From user</th>
+                <th>Status</th>
+            </tr>
+            {% for request in approve_requests %}
+            <tr>
+              <td> {{ request.target_state }}</td>
+              <td> {{ request.from_username }}</td>
+              <td>
+                  {% if request.state == "PENDING" %}
+                      <form action="/request_approve_post/" method="POST">{% csrf_token %}
+                          <input type="hidden" value="{{ request.id }}" name="id" />
+                          <input type="hidden" value="1" name="approve" />
+                          <button type="submit" name="approve_btn"> APPROVE</button>
+                      </form>
+
+                      <form action="/request_approve_post/" method="POST"> {% csrf_token %}
+                          <input type="hidden" value="{{ request.id }}" name="id" />
+                          <input type="hidden" value="0" name="approve" />
+                          <button type="submit" name="decline_btn"> Decline</button>
+                      </form>
+
+                {% else %}
+                    {{ request.state }}
+
+                {% endif %}
+
+                </td>
+            </tr>
+            {% endfor %}
+
+        </table>
+
+
         <br>
         <!--Fund transfer request-->
         <t1>Fund Transfer </t1>

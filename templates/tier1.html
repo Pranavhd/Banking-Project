@@ -81,31 +81,38 @@
                 <td> {{ request.email }}</td>
                 <td> {{ request.phone }}</td>
                 <td> {{ request.address }}</td>
-                <td>
-                        <form action="/make_approve_request/" method="POST"> {% csrf_token %}
-                            <input type="hidden" value="" name="to_username" />
-                            <input type="hidden" value="{{ request.id }}" name="request_id" />
-                            <input type="hidden" value="TIER1" name="usertype" />
-                            <button type="submit" name="send_request_t1"> SEND</button>
-                        </form>
+                <td><!--for T1, 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING' -->
+                    {% if request.state != "APPROVED" %}
+                        {% if  request.sub_state == "WAITING_T2_EX" or "WAITING" or "WAITING_T2"%}
+                            <form action="/make_approve_request/" method="POST"> {% csrf_token %}
+                                <input type="hidden" value="" name="to_username" />
+                                <input type="hidden" value="{{ request.id }}" name="request_id" />
+                                <input type="hidden" value="TIER2" name="user_type" />
+                                <button type="submit" name="send_request_t1"> SEND</button>
+                            </form>
+                        {% elif request.sub_state == "WAITING_EX"%}
+                            test
 
+                        {% endif %}
+                    {% endif %}
                 </td>
                 <td>
+                    {% if request.state != "APPROVED" %}
                         <form action="/make_approve_request/" method="POST"> {% csrf_token %}
                             <input type="hidden" value="{{ request.to_username }}" name="to_username" />
                             <input type="hidden" value="{{ request.id }}" name="request_id" />
-                            <input type="hidden" value="CUSTOMER" name="usertype" />
+                            <input type="hidden" value="CUSTOMER" name="user_type" />
                             <button type="submit" name="send_request_cus"> SEND</button>
                         </form>
-
+                    {% endif %}
                 </td>
-                <td>
 
+                <td>
                     {% if request.state == "PENDING" %}
                         <form action="/request_approve_post/" method="POST"> {% csrf_token %}
                             <input type="hidden" value="{{ request.id }}" name="id" />
                             <input type="hidden" value="1" name="approve" />
-                            <button type="submit" name="decline_btn"> APPROVE</button>
+                            <button type="submit" name="approve_btn"> APPROVE</button>
                         </form>
 
                         <form action="/request_approve_post/" method="POST"> {% csrf_token %}
@@ -146,23 +153,39 @@
               <td> {{ request.phone }}</td>
               <td> {{ request.address }}</td>
                 <td>
-                        <form action="/make_approve_request/" method="POST"> {% csrf_token %}
-                            <input type="hidden" value="" name="to_id" />
-                            <input type="hidden" value="{{ request.id }}" name="request_id" />
-                            <input type="hidden" value="TIER1" name="usertype" />
-                            <button type="submit" name="send_request_t1"> SEND</button>
-                        </form>
+                    {% if request.state !=  "APPROVED"  and  request.state !=  "DECLINED" %}
+                        {% if request.sub_state == "WAITING_T2_EX"  or request.sub_state == "WAITING_T2"%}
+                            <form action="/make_approve_request/" method="POST"> {% csrf_token %}
+                                <input type="hidden" value="" name="to_username" />
+                                <input type="hidden" value="{{ request.id }}" name="request_id" />
+                                <input type="hidden" value="TIER2" name="user_type" />
+                                <button type="submit" name="send_request_t1"> SEND</button>
+                            </form>
+                        {% elif request.sub_state == "WAITING_EX" %}
+                            approved
+                        {% else %}
 
+                        {% endif %}
+
+                    {% endif %}
                 </td>
                 <td>
-                        <form action="/make_approve_request/" method="POST"> {% csrf_token %}
-                            <input type="hidden" value="{{ request.from_username }}" name="to_id" />
-                            <input type="hidden" value="{{ request.id }}" name="request_id" />
-                            <input type="hidden" value="CUSTOMER" name="usertype" />
+                    {% if request.state !=  "APPROVED"  and  request.state !=  "DECLINED" %}
+                         {% if request.sub_state == "WAITING_T2_EX"  or request.sub_state == "WAITING_EX"%}
+                            <form action="/make_approve_request/" method="POST"> {% csrf_token %}
 
-                            <button type="submit" name="send_request_cus"> SEND</button>
-                        </form>
+                                <input type="hidden" value="{{ request.to_username }}" name="to_username" />
+                                <input type="hidden" value="{{ request.id }}" name="request_id" />
+                                <input type="hidden" value="CUSTOMER" name="user_type" />
 
+                                <button type="submit" name="send_request_cus"> SEND</button>
+                            </form>
+                        {% elif request.sub_state == "WAITING_T2"  %}
+                            approved
+                        {% else %}
+
+                        {% endif %}
+                    {% endif %}
                 </td>
               <td>
                   {% if request.state == "PENDING" %}

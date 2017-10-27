@@ -6,7 +6,7 @@
     <button type="button" id="logout_btn"  onclick="window.location.href='/logout/'">Logout</button>
     <button type="button" id="twofa_manage" onclick="window.location.href='/two_factor/'">Two factor manage</button>
 {% endblock %}
-{% block usertype %}<usertype>{{ user.username }}, {{ user.user_type }}, {{ user.email }}, {{ user.phone }}</usertype>{% endblock %}
+{% block usertype %}<usertype>{{ user.username }}, {{ user.user_type }}, {{ user.email }}, {{ user.phone }}, {{ user.address }}</usertype>{% endblock %}
 
 {% block content %}
 
@@ -29,6 +29,47 @@
         </tr>
     </table>
     <br>
+    <br>
+    <!--approve request-->
+    </table>
+        <!-- approve request-->
+        <t1> Approve Request</t1>
+        <table >
+            <tr>
+                <th>target state</th>
+                <th>From user</th>
+                <th>Status</th>
+            </tr>
+            {% for request in approve_requests %}
+            <tr>
+              <td> {{ request.target_state }}</td>
+              <td> {{ request.from_username }}</td>
+              <td>
+                  {% if request.state == "PENDING" %}
+                      <form action="/request_approve_post/" method="POST">{% csrf_token %}
+                          <input type="hidden" value="{{ request.id }}" name="id" />
+                          <input type="hidden" value="1" name="approve" />
+                          <button type="submit" name="approve_btn"> APPROVE</button>
+                      </form>
+
+                      <form action="/request_approve_post/" method="POST"> {% csrf_token %}
+                          <input type="hidden" value="{{ request.id }}" name="id" />
+                          <input type="hidden" value="0" name="approve" />
+                          <button type="submit" name="decline_btn"> Decline</button>
+                      </form>
+
+                {% else %}
+                    {{ request.state }}
+
+                {% endif %}
+
+                </td>
+            </tr>
+            {% endfor %}
+
+    </table>
+
+
     <button type="submit" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
 
     <form action="/make_transfer/" method="get">

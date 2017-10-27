@@ -6,7 +6,6 @@
 
 {% block logout%}
 
-    <button type="button" id="logout_btn"  onclick="window.location.href='/logout/'">Logout</button>
 
 {% endblock %}
 
@@ -42,7 +41,8 @@
             </select><br>
         {% endif %}
 
-      <button type="submit" id="post-btn">Summit</button>
+    <button type="submit" id="post-btn">Summit</button>
+    <button type="submit" onclick="window.history.go(-1); return false;"  value="Back">Back</button>
 
     </form>
 

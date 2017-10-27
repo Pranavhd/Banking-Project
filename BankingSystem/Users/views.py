@@ -1142,9 +1142,16 @@ def request_approve_post_view(request):
                     target_inner_request.sub_state = 'WAITING_EX'
                 target_inner_request.save()
 
+                inner_request.state = 'APPROVED'
+                inner_request.save()
+
                 context = {'msg': 'APPROVE'}
                 return render(request, 'success.html', context, status=200)
             else:
+
+                inner_request.state = 'DECLINED'
+                inner_request.save()
+                
                 context = {'msg': 'Decline'}
                 return render(request, 'success.html', context, status=200)
 

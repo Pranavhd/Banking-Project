@@ -528,6 +528,14 @@ def make_transfer_post_view(request):
         context = {'msg': 'not valid post data ', 'form': f}
         return render(request, 'error.html', context, status=400)
 
+    # balance type
+    if request.POST['from_balance'] not in ['CREDIT', 'CHECKING', 'SAVING']:
+        context = {'msg': 'not valid from_balance'}
+        return render(request, 'error.html', context, status=400)
+    if request.POST['to_balance'] not in ['CREDIT', 'CHECKING', 'SAVING']:
+        context = {'msg': 'not valid from_balance'}
+        return render(request, 'error.html', context, status=400)
+
     sub_state = 'WAITING_T2_EX'
     if login_bankuser.user_type == 'ADMIN':
         context = {'msg': 'admin can not transfer money'}
@@ -552,6 +560,14 @@ def make_transfer_post_view(request):
     except models.BankUser.DoesNotExist:
         context = {'msg': 'to bank user not exist'}
         return render(request, 'error.html', context, status=401)
+
+    # check transfer logical
+    if from_bankuser == to_bankuser:
+        pass
+    else:
+        if request.POST['from_balance'] != 'CHECKING' or request.POST['to_balance'] != 'CHECKING':
+            context = {'msg': 'different user only allow transfer between checking'}
+            return render(request, 'error.html', context, status=400)
 
     # create Request
     models.Request.objects.create(

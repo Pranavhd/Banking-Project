@@ -23,7 +23,7 @@ class BankUser(models.Model):
     address = models.CharField(max_length=200)
 
     # deposit
-    debit_balance = MoneyField(max_digits=10, decimal_places=2, default_currency='USD')
+    credit_balance = MoneyField(max_digits=10, decimal_places=2, default_currency='USD')
     checking_balance = MoneyField(max_digits=10, decimal_places=2, default_currency='USD')
     saving_balance = MoneyField(max_digits=10, decimal_places=2, default_currency='USD')
 
@@ -63,6 +63,8 @@ class Request(models.Model):
     # ----- PAYMENT/FUND related -----
     critical = models.IntegerField()
     money = MoneyField(max_digits=6, decimal_places=2, default_currency='USD')
+    from_balance = models.CharField(max_length=20)
+    to_balance = models.CharField(max_length=20)
 
     # ----- APPROVE REQUEST related -----
     request_id = models.IntegerField()

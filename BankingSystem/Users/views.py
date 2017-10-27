@@ -1320,11 +1320,11 @@ def request_approve_post_view(request):
 
             if int(request.POST['approve']):
                 # 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
-                if target_inner_request.sub_state == 'WAITING_T2':
+                if target_inner_request.sub_state == 'WAITING_EX':
                     target_inner_request.sub_state = 'WAITING'
 
                 if target_inner_request.sub_state == 'WAITING_T2_EX':
-                    target_inner_request.sub_state = 'WAITING_EX'
+                    target_inner_request.sub_state = 'WAITING_T2'
                 target_inner_request.save()
 
                 inner_request.state = 'APPROVED'

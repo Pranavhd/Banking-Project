@@ -275,7 +275,7 @@ def account_update_view(request):
 
     # to bank user
     try:
-        to_bankuser = models.BankUser.objects.get(user=request.GET['id'])
+        to_bankuser = models.BankUser.objects.get(id=request.GET['id'])
     except models.BankUser.DoesNotExist:
         context = {'msg': 'to bank user not exist'}
         return render(request, 'error.html', context, status=401)

@@ -816,7 +816,7 @@ def tier2_view(request):
         if inner_request.request == 'APPROVE_REQUEST':
             if inner_request.user_type == 'TIER2':
                 try:
-                    target_inner_request = models.Request.objects.get(request_id=inner_request.request_id)
+                    target_inner_request = models.Request.objects.get(id=inner_request.request_id)
                 except models.Request.DoesNotExist:
                     context = {'msg': 'not valid request '}
                     return render(request, 'error.html', context, status=401)
@@ -1117,7 +1117,7 @@ def request_approve_post_view(request):
         elif inner_request.request == 'APPROVE_REQUEST':
             # get request
             try:
-                target_inner_request = models.Request.objects.get(request_id=inner_request.request_id)
+                target_inner_request = models.Request.objects.get(id=inner_request.request_id)
             except models.Request.DoesNotExist:
                 context = {'msg': 'not valid request '}
                 return render(request, 'error.html', context, status=401)

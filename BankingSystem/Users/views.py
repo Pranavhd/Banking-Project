@@ -1023,7 +1023,83 @@ def customer_view(request):
 
 # ----- merchant -----
 def merchant_view(request):
-    context = {}
+    # check if a valid user
+    if not request.user.is_authenticated():
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # check if it is an admin user
+    try:
+        login_bankuser = models.BankUser.objects.get(user=request.user)
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+    if login_bankuser.user_type != 'MERCHANT':
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # active bank user
+    if login_bankuser.state == 'INACTIVE':
+        context = {'msg': 'not active BankUser'}
+        return render(request, 'error.html', context, status=400)
+
+    context = {
+        'user': None,
+        'users': [],
+        'account_open_requests': [],
+        'account_update_requests': [],
+        'approve_requests': [],
+        'fund_requests': [],
+        'payment_requests': [],
+    }
+
+    # render user
+    user = RenderUser(
+        login_bankuser.username,
+        login_bankuser.user_type,
+        login_bankuser.state,
+        login_bankuser.id,
+        login_bankuser.email,
+        login_bankuser.phone,
+        login_bankuser.address
+    )
+    context['user'] = user
+
+    # render request
+    inner_requests = models.Request.objects.all()
+
+    for inner_request in inner_requests:
+        try:
+            from_bank_user = models.BankUser.objects.get(id=inner_request.from_id)
+        except models.BankUser.DoesNotExist:
+            from_bank_user = None
+        try:
+            to_bank_user = models.BankUser.objects.get(id=inner_request.to_id)
+        except models.BankUser.DoesNotExist:
+            to_bank_user = None
+
+        # APPROVE REQUEST
+        if inner_request.request == 'APPROVE_REQUEST':
+            if inner_request.to_id == login_bankuser.id:
+                try:
+                    target_inner_request = models.Request.objects.get(id=inner_request.request_id)
+                except models.Request.DoesNotExist:
+                    context = {'msg': 'not valid request '}
+                    return render(request, 'error.html', context, status=401)
+                context['approve_requests'].append(RenderApproveRequest(
+                    from_bank_user.username if from_bank_user else 'obsolete user',
+                    to_bank_user.username if to_bank_user else 'obsolete user',
+                    inner_request.id,
+                    inner_request.state,
+                    inner_request.sub_state,
+                    target_inner_request.request,
+                    inner_request.created,
+                    inner_request.request,
+                    inner_request.email,
+                    inner_request.phone,
+                    inner_request.address
+                ))
+
     return render(request, 'merchant.html', context)
 
 
@@ -1308,7 +1384,38 @@ def request_approve_post_view(request):
             context['msg'] = 't1 can only approve or decline internal account open/update/delete'
             return render(request, 'error.html', context, status=401)
     elif login_bankuser.user_type == 'MERCHANT':
-        pass
+        if inner_request.request == 'APPROVE_REQUEST':
+            # get request
+            try:
+                target_inner_request = models.Request.objects.get(id=inner_request.request_id)
+            except models.Request.DoesNotExist:
+                context = {'msg': 'target request not found'}
+                return render(request, 'error.html', context, status=401)
+
+            if int(request.POST['approve']):
+                # 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
+                if target_inner_request.sub_state == 'WAITING_EX':
+                    target_inner_request.sub_state = 'WAITING'
+
+                if target_inner_request.sub_state == 'WAITING_T2_EX':
+                    target_inner_request.sub_state = 'WAITING_T2'
+                target_inner_request.save()
+
+                inner_request.state = 'APPROVED'
+                inner_request.save()
+
+                context = {'msg': 'APPROVE'}
+                return render(request, 'success.html', context, status=200)
+            else:
+
+                inner_request.state = 'DECLINED'
+                inner_request.save()
+
+                context = {'msg': 'Decline'}
+                return render(request, 'success.html', context, status=200)
+        else:
+            context = {'msg': 'customer can only approve'}
+            return render(request, 'error.html', context, status=401)
     elif login_bankuser.user_type == 'CUSTOMER':
         if inner_request.request == 'APPROVE_REQUEST':
             # get request

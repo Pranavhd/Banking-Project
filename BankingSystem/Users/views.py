@@ -986,8 +986,15 @@ def request_approve_post_view(request):
         return render(request, 'error.html', context, status=401)
 
     # get user
-    from_bankuser = models.BankUser.objects.get(id=inner_request.from_id)
-    to_bankuser = models.BankUser.objects.get(id=inner_request.to_id)
+    try:
+        from_bankuser = models.BankUser.objects.get(id=inner_request.from_id)
+    except models.BankUser.DoesNotExist:
+        from_bankuser = None
+
+    try:
+        to_bankuser = models.BankUser.objects.get(id=inner_request.to_id)
+    except models.BankUser.DoesNotExist:
+        to_bankuser = None
 
     # ADMIN
     if login_bankuser.user_type == 'ADMIN':

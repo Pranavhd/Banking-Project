@@ -1,6 +1,5 @@
 from django import forms
 from phonenumber_field.formfields import PhoneNumberField
-from djmoney.forms.fields import MoneyField
 from localflavor.us.forms import USSocialSecurityNumberField
 
 
@@ -55,4 +54,4 @@ class MakeTransferPostForm(forms.Form):
     to_email = forms.EmailField(required=True)
     from_balance = forms.CharField(max_length=10, required=True)
     to_balance = forms.CharField(max_length=10, required=True)
-    money = MoneyField(required=True, min_value=0.01, max_digits=6)
+    money = forms.DecimalField(required=True, max_digits=6, decimal_places=2)

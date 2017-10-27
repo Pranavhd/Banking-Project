@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from phonenumber_field.modelfields import PhoneNumberField
-from djmoney.models.fields import MoneyField
 from django.core.validators import RegexValidator
 from localflavor.us.models import USSocialSecurityNumberField
 
@@ -23,9 +22,9 @@ class BankUser(models.Model):
     address = models.CharField(max_length=200)
 
     # deposit
-    credit_balance = MoneyField(max_digits=10, decimal_places=2, default_currency='USD')
-    checking_balance = MoneyField(max_digits=10, decimal_places=2, default_currency='USD')
-    saving_balance = MoneyField(max_digits=10, decimal_places=2, default_currency='USD')
+    credit_balance = models.DecimalField(max_digits=10, decimal_places=2)
+    checking_balance = models.DecimalField(max_digits=10, decimal_places=2)
+    saving_balance = models.DecimalField(max_digits=10, decimal_places=2)
 
 
 class Request(models.Model):
@@ -62,7 +61,7 @@ class Request(models.Model):
 
     # ----- PAYMENT/FUND related -----
     critical = models.IntegerField()
-    money = MoneyField(max_digits=6, decimal_places=2, default_currency='USD')
+    money = models.DecimalField(max_digits=10, decimal_places=2)
     from_balance = models.CharField(max_length=20)
     to_balance = models.CharField(max_length=20)
 

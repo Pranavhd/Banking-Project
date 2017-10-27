@@ -405,6 +405,7 @@ def account_update_post_view(request):
         request='ACCOUNT_UPDATE',
         permission=0,
         critical=0,
+        request_id=-1,
         phone=request.POST.get('phone', '').strip(),
         email=request.POST.get('email', '').strip(),
         address=request.POST.get('address', '').strip(),

@@ -996,6 +996,10 @@ def request_approve_post_view(request):
     except models.BankUser.DoesNotExist:
         to_bankuser = None
 
+    print('-'*50)
+    print(login_bankuser.user_type)
+    print('-'*50)
+
     # ADMIN
     if login_bankuser.user_type == 'ADMIN':
         # ACCOUNT OPEN
@@ -1126,16 +1130,23 @@ def request_approve_post_view(request):
             try:
                 target_inner_request = models.Request.objects.get(id=inner_request.request_id)
             except models.Request.DoesNotExist:
-                context = {'msg': 'not valid request '}
+                context = {'msg': 'target request not found'}
                 return render(request, 'error.html', context, status=401)
 
-            # 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
-            if target_inner_request.sub_state == 'WAITING_T2':
-                target_inner_request.sub_state = 'WAITING'
+            if int(request.POST['approve']):
+                # 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
+                if target_inner_request.sub_state == 'WAITING_T2':
+                    target_inner_request.sub_state = 'WAITING'
 
-            if target_inner_request.sub_state == 'WAITING_T2_EX':
-                target_inner_request.sub_state = 'WAITING_EX'
-            target_inner_request.save()
+                if target_inner_request.sub_state == 'WAITING_T2_EX':
+                    target_inner_request.sub_state = 'WAITING_EX'
+                target_inner_request.save()
+
+                context = {'msg': 'APPROVE'}
+                return render(request, 'success.html', context, status=200)
+            else:
+                context = {'msg': 'Decline'}
+                return render(request, 'success.html', context, status=200)
 
         else:
             context['msg'] = 't2 can only approve or decline internal account open/update/delete, approve_request'

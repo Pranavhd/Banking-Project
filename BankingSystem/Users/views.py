@@ -1263,10 +1263,6 @@ def request_approve_post_view(request):
     except models.BankUser.DoesNotExist:
         to_bankuser = None
 
-    print('-'*50)
-    print(login_bankuser.user_type)
-    print('-'*50)
-
     # ADMIN
     if login_bankuser.user_type == 'ADMIN':
         # ACCOUNT OPEN
@@ -1392,6 +1388,7 @@ def request_approve_post_view(request):
             else:
                 context = {'msg': 'tier1 can only approve customer, merchant account update'}
                 return render(request, 'error.html', context, status=401)
+        # APPROVE
         elif inner_request.request == 'APPROVE_REQUEST':
             # get request
             try:
@@ -1493,6 +1490,58 @@ def request_approve_post_view(request):
             else:
                 context = {'msg': 'tier1 can only approve customer, merchant account update'}
                 return render(request, 'error.html', context, status=401)
+        # FUND
+        elif inner_request.request == 'FUND':
+            if int(request.POST['approve']):
+                # sub-state waiting
+                if inner_request.sub_state != 'WAITING':
+                    context['msg'] = 'DECLINED sub-state is not waiting'
+                    return render(request, 'error.html', context, status=400)
+                if inner_request.critical:
+                    context['msg'] = 't1 can not approve critical'
+                    return render(request, 'error.html', context, status=400)
+
+                # count balance
+                if inner_request.from_balance == 'CREDIT' and inner_request.to_balance == 'CREDIT':
+                    from_bankuser.credit_balance -= inner_request.money
+                    to_bankuser.credit_balance += inner_request.money
+                if inner_request.from_balance == 'CREDIT' and inner_request.to_balance == 'CHECKING':
+                    from_bankuser.credit_balance -= inner_request.money
+                    to_bankuser.checking_balance += inner_request.money
+                if inner_request.from_balance == 'CREDIT' and inner_request.to_balance == 'SAVING':
+                    from_bankuser.credit_balance -= inner_request.money
+                    to_bankuser.saving_balance += inner_request.money
+
+                if inner_request.from_balance == 'CHECKING' and inner_request.to_balance == 'CREDIT':
+                    from_bankuser.checking_balance -= inner_request.money
+                    to_bankuser.credit_balance += inner_request.money
+                if inner_request.from_balance == 'CHECKING' and inner_request.to_balance == 'CHECKING':
+                    from_bankuser.checking_balance -= inner_request.money
+                    to_bankuser.checking_balance += inner_request.money
+                if inner_request.from_balance == 'CHECKING' and inner_request.to_balance == 'SAVING':
+                    from_bankuser.checking_balance -= inner_request.money
+                    to_bankuser.saving_balance += inner_request.money
+
+                if inner_request.from_balance == 'SAVING' and inner_request.to_balance == 'CREDIT':
+                    from_bankuser.saving_balance -= inner_request.money
+                    to_bankuser.credit_balance += inner_request.money
+                if inner_request.from_balance == 'SAVING' and inner_request.to_balance == 'CHECKING':
+                    from_bankuser.saving_balance -= inner_request.money
+                    to_bankuser.checking_balance += inner_request.money
+                if inner_request.from_balance == 'SAVING' and inner_request.to_balance == 'SAVING':
+                    from_bankuser.saving_balance -= inner_request.money
+                    to_bankuser.saving_balance += inner_request.money
+
+                inner_request.state = 'APPROVED'
+                inner_request.save()
+                context['msg'] = 'APPROVED'
+                return render(request, 'success.html', context)
+            else:
+                inner_request.state = 'DECLINED'
+                inner_request.save()
+                context['msg'] = 'DECLINED'
+                return render(request, 'success.html', context, status=401)
+
         else:
             context['msg'] = 't1 can only approve or decline internal account open/update/delete'
             return render(request, 'error.html', context, status=401)

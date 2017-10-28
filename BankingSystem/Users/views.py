@@ -82,7 +82,7 @@ def login_post_view(request):
         return render(request, 'error.html', context, status=400)
 
     if login_bankuser.state == 'INACTIVE':
-        context = {'msg': 'not active BankUser'}
+        context = {'msg': 'not active BankUser whether deleted or not approved yet'}
         return render(request, 'error.html', context, status=400)
 
     login(request, user)

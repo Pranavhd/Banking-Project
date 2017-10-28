@@ -7,6 +7,8 @@
     <button type="button" id="twofa_manage" onclick="window.location.href='/two_factor/'">Two factor manage</button>
     <button type="button" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
     <button type="button" id="make_trans_btn"  onclick="window.location.href='/make_transfer/?id='"> Transfer</button>
+    <button type="button" id="make_trans_btn"  onclick="window.location.href='/account/sessions/'"> Session</button>
+
 
 {% endblock %}
 {% block usertype %}<usertype>{{ user.username }}, {{ user.user_type }}, {{ user.email }}, {{ user.phone }}, {{ user.address }}</usertype>{% endblock %}

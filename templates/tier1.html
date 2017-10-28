@@ -72,6 +72,9 @@
                 <th>Address</th>
                 <th>Request T2</th>
                 <th>Request CUS</th>
+                <th>Checking</th>
+                <th>Saving</th>
+                <th>Credit</th>
                 <th>Status</th>
 
             </tr>
@@ -108,7 +111,9 @@
                         </form>
                     {% endif %}
                 </td>
-
+                <td>{{ request.checking_balance }}</td>
+                <td>{{ request.saving_balance }}</td>
+                <td>{{ request.credit_balance }}</td>
                 <td>
                     {% if request.state == "PENDING" %}
                         <form action="/request_approve_post/" method="POST"> {% csrf_token %}
@@ -129,6 +134,7 @@
                     {% endif %}
 
                 </td>
+
             </tr>
             {% endfor %}
             </table>

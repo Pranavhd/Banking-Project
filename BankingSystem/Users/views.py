@@ -18,7 +18,7 @@ RenderAccountUpdateRequest = collections.namedtuple(
 RenderApproveRequest = collections.namedtuple(
     'RenderApproveRequest', 'from_username to_username id state sub_state target_state created request email phone address')
 RenderFundRequest = collections.namedtuple(
-    'RenderFundRequest', 'from_username to_username id state sub_state created request email phone address')
+    'RenderFundRequest', 'from_username to_username id state sub_state created request email phone address money')
 
 
 # ----- login -----
@@ -612,8 +612,8 @@ def make_transfer_post_view(request):
         address=request.POST.get('address', '').strip(),
         critical=1 if int(request.POST['money']) > 1000 else 0,
         money=request.POST['money'],
-        from_balance='',
-        to_balance='',
+        from_balance=request.POST['from_balance'],
+        to_balance=request.POST['to_balance'],
     )
 
     context = {'msg': 'TRANSFER REQUEST sent'}
@@ -984,6 +984,23 @@ def tier2_view(request):
                     inner_request.address
                 ))
 
+        # FUND
+        if inner_request.request == 'FUND' and inner_request.critical == 1:
+            if to_bank_user.user_type in ['CUSTOMER', 'MERCHANT']:
+                context['fund_requests'].append(RenderFundRequest(
+                    from_bank_user.username if from_bank_user else 'obsolete user',
+                    to_bank_user.username if to_bank_user else 'obsolete user',
+                    inner_request.id,
+                    inner_request.state,
+                    inner_request.sub_state,
+                    inner_request.created,
+                    inner_request.request,
+                    inner_request.email,
+                    inner_request.phone,
+                    inner_request.address,
+                    inner_request.money
+                ))
+
     return render(request, 'tier2.html', context)
 
 
@@ -1088,7 +1105,7 @@ def tier1_view(request):
                 ))
 
         # FUND
-        if inner_request.request == 'FUND':
+        if inner_request.request == 'FUND' and inner_request.critical == 0:
             if to_bank_user.user_type in ['CUSTOMER', 'MERCHANT']:
                 context['fund_requests'].append(RenderFundRequest(
                     from_bank_user.username if from_bank_user else 'obsolete user',
@@ -1101,6 +1118,7 @@ def tier1_view(request):
                     inner_request.email,
                     inner_request.phone,
                     inner_request.address,
+                    inner_request.money
                 ))
 
     return render(request, 'tier1.html', context)
@@ -1564,32 +1582,59 @@ def request_approve_post_view(request):
 
                 # count balance
                 if inner_request.from_balance == 'CREDIT' and inner_request.to_balance == 'CREDIT':
+                    if from_bankuser.credit_balance < inner_request.money:
+                        context['msg'] = 'balance not enough'
+                        return render(request, 'error.html', context, status=400)
                     from_bankuser.credit_balance -= inner_request.money
                     to_bankuser.credit_balance += inner_request.money
                 if inner_request.from_balance == 'CREDIT' and inner_request.to_balance == 'CHECKING':
+                    if from_bankuser.credit_balance < inner_request.money:
+                        context['msg'] = 'balance not enough'
+                        return render(request, 'error.html', context, status=400)
                     from_bankuser.credit_balance -= inner_request.money
                     to_bankuser.checking_balance += inner_request.money
                 if inner_request.from_balance == 'CREDIT' and inner_request.to_balance == 'SAVING':
+                    if from_bankuser.credit_balance < inner_request.money:
+                        context['msg'] = 'balance not enough'
+                        return render(request, 'error.html', context, status=400)
                     from_bankuser.credit_balance -= inner_request.money
                     to_bankuser.saving_balance += inner_request.money
 
                 if inner_request.from_balance == 'CHECKING' and inner_request.to_balance == 'CREDIT':
+                    if from_bankuser.credit_balance < inner_request.money:
+                        context['msg'] = 'balance not enough'
+                        return render(request, 'error.html', context, status=400)
                     from_bankuser.checking_balance -= inner_request.money
                     to_bankuser.credit_balance += inner_request.money
                 if inner_request.from_balance == 'CHECKING' and inner_request.to_balance == 'CHECKING':
+                    if from_bankuser.credit_balance < inner_request.money:
+                        context['msg'] = 'balance not enough'
+                        return render(request, 'error.html', context, status=400)
                     from_bankuser.checking_balance -= inner_request.money
                     to_bankuser.checking_balance += inner_request.money
                 if inner_request.from_balance == 'CHECKING' and inner_request.to_balance == 'SAVING':
+                    if from_bankuser.credit_balance < inner_request.money:
+                        context['msg'] = 'balance not enough'
+                        return render(request, 'error.html', context, status=400)
                     from_bankuser.checking_balance -= inner_request.money
                     to_bankuser.saving_balance += inner_request.money
 
                 if inner_request.from_balance == 'SAVING' and inner_request.to_balance == 'CREDIT':
+                    if from_bankuser.credit_balance < inner_request.money:
+                        context['msg'] = 'balance not enough'
+                        return render(request, 'error.html', context, status=400)
                     from_bankuser.saving_balance -= inner_request.money
                     to_bankuser.credit_balance += inner_request.money
                 if inner_request.from_balance == 'SAVING' and inner_request.to_balance == 'CHECKING':
+                    if from_bankuser.credit_balance < inner_request.money:
+                        context['msg'] = 'balance not enough'
+                        return render(request, 'error.html', context, status=400)
                     from_bankuser.saving_balance -= inner_request.money
                     to_bankuser.checking_balance += inner_request.money
                 if inner_request.from_balance == 'SAVING' and inner_request.to_balance == 'SAVING':
+                    if from_bankuser.credit_balance < inner_request.money:
+                        context['msg'] = 'balance not enough'
+                        return render(request, 'error.html', context, status=400)
                     from_bankuser.saving_balance -= inner_request.money
                     to_bankuser.saving_balance += inner_request.money
 

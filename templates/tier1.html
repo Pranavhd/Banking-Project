@@ -18,7 +18,7 @@
 {% endblock%}
 {% block t1 %}{% endblock %}
 {% block logout%}
-    <button type="button" id="logout_btn"  onclick="window.location.href='/logout/'">Logout</button>
+    <button type="buttoxn" id="logout_btn"  onclick="window.location.href='/logout/'">Logout</button>
     <button type="button" id="twofa_manage" onclick="window.location.href='/two_factor/'">Two factor manage</button>
     <button type="button" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
     <button type="button" id="account_open_btn"  onclick="window.location.href='/account_open/'">open new account</button>
@@ -71,7 +71,6 @@
                 <th>Phone</th>
                 <th>Address</th>
                 <th>Request T2</th>
-                <th>Request CUS</th>
                 <th>Checking</th>
                 <th>Saving</th>
                 <th>Credit</th>
@@ -87,30 +86,21 @@
                 <td> {{ request.address }}</td>
                 <td><!--for T1, 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING' -->
                     {% if request.state != "APPROVED" %}
-                        {% if  request.sub_state == "WAITING_T2_EX" or "WAITING" or "WAITING_T2"%}
+                        {% if  request.sub_state == "WAITING_T2_EX"  or request.sub_state == "WAITING_T2"%}
                             <form action="/make_approve_request/" method="POST"> {% csrf_token %}
                                 <input type="hidden" value="" name="to_username" />
                                 <input type="hidden" value="{{ request.id }}" name="request_id" />
                                 <input type="hidden" value="TIER2" name="user_type" />
                                 <button type="submit" name="send_request_t1"> SEND</button>
                             </form>
-                        {% elif request.sub_state == "WAITING_EX"%}
-                            test
+                        {% else %}
+                            -
                         {% endif %}
                     {% else %}
                         -
                     {% endif %}
                 </td>
-                <td>
-                    {% if request.state != "APPROVED" %}
-                        <form action="/make_approve_request/" method="POST"> {% csrf_token %}
-                            <input type="hidden" value="{{ request.to_username }}" name="to_username" />
-                            <input type="hidden" value="{{ request.id }}" name="request_id" />
-                            <input type="hidden" value="CUSTOMER" name="user_type" />
-                            <button type="submit" name="send_request_cus"> SEND</button>
-                        </form>
-                    {% endif %}
-                </td>
+
                 <td>{{ request.checking_balance }}</td>
                 <td>{{ request.saving_balance }}</td>
                 <td>{{ request.credit_balance }}</td>

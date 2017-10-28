@@ -23,8 +23,11 @@
     <button type="button" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
     <button type="button" id="account_open_btn"  onclick="window.location.href='/account_open/'">open new account</button>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <button type="button" id="make_trans_btn"  onclick="window.location.href='/make_transfer/'"> Transfer</button>
     <button type="button" id="make_trans_btn"  onclick="window.location.href='/account/sessions/'"> Session</button>
+=======
+>>>>>>> parent of e111225... major update for funding part, and account as well
 =======
 >>>>>>> parent of e111225... major update for funding part, and account as well
 
@@ -104,8 +107,22 @@
                         {% elif request.sub_state == "WAITING_EX"%}
                             test
 
+<<<<<<< HEAD
 >>>>>>> parent of e111225... major update for funding part, and account as well
                         {% endif %}
+=======
+                        {% endif %}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if request.state != "APPROVED" %}
+                        <form action="/make_approve_request/" method="POST"> {% csrf_token %}
+                            <input type="hidden" value="{{ request.to_username }}" name="to_username" />
+                            <input type="hidden" value="{{ request.id }}" name="request_id" />
+                            <input type="hidden" value="CUSTOMER" name="user_type" />
+                            <button type="submit" name="send_request_cus"> SEND</button>
+                        </form>
+>>>>>>> parent of e111225... major update for funding part, and account as well
                     {% endif %}
                 </td>
 

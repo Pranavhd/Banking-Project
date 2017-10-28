@@ -5,6 +5,7 @@ from django.core.validators import RegexValidator
 from localflavor.us.models import USSocialSecurityNumberField
 
 
+
 class BankUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
@@ -25,6 +26,10 @@ class BankUser(models.Model):
     credit_balance = models.DecimalField(max_digits=10, decimal_places=2)
     checking_balance = models.DecimalField(max_digits=10, decimal_places=2)
     saving_balance = models.DecimalField(max_digits=10, decimal_places=2)
+
+    # credit
+    credit_number = models.CharField(max_length=16)
+    cvv = models.CharField(max_length=3)
 
 
 class Request(models.Model):
@@ -64,6 +69,9 @@ class Request(models.Model):
     money = models.DecimalField(max_digits=10, decimal_places=2)
     from_balance = models.CharField(max_length=20)
     to_balance = models.CharField(max_length=20)
+
+    credit_number = models.CharField(max_length=16)
+    cvv = models.CharField(max_length=3)
 
     # ----- APPROVE REQUEST related -----
     request_id = models.IntegerField()

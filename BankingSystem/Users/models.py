@@ -5,7 +5,6 @@ from django.core.validators import RegexValidator
 from localflavor.us.models import USSocialSecurityNumberField
 
 
-
 class BankUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
@@ -63,6 +62,9 @@ class Request(models.Model):
     phone = models.CharField(validators=[phone_regex], max_length=12, blank=True)  # validators should be a list
     address = models.CharField(max_length=200)
     password = models.CharField(max_length=200)
+    increment_credit_balance = models.DecimalField(max_digits=10, decimal_places=2)
+    increment_checking_balance = models.DecimalField(max_digits=10, decimal_places=2)
+    increment_saving_balance = models.DecimalField(max_digits=10, decimal_places=2)
 
     # ----- PAYMENT/FUND related -----
     critical = models.IntegerField()

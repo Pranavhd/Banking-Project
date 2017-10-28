@@ -38,6 +38,10 @@ class AccountUpdatePostForm(forms.Form):
     phone = forms.RegexField(regex=r'^\+?1?\d{10}$', required=False)
     address = forms.CharField(max_length=200, required=False)
 
+    increment_credit_balance = forms.DecimalField(max_digits=10, decimal_places=2)
+    increment_checking_balance = forms.DecimalField(max_digits=10, decimal_places=2)
+    increment_saving_balance = forms.DecimalField(max_digits=10, decimal_places=2)
+
 
 class AccountDeleteGetForm(forms.Form):
     id = forms.IntegerField(required=True)

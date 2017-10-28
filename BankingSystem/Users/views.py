@@ -1101,7 +1101,10 @@ def tier1_view(request):
                     inner_request.request,
                     inner_request.email,
                     inner_request.phone,
-                    inner_request.address
+                    inner_request.address,
+                    to_bank_user.credit_balance,
+                    to_bank_user.checking_balance,
+                    to_bank_user.saving_balance,
                 ))
 
         # ACCOUNT UPDATE

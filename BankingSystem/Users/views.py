@@ -13,7 +13,7 @@ from .models import Request
 RenderUser = collections.namedtuple(
     'RenderUser', 'username user_type state id email phone address credit_balance checking_balance saving_balance')
 RenderAccountOpenRequest = collections.namedtuple(
-    'RenderAccountOpenRequest', 'from_username to_username id state sub_state created request email phone address')
+    'RenderAccountOpenRequest', 'from_username to_username id state sub_state created request email phone address credit_balance checking_balance saving_balance')
 RenderAccountUpdateRequest = collections.namedtuple(
     'RenderAccountUpdateRequest', 'from_username to_username id state sub_state created request email phone address')
 RenderApproveRequest = collections.namedtuple(
@@ -83,7 +83,7 @@ def login_post_view(request):
         return render(request, 'error.html', context, status=400)
 
     if login_bankuser.state == 'INACTIVE':
-        context = {'msg': 'not active BankUser'}
+        context = {'msg': 'not active BankUser whether deleted or not approved yet'}
         return render(request, 'error.html', context, status=400)
 
     login(request, user)
@@ -848,7 +848,10 @@ def admin_view(request):
                     inner_request.request,
                     inner_request.email,
                     inner_request.phone,
-                    inner_request.address
+                    inner_request.address,
+                    to_bank_user.credit_balance,
+                    to_bank_user.checking_balance,
+                    to_bank_user.saving_balance,
                 ))
 
         # ACCOUNT UPDATE for to bank user user_type admin, tier2, tier1
@@ -953,7 +956,10 @@ def tier2_view(request):
                     inner_request.request,
                     inner_request.email,
                     inner_request.phone,
-                    inner_request.address
+                    inner_request.address,
+                    to_bank_user.credit_balance,
+                    to_bank_user.checking_balance,
+                    to_bank_user.saving_balance,
                 ))
 
         # ACCOUNT UPDATE
@@ -1096,7 +1102,10 @@ def tier1_view(request):
                     inner_request.request,
                     inner_request.email,
                     inner_request.phone,
-                    inner_request.address
+                    inner_request.address,
+                    to_bank_user.credit_balance,
+                    to_bank_user.checking_balance,
+                    to_bank_user.saving_balance,
                 ))
 
         # ACCOUNT UPDATE

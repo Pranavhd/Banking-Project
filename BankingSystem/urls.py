@@ -61,4 +61,6 @@ urlpatterns = [
     # 2fa
     url(r'', include('two_factor.urls', 'two_factor')),
 
+    # session
+    url(r'', include('user_sessions.urls', 'user_sessions'))
 ]

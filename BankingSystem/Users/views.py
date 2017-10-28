@@ -1372,6 +1372,8 @@ def merchant_view(request):
         login_bankuser.credit_balance,
         login_bankuser.checking_balance,
         login_bankuser.saving_balance,
+        login_bankuser.credit_number,
+        login_bankuser.cvv,
     )
     context['user'] = user
 

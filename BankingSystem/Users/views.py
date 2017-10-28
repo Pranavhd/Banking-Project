@@ -12,7 +12,7 @@ from django.db.models import Q
 RenderUser = collections.namedtuple(
     'RenderUser', 'username user_type state id email phone address credit_balance checking_balance saving_balance')
 RenderAccountOpenRequest = collections.namedtuple(
-    'RenderAccountOpenRequest', 'from_username to_username id state sub_state created request email phone address')
+    'RenderAccountOpenRequest', 'from_username to_username id state sub_state created request email phone address credit_balance checking_balance saving_balance')
 RenderAccountUpdateRequest = collections.namedtuple(
     'RenderAccountUpdateRequest', 'from_username to_username id state sub_state created request email phone address')
 RenderApproveRequest = collections.namedtuple(
@@ -847,7 +847,10 @@ def admin_view(request):
                     inner_request.request,
                     inner_request.email,
                     inner_request.phone,
-                    inner_request.address
+                    inner_request.address,
+                    to_bank_user.credit_balance,
+                    to_bank_user.checking_balance,
+                    to_bank_user.saving_balance,
                 ))
 
         # ACCOUNT UPDATE for to bank user user_type admin, tier2, tier1
@@ -952,7 +955,10 @@ def tier2_view(request):
                     inner_request.request,
                     inner_request.email,
                     inner_request.phone,
-                    inner_request.address
+                    inner_request.address,
+                    to_bank_user.credit_balance,
+                    to_bank_user.checking_balance,
+                    to_bank_user.saving_balance,
                 ))
 
         # ACCOUNT UPDATE

@@ -710,7 +710,7 @@ def make_payment_post_view(request):
         to_id=to_bankuser.id,
         created=datetime.datetime.now(),
         state='PENDING',
-        sub_state='WAITING_T2_EX',
+        sub_state='WAITING_T2',
         request='PAYMENT',
         permission=0,
         user_type=to_bankuser.user_type,
@@ -1091,7 +1091,7 @@ def tier2_view(request):
                     inner_request.request,
                     inner_request.email,
                     inner_request.phone,
-                    inner_request.address
+                    inner_request.address,
                 ))
 
         # FUND

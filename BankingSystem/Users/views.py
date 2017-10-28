@@ -957,7 +957,7 @@ def tier2_view(request):
 
         # ACCOUNT UPDATE
         if inner_request.request == 'ACCOUNT_UPDATE':
-            if to_bank_user.user_type in ['CUSTOMER', 'MERCHANT']:
+            if to_bank_user.user_type in ['TIER2', 'TIER1', 'CUSTOMER', 'MERCHANT']:
                 context['account_update_requests'].append(RenderAccountUpdateRequest(
                     from_bank_user.username if from_bank_user else 'obsolete user',
                     to_bank_user.username if to_bank_user else 'obsolete user',

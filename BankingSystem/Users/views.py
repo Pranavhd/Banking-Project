@@ -1586,60 +1586,75 @@ def request_approve_post_view(request):
                         context['msg'] = 'balance not enough'
                         return render(request, 'error.html', context, status=400)
                     from_bankuser.credit_balance -= inner_request.money
+                    from_bankuser.save()
                     to_bankuser.credit_balance += inner_request.money
+                    to_bankuser.save()
                 if inner_request.from_balance == 'CREDIT' and inner_request.to_balance == 'CHECKING':
                     if from_bankuser.credit_balance < inner_request.money:
                         context['msg'] = 'balance not enough'
                         return render(request, 'error.html', context, status=400)
                     from_bankuser.credit_balance -= inner_request.money
+                    from_bankuser.save()
                     to_bankuser.checking_balance += inner_request.money
+                    to_bankuser.save()
                 if inner_request.from_balance == 'CREDIT' and inner_request.to_balance == 'SAVING':
                     if from_bankuser.credit_balance < inner_request.money:
                         context['msg'] = 'balance not enough'
                         return render(request, 'error.html', context, status=400)
                     from_bankuser.credit_balance -= inner_request.money
+                    from_bankuser.save()
                     to_bankuser.saving_balance += inner_request.money
+                    to_bankuser.save()
 
                 if inner_request.from_balance == 'CHECKING' and inner_request.to_balance == 'CREDIT':
                     if from_bankuser.checking_balance < inner_request.money:
                         context['msg'] = 'balance not enough'
                         return render(request, 'error.html', context, status=400)
                     from_bankuser.checking_balance -= inner_request.money
+                    from_bankuser.save()
                     to_bankuser.credit_balance += inner_request.money
+                    to_bankuser.save()
                 if inner_request.from_balance == 'CHECKING' and inner_request.to_balance == 'CHECKING':
                     if from_bankuser.checking_balance < inner_request.money:
                         context['msg'] = 'balance not enough'
                         return render(request, 'error.html', context, status=400)
                     from_bankuser.checking_balance -= inner_request.money
+                    from_bankuser.save()
                     to_bankuser.checking_balance += inner_request.money
+                    to_bankuser.save()
                 if inner_request.from_balance == 'CHECKING' and inner_request.to_balance == 'SAVING':
                     if from_bankuser.checking_balance < inner_request.money:
                         context['msg'] = 'balance not enough'
                         return render(request, 'error.html', context, status=400)
                     from_bankuser.checking_balance -= inner_request.money
+                    from_bankuser.save()
                     to_bankuser.saving_balance += inner_request.money
+                    to_bankuser.save()
 
                 if inner_request.from_balance == 'SAVING' and inner_request.to_balance == 'CREDIT':
                     if from_bankuser.saving_balance < inner_request.money:
                         context['msg'] = 'balance not enough'
                         return render(request, 'error.html', context, status=400)
                     from_bankuser.saving_balance -= inner_request.money
+                    from_bankuser.save()
                     to_bankuser.credit_balance += inner_request.money
+                    to_bankuser.save()
                 if inner_request.from_balance == 'SAVING' and inner_request.to_balance == 'CHECKING':
                     if from_bankuser.saving_balance < inner_request.money:
                         context['msg'] = 'balance not enough'
                         return render(request, 'error.html', context, status=400)
                     from_bankuser.saving_balance -= inner_request.money
+                    from_bankuser.save()
                     to_bankuser.checking_balance += inner_request.money
+                    to_bankuser.save()
                 if inner_request.from_balance == 'SAVING' and inner_request.to_balance == 'SAVING':
                     if from_bankuser.saving_balance < inner_request.money:
                         context['msg'] = 'balance not enough'
                         return render(request, 'error.html', context, status=400)
                     from_bankuser.saving_balance -= inner_request.money
+                    from_bankuser.save()
                     to_bankuser.saving_balance += inner_request.money
-                
-                from_bankuser.save()
-                to_bankuser.save()
+                    to_bankuser.save()
 
                 inner_request.state = 'APPROVED'
                 inner_request.save()

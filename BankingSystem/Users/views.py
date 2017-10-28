@@ -711,7 +711,7 @@ def make_payment_post_view(request):
         sub_state='WAITING_T2_EX',
         request='PAYMENT',
         permission=0,
-        user_type=request.POST['user_type'],
+        user_type=to_bankuser.user_type,
         request_id=-1,
         phone='',
         email='',

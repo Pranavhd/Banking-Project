@@ -581,7 +581,7 @@ def make_transfer_post_view(request):
         return render(request, 'error.html', context, status=400)
 
     if login_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
-        if login_bankuser.email != request.POST['to_email']:
+        if login_bankuser.email != request.POST['from_email']:
             context = {'msg': 'customer can only send from their own email'}
             return render(request, 'error.html', context, status=401)
         from_bankuser = login_bankuser

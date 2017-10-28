@@ -7,10 +7,10 @@
     <button type="button" id="twofa_manage" onclick="window.location.href='/two_factor/'">Two factor manage</button>
     <button type="button" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
     <button type="button" id="make_trans_btn"  onclick="window.location.href='/make_transfer/?id='"> Transfer</button>
-    <button type="button" id="make_trans_btn"  onclick="window.location.href='/account/sessions/'"> Session</button>
+    <button type="button" id="sessions_btn"  onclick="window.location.href='/account/sessions/'"> Session</button>
 
 {% endblock %}
-{% block usertype %}<usertype>{{ user.username }}, {{ user.user_type }}, {{ user.email }}, {{ user.phone }}, {{ user.address }}</usertype>{% endblock %}
+{% block usertype %}<usertype>{{ user.username }}, {{ user.user_type }}, {{ user.email }}, {{ user.phone }}, {{ user.address }}, {{ user.credit_number }},{{ user.cvv }}</usertype>{% endblock %}
 
 {% block content %}
 
@@ -33,34 +33,36 @@
         </tr>
     </table>
     <br>
-    <br>
-    <!--approve request-->
     </table>
+
         <!-- approve request-->
         <t1> Approve Request</t1>
         <table >
             <tr>
+                <th>Date</th>
                 <th>target state</th>
                 <th>From user</th>
                 <th>Status</th>
             </tr>
             {% for request in approve_requests %}
             <tr>
-              <td> {{ request.target_state }}</td>
-              <td> {{ request.from_username }}</td>
-              <td>
-                  {% if request.state == "PENDING" %}
-                      <form action="/request_approve_post/" method="POST">{% csrf_token %}
-                          <input type="hidden" value="{{ request.id }}" name="id" />
-                          <input type="hidden" value="1" name="approve" />
-                          <button type="submit" name="approve_btn"> APPROVE</button>
-                      </form>
+                <td> {{ request.created }}</td>
+                <td> {{ request.target_state }}</td>
+                <td> {{ request.target_state }}</td>
+                <td> {{ request.from_username }}</td>
+                <td>
+                    {% if request.state == "PENDING" %}
+                        <form action="/request_approve_post/" method="POST">{% csrf_token %}
+                            <input type="hidden" value="{{ request.id }}" name="id" />
+                            <input type="hidden" value="1" name="approve" />
+                            <button type="submit" name="approve_btn"> APPROVE</button>
+                        </form>
 
-                      <form action="/request_approve_post/" method="POST"> {% csrf_token %}
-                          <input type="hidden" value="{{ request.id }}" name="id" />
-                          <input type="hidden" value="0" name="approve" />
-                          <button type="submit" name="decline_btn"> Decline</button>
-                      </form>
+                        <form action="/request_approve_post/" method="POST"> {% csrf_token %}
+                            <input type="hidden" value="{{ request.id }}" name="id" />
+                            <input type="hidden" value="0" name="approve" />
+                            <button type="submit" name="decline_btn"> Decline</button>
+                        </form>
 
                 {% else %}
                     {{ request.state }}
@@ -70,8 +72,6 @@
                 </td>
             </tr>
             {% endfor %}
-
-    </table>
 
 
 

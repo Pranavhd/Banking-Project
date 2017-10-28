@@ -23,7 +23,7 @@
     <button type="button" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
     <button type="button" id="account_open_btn"  onclick="window.location.href='/account_open/'">open new account</button>
     <button type="button" id="make_trans_btn"  onclick="window.location.href='/make_transfer/'"> Transfer</button>
-    <button type="button" id="make_trans_btn"  onclick="window.location.href='/account/sessions/'"> Session</button>
+    <button type="button" id="sessions_btn"  onclick="window.location.href='/account/sessions/'"> Session</button>
 
 
 {% endblock %}
@@ -81,6 +81,7 @@
         <t1>Account Open Request</t1>
         <table >
             <tr>
+                <th>Date</th>
                 <th>From</th>
                 <th>To</th>
                 <th>Email</th>
@@ -90,6 +91,7 @@
             </tr>
             {% for request in account_open_requests %}
             <tr>
+                <td> {{ request.created }}</td>
                 <td> {{ request.from_username }}</td>
                 <td> {{ request.to_username }}</td>
                 <td> {{ request.email }}</td>
@@ -125,6 +127,7 @@
         <t1>Account Update Request</t1>
         <table >
             <tr>
+                <th>Date</th>
                 <th>from</th>
                 <th>to</th>
                 <th>email</th>
@@ -134,14 +137,15 @@
             </tr>
             {% for request in account_update_requests %}
             <tr>
-              <td> {{ request.from_username }}</td>
-              <td> {{ request.to_username }}</td>
-              <td> {{ request.email }}</td>
-              <td> {{ request.phone }}</td>
-              <td> {{ request.address }}</td>
-              <td>
-                  {% if request.state == "PENDING" %}
-                      <form action="/request_approve_post/" method="POST"> {% csrf_token %}
+                <td> {{ request.created }}</td>
+                <td> {{ request.from_username }}</td>
+                <td> {{ request.to_username }}</td>
+                <td> {{ request.email }}</td>
+                <td> {{ request.phone }}</td>
+                <td> {{ request.address }}</td>
+                <td>
+                    {% if request.state == "PENDING" %}
+                        <form action="/request_approve_post/" method="POST"> {% csrf_token %}
                           <input type="hidden" value="{{ request.id }}" name="id" />
                           <input type="hidden" value="1" name="approve" />
                           <button type="submit" name="decline_btn"> APPROVE</button>
@@ -163,25 +167,27 @@
             {% endfor %}
 
         </table>
-        <!--Account approve request-->
-        <t1>Account Approve Request</t1>
+        <!-- approve request-->
+        <t1> Approve Request</t1>
         <table >
             <tr>
+                <th>Date</th>
                 <th>target state</th>
                 <th>From user</th>
                 <th>Status</th>
             </tr>
             {% for request in approve_requests %}
             <tr>
-              <td> {{ request.target_state }}</td>
-              <td> {{ request.from_username }}</td>
-              <td>
-                  {% if request.state == "PENDING" %}
-                      <form action="/request_approve_post/" method="POST">{% csrf_token %}
-                          <input type="hidden" value="{{ request.id }}" name="id" />
-                          <input type="hidden" value="1" name="approve" />
-                          <button type="submit" name="approve_btn"> APPROVE</button>
-                      </form>
+                <td> {{ request.created }}</td>
+                <td> {{ request.target_state }}</td>
+                <td> {{ request.from_username }}</td>
+                <td>
+                    {% if request.state == "PENDING" %}
+                        <form action="/request_approve_post/" method="POST">{% csrf_token %}
+                            <input type="hidden" value="{{ request.id }}" name="id" />
+                            <input type="hidden" value="1" name="approve" />
+                            <button type="submit" name="approve_btn"> APPROVE</button>
+                        </form>
 
                       <form action="/request_approve_post/" method="POST"> {% csrf_token %}
                           <input type="hidden" value="{{ request.id }}" name="id" />
@@ -206,6 +212,7 @@
         <t1>Fund transfer request</t1>
         <table >
             <tr>
+                <th>Date</th>
                 <th>From</th>
                 <th>To</th>
                 <th>Money</th>
@@ -214,6 +221,7 @@
             </tr>
             {% for request in fund_requests %}
             <tr>
+                <td> {{ request.created }}</td>
                 <td style="width: 10%"> {{ request.from_username }}</td>
                 <td> {{ request.to_username }}</td>
                 <td> {{ request.money }}</td>
@@ -253,17 +261,19 @@
         <t1>Payment </t1>
         <table >
             <tr>
-              <th>1</th>
-              <th>2</th>
-              <th>3</th>
-              <th>4</th>
+                <th>Date</th>
+                <th>1</th>
+                <th>2</th>
+                <th>3</th>
+                <th>4</th>
             </tr>
             {% for request in payment_requests %}
             <tr>
-              <td> {{ request.username }}</td>
-              <td> {{ request.email }}</td>
-              <td> {{ request.phone }}</td>
-              <td> {{ request.address }}</td>
+                <td> {{ request.created }}</td>
+                <td> {{ request.username }}</td>
+                <td> {{ request.email }}</td>
+                <td> {{ request.phone }}</td>
+                <td> {{ request.address }}</td>
             </tr>
             {% endfor %}
         </table>

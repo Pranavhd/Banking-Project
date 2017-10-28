@@ -12,7 +12,7 @@
     <button type="button" id="logout_btn"  onclick="window.location.href='/logout/'">Logout</button>
     <button type="button" id="twofa_manage" onclick="window.location.href='/two_factor/'">Two factor manage</button>
     <button type="button" id="open_account_btn"  onclick="window.location.href='/account_open/'">open new account</button>
-    <button type="button" id="make_trans_btn"  onclick="window.location.href='/account/sessions/'"> Session</button>
+    <button type="button" id="sessions_btn"  onclick="window.location.href='/account/sessions/'"> Session</button>
 
 
 {% endblock %}
@@ -29,6 +29,8 @@
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Address</th>
+                <th>Card Number</th>
+                <th>CVV</th>
                 <th>Update</th>
                 <th>Delete</th>
             </tr>
@@ -39,6 +41,8 @@
                 <td> {{ user.email }}</td>
                 <td> {{ user.phone }}</td>
                 <td> {{ user.address }}</td>
+                <td> {{ user.credit_number }}</td>
+                <td> {{ user.cvv }}</td>
                 <td>
                     {% if user.state == 'INACTIVE' %}
                         INACTIVE
@@ -69,6 +73,7 @@
         <t1>Account Open Request</t1>
         <table >
             <tr>
+                <th>Date</th>
                 <th>From</th>
                 <th>To</th>
                 <th>Email</th>
@@ -78,6 +83,7 @@
             </tr>
             {% for request in account_open_requests %}
             <tr>
+                <td> {{ request.created }}</td>
                 <td> {{ request.from_username }}</td>
                 <td> {{ request.to_username }}</td>
                 <td> {{ request.email }}</td>
@@ -113,6 +119,7 @@
         <t1>Account Update Request</t1>
         <table >
             <tr>
+                <th>Date</th>
                 <th>from</th>
                 <th>to</th>
                 <th>email</th>
@@ -122,12 +129,13 @@
             </tr>
             {% for request in account_update_requests %}
             <tr>
-              <td> {{ request.from_username }}</td>
-              <td> {{ request.to_username }}</td>
-              <td> {{ request.email }}</td>
-              <td> {{ request.phone }}</td>
-              <td> {{ request.address }}</td>
-              <td>
+                <td> {{ request.created }}</td>
+                <td> {{ request.from_username }}</td>
+                <td> {{ request.to_username }}</td>
+                <td> {{ request.email }}</td>
+                <td> {{ request.phone }}</td>
+                <td> {{ request.address }}</td>
+                <td>
                   {% if request.state == "PENDING" %}
                       <form action="/request_approve_post/" method="POST"> {% csrf_token %}
                           <input type="hidden" value="{{ request.id }}" name="id" />

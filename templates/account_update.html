@@ -17,6 +17,23 @@
 
         <input type="hidden" value="{{ id }}" name="id" />
 
+        {% if user_type == "TIER1" or  user_type == "TIER2"%}
+            <label for="checking_balance">Checking: </label>
+            <input type="number" step="0.01" id="checking_balance" name="increment_checking_balance" value="0"><br>
+
+            <label for="saving_balance">Saving: </label>
+            <input type="number" step="0.01" id="saving_balance" name="increment_saving_balance" value="0" ><br>
+
+            <label for="credit_balance">Chedit: </label>
+            <input type="number" step="0.01" id="credit_balance" name="increment_credit_balance" value="0"><br>
+
+        {% else %}
+            <input type="hidden" id="checking_balance" name="increment_checking_balance" value="0"><br>
+            <input type="hidden" id="saving_balance" name="increment_saving_balance" value="0" ><br>
+            <input type="hidden" id="credit_balance" name="increment_credit_balance" value="200" ><br>
+
+        {% endif %}
+
     <button type="submit" id="post-btn" onclick="pop()">Summit</button>
     <button type="submit" onclick="window.history.go(-1); return false;"  value="Back">Back</button>
 

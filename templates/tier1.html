@@ -23,7 +23,7 @@
     <button type="button" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
     <button type="button" id="account_open_btn"  onclick="window.location.href='/account_open/'">open new account</button>
     <button type="button" id="make_trans_btn"  onclick="window.location.href='/make_transfer/'"> Transfer</button>
-    <button type="button" id="make_trans_btn"  onclick="window.location.href='/account/sessions/'"> Session</button>
+    <button type="button" id="sessions_btn"  onclick="window.location.href='/account/sessions/'"> Session</button>
 
 {% endblock %}
 {% block usertype %}<usertype>{{ user.username }}, {{ user.user_type }}, {{ user.email }}, {{ user.phone }}</usertype>{% endblock %}
@@ -66,6 +66,7 @@
         <t1>Account Open Request</t1>
         <table >
             <tr>
+                <th>Date</th>
                 <th>From</th>
                 <th>To</th>
                 <th>Email</th>
@@ -80,6 +81,7 @@
             </tr>
             {% for request in account_open_requests %}
             <tr>
+                <td> {{ request.created }}</td>
                 <td> {{ request.from_username }}</td>
                 <td> {{ request.to_username }}</td>
                 <td> {{ request.email }}</td>
@@ -135,6 +137,7 @@
         <t1>Account update request</t1>
         <table >
             <tr>
+                <th>Date</th>
                 <th>From</th>
                 <th>To</th>
                 <th>Email</th>
@@ -146,11 +149,12 @@
             </tr>
             {% for request in account_update_requests %}
             <tr>
-              <td> {{ request.from_username }}</td>
-              <td> {{ request.to_username }}</td>
-              <td> {{ request.email }}</td>
-              <td> {{ request.phone }}</td>
-              <td> {{ request.address }}</td>
+                <td> {{ request.created }}</td>
+                <td> {{ request.from_username }}</td>
+                <td> {{ request.to_username }}</td>
+                <td> {{ request.email }}</td>
+                <td> {{ request.phone }}</td>
+                <td> {{ request.address }}</td>
                 <td>
                     {% if request.state !=  "APPROVED"  and  request.state !=  "DECLINED" %}
                         {% if request.sub_state == "WAITING_T2_EX"  or request.sub_state == "WAITING_T2"%}
@@ -218,7 +222,8 @@
         <t1>Fund transfer request</t1>
         <table >
             <tr>
-                <th width="1%">From</th>
+                <th>Date</th>
+                <th>From</th>
                 <th>To</th>
                 <th>Money</th>
                 <th>Critical</th>
@@ -228,6 +233,7 @@
             </tr>
             {% for request in fund_requests %}
             <tr>
+                <td> {{ request.created }}</td>
                 <td> {{ request.from_username }}</td>
                 <td> {{ request.to_username }}</td>
                 <td> {{ request.money }}</td>
@@ -246,7 +252,7 @@
                                 <input type="hidden" value="" name="to_username" />
                                 <input type="hidden" value="{{ request.id }}" name="request_id" />
                                 <input type="hidden" value="TIER2" name="user_type" />
-                                <button type="submit" name="send_request_t1"> SEND</button>
+                                <button type="submit" name="send_request_t2"> SEND</button>
                             </form>
                         {% elif request.sub_state == "WAITING_EX" %}
                             approved
@@ -303,23 +309,95 @@
         <br>
 
         <!--payment request-->
-        <t1>Payment </t1>
+        <t1>Payment request</t1>
         <table >
             <tr>
-              <th>1</th>
-              <th>2</th>
-              <th>3</th>
-              <th>4</th>
+                <th>Date</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Money</th>
+                <th>Critical</th>
+                <th>Request T2</th>
+                <th>Request EXT</th>
+                <th>Status</th>
             </tr>
             {% for request in payment_requests %}
             <tr>
-              <td> {{ request.username }}</td>
-              <td> {{ request.email }}</td>
-              <td> {{ request.phone }}</td>
-              <td> {{ request.address }}</td>
+                <td> {{ request.created }}</td>
+                <td> {{ request.from_username }}</td>
+                <td> {{ request.to_username }}</td>
+                <td> {{ request.money }}</td>
+                <td>
+                    {% if  request.critical == 1 %}
+                        v
+                    {% else %}
+                        x
+
+                    {% endif %}
+                </td>
+                <td>
+                    {% if request.critical != 1 and request.state !=  "APPROVED"  and  request.state !=  "DECLINED" %}
+                        {% if request.sub_state == "WAITING_T2_EX"  or request.sub_state == "WAITING_T2"%}
+                            <form action="/make_approve_request/" method="POST"> {% csrf_token %}
+                                <input type="hidden" value="" name="to_username" />
+                                <input type="hidden" value="{{ request.id }}" name="request_id" />
+                                <input type="hidden" value="TIER2" name="user_type" />
+                                <button type="submit" name="send_request_t2"> SEND</button>
+                            </form>
+                        {% elif request.sub_state == "WAITING_EX" %}
+                            approved
+                        {% else %}
+
+                        {% endif %}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if request.critical != 1 and request.state !=  "APPROVED"  and  request.state !=  "DECLINED" %}
+                         {% if request.sub_state == "WAITING_T2_EX"  or request.sub_state == "WAITING_EX"%}
+                            <form action="/make_approve_request/" method="POST"> {% csrf_token %}
+
+                                <input type="hidden" value="{{ request.from_username }}" name="to_username" />
+                                <input type="hidden" value="{{ request.id }}" name="request_id" />
+                                <input type="hidden" value="CUSTOMER" name="user_type" />
+
+                                <button type="submit" name="send_request_cus"> SEND</button>
+                            </form>
+                        {% elif request.sub_state == "WAITING_T2"  %}
+                            approved
+                        {% else %}
+
+                        {% endif %}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+              <td>
+                  {% if request.critical != 1 and request.state == "PENDING" %}
+                      <form action="/request_approve_post/" method="POST"> {% csrf_token %}
+                          <input type="hidden" value="{{ request.id }}" name="id" />
+                          <input type="hidden" value="1" name="approve" />
+                          <button type="submit" name="decline_btn"> APPROVE</button>
+                      </form>
+
+                      <form action="/request_approve_post/" method="POST"> {% csrf_token %}
+                          <input type="hidden" value="{{ request.id }}" name="id" />
+                          <input type="hidden" value="0" name="approve" />
+                          <button type="submit" name="decline_btn"> Decline</button>
+                      </form>
+
+                {% else %}
+                    {{ request.state }}
+
+                {% endif %}
+
+                </td>
             </tr>
             {% endfor %}
         </table>
+        <br>
+
 {% endblock %}
 
 <script>

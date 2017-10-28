@@ -700,6 +700,9 @@ def make_payment_post_view(request):
     if to_bankuser.cvv != request.POST['cvv']:
         context = {'msg': 'credit number/cvv not found'}
         return render(request, 'error.html', context, status=400)
+    if from_bankuser == to_bankuser:
+        context = {'msg': 'can not be same user'}
+        return render(request, 'error.html', context, status=400)
     if int(request.POST['money']) <= 0:
         context = {'msg': 'money must greater than 0'}
         return render(request, 'error.html', context, status=400)
@@ -1793,6 +1796,27 @@ def request_approve_post_view(request):
                 inner_request.save()
                 context['msg'] = 'DECLINED'
                 return render(request, 'success.html', context, status=401)
+        elif inner_request.request == 'PAYMENT':
+            if int(request.POST['approve']):
+
+                if to_bankuser.credit_balance < inner_request.money:
+                    context['msg'] = 'to bank user balance not enough'
+                    return render(request, 'error.html', context, status=400)
+
+                from_bankuser.credit_balance += inner_request.money
+                from_bankuser.save()
+                to_bankuser.credit_balance -= inner_request.money
+                to_bankuser.save()
+
+                inner_request.state = 'APPROVED'
+                inner_request.save()
+                context['msg'] = 'APPROVED'
+                return render(request, 'success.html', context)
+            else:
+                inner_request.state = 'DECLINED'
+                inner_request.save()
+                context['msg'] = 'DECLINED'
+                return render(request, 'success.html', context, status=401)
         else:
             context['msg'] = 't2 can only approve or decline internal account open/update/delete, approve_request'
     # TIER1
@@ -2010,7 +2034,35 @@ def request_approve_post_view(request):
                 inner_request.save()
                 context['msg'] = 'DECLINED'
                 return render(request, 'success.html', context, status=401)
+        # PAYMENT
+        elif inner_request.request == 'PAYMENT':
+            if int(request.POST['approve']):
+                # sub-state waiting
+                if inner_request.sub_state != 'WAITING':
+                    context['msg'] = 'DECLINED sub-state is not waiting'
+                    return render(request, 'error.html', context, status=400)
+                if inner_request.critical:
+                    context['msg'] = 't1 can not approve critical'
+                    return render(request, 'error.html', context, status=400)
 
+                if to_bankuser.credit_balance < inner_request.money:
+                    context['msg'] = 'to bank user balance not enough'
+                    return render(request, 'error.html', context, status=400)
+
+                from_bankuser.credit_balance += inner_request.money
+                from_bankuser.save()
+                to_bankuser.credit_balance -= inner_request.money
+                to_bankuser.save()
+
+                inner_request.state = 'APPROVED'
+                inner_request.save()
+                context['msg'] = 'APPROVED'
+                return render(request, 'success.html', context)
+            else:
+                inner_request.state = 'DECLINED'
+                inner_request.save()
+                context['msg'] = 'DECLINED'
+                return render(request, 'success.html', context, status=401)
         else:
             context['msg'] = 't1 can only approve or decline internal account open/update/delete'
             return render(request, 'error.html', context, status=401)

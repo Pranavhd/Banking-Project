@@ -337,6 +337,7 @@ def account_update_view(request):
             return render(request, 'error.html', context, status=401)
 
     context = {}
+    context['user_type'] = from_bankuser.user_type
     context['username'] = to_bankuser.username
     context['id'] = to_bankuser.id
     context['phone'] = to_bankuser.phone

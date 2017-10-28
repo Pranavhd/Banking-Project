@@ -380,12 +380,12 @@ def account_update_post_view(request):
             return render(request, 'error.html', context, status=401)
     # TIER2
     elif from_bankuser.user_type == 'TIER2':
-        if to_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
+        if to_bankuser.user_type in ['TIER2', 'TIER1', 'CUSTOMER', 'MERCHANT']:
             pass
         elif to_bankuser.id == from_bankuser.id:
             pass
         else:
-            context = {'msg': 'tier1 only update self, customer, merchant'}
+            context = {'msg': 'tier1 only update tie2, tie1, customer, merchant'}
             return render(request, 'error.html', context, status=401)
     # TIER1
     elif from_bankuser.user_type == 'TIER1':
@@ -921,9 +921,8 @@ def tier2_view(request):
 
     # render users
     users = models.BankUser.objects.all(
-    ).exclude(user_type='ADMIN').exclude(
-        user_type='TIER2').exclude(
-        user_type='TIER1')
+    ).exclude(user_type='ADMIN')
+
     for u in users:
         context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, '***', '***', '***', '***', '***', '***'))
 
@@ -1441,7 +1440,7 @@ def request_approve_post_view(request):
                 return render(request, 'error.html', context, status=401)
         # ACCOUNT UPDATE
         elif inner_request.request == 'ACCOUNT_UPDATE':
-            if to_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
+            if to_bankuser.user_type in ['TIER2', 'TIER1', 'CUSTOMER', 'MERCHANT']:
                 if int(request.POST['approve']):
                     # check phone
                     if inner_request.phone and inner_request.phone != to_bankuser.phone:
@@ -1477,7 +1476,7 @@ def request_approve_post_view(request):
                     context['msg'] = 'DECLINED'
                     return render(request, 'success.html', context, status=401)
             else:
-                context = {'msg': 'tier1 can only approve customer, merchant account update'}
+                context = {'msg': 'tier2 can only approve tier2, tier1, customer, merchant account update'}
                 return render(request, 'error.html', context, status=401)
         # APPROVE
         elif inner_request.request == 'APPROVE_REQUEST':

@@ -5,6 +5,7 @@
 {% block logout%}
     <button type="button" id="logout_btn"  onclick="window.location.href='/logout/'">Logout</button>
     <button type="button" id="twofa_manage" onclick="window.location.href='/two_factor/'">Two factor manage</button>
+<<<<<<< HEAD
     <button type="button" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
     <button type="button" id="make_trans_btn"  onclick="window.location.href='/make_transfer/?id='"> Transfer</button>
 <<<<<<< HEAD
@@ -13,6 +14,8 @@
     <button type="button" id="make_trans_btn"  onclick="window.location.href='/account/sessions/'"> Session</button>
 
 >>>>>>> e7428afc5c290316c307eb19c0bd3ad613583317
+=======
+>>>>>>> parent of e111225... major update for funding part, and account as well
 {% endblock %}
 
 
@@ -28,15 +31,15 @@
     <table>
         <tr>
             <th>credit</th>
-            <td> {{ user.credit_balance }}</td>
+            <td>$$</td>
         </tr>
         <tr>
             <th>checking</th>
-            <td> {{ user.checking_balance }}</td>
+            <td>$$</td>
         </tr>
         <tr>
             <th>saving</th>
-            <td> {{ user.saving_balance }}</td>
+            <td>$$</td>
 
         </tr>
     </table>
@@ -98,6 +101,15 @@
     </tr>
     {% endfor %}
     </table>
+
+    <button type="submit" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
+
+    <form action="/make_transfer/" method="get">
+        <label class = "label" > </label><br>
+            <button type="submit" id="make_trans_btn">Transfer</button>
+
+    </form>
+
 
 
 {% endblock %}

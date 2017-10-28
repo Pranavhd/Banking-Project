@@ -7,70 +7,42 @@
 {% endblock %}
 
 {% block content %}
-    <div>
+    <form action="/account_update/" method="get">
 
-    <form action="/make_transfer_post/" method="POST"> {% csrf_token %}
+        <label class = "label" for="" >FROM: </label>
 
-        <!--from user -->
-        <label class = "label" for="from_balance" >FROM: </label>
-
-        <select id="from_balance" name="from_balance">
-            <option selected value="CHECKING">Checking</option>
-            <option value="SAVING">Saving</option>
+        <select id="trans_from" name="trans_from">
+            <option value="Saving">Saving</option>
+            <option value="Checking">Checking</option>
         </select><br><br>
-         <input type="text" id="to_account"  name="from_email" value="{{ user.email }}"><br><br>
 
-        <!--to user -->
-        <label class = "label" for="to_email" > TO: </label>
 
-        <!--balance-->
-        <select id="to_balance" name="to_balance">
-            <option selected value="CHECKING">Checking</option>
-            <option value="SAVING">Saving</option>
+        <label class = "label" for="trans_to" > TO: </label><br>
+        <input type="radio" name="myaccount" onclick="if(this.checked){notshow()}"> My account
+
+        <select id="trans_from" name="trans_from">
+            <option value="Saving">Saving</option>
+            <option value="Checking">Checking</option>
         </select><br>
-
-
-        <br><label2 for="to_account" id="label_account_box" >Enter other's Email if transfer to other</label2><br>
-
-        <input type="text" id="to_account"  name="to_email" value="{{ user.email }}">
-
-        <br><br>Amount
-        <input type="number" step="0.01" min="0" name="money" >
-
-
-        <br><button type="submit" class="right">Submit</button>
-        <button type="submit" onclick="window.history.go(-1); return false;"  value="Back">Back</button>
+        <input type="radio" name="myaccount" value="" onclick="if(this.checked){show()}"> Other
+        <input type="text" id="to_account" style="visibility:hidden">
     </form>
 
 
+    <form action="/make_transfer/" method="get">
+
+
+    </form>
 
     <script>
     function show() {
+        // alert("test")
         document.getElementById("to_account").style.visibility="visible";
-        document.getElementById("label_account_box").style.visibility="visible";
-        document.getElementById("to_email").style.visibility="hidden";
-
-
     }
 
     function notshow() {
+        // alert("test")
         document.getElementById("to_account").style.visibility="hidden";
-        document.getElementById("label_account_box").style.visibility="hidden";
-        document.getElementById("to_email").style.visibility="visible";
     }
-
-    var getUrlParameter = function getUrlParameter(sParam) {
-        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
-            sURLVariables = sPageURL.split('&'),
-            sParameterName,
-            i;
-
-
-        alert(sURLVariables[1])
-        alert("text");
-    };
-     //window.onload = getUrlParameter;
     </script>
-
-
 {% endblock %}

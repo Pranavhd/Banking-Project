@@ -27,6 +27,7 @@
         <label for="address">Address: </label>
         <input type="text" id="address" name="address"><br>
 
+<<<<<<< HEAD
             <br>
         {% if user_type == "TIER1" or  user_type == "TIER2"%}
             <label for="checking_balance">Checking: </label>
@@ -47,6 +48,8 @@
         {% endif %}
 
 
+=======
+>>>>>>> parent of e111225... major update for funding part, and account as well
         <label for="user_type">User Type: </label>
         {% if user_type == "ADMIN"%}
             <select id="user_type" name="user_type">
@@ -60,8 +63,6 @@
                 <option value="MERCHANT">Merchant</option>
             </select><br>
         {% endif %}
-
-
 
     <button type="submit" id="post-btn">Summit</button>
     <button type="submit" onclick="window.history.go(-1); return false;"  value="Back">Back</button>

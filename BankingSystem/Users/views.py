@@ -289,12 +289,12 @@ def account_update_view(request):
             return render(request, 'error.html', context, status=401)
     # TIER2
     elif from_bankuser.user_type == 'TIER2':
-        if to_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
+        if to_bankuser.user_type in ['TIER2', 'TIER1', 'CUSTOMER', 'MERCHANT']:
             pass
         elif to_bankuser.id == from_bankuser.id:
             pass
         else:
-            context = {'msg': 'tier1 only update self, customer, merchant'}
+            context = {'msg': 'tier2 only update self, t2, t1, customer, merchant'}
             return render(request, 'error.html', context, status=401)
     # TIER1
     elif from_bankuser.user_type == 'TIER1':

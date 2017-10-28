@@ -17,6 +17,8 @@ RenderAccountUpdateRequest = collections.namedtuple(
     'RenderAccountUpdateRequest', 'from_username to_username id state sub_state created request email phone address')
 RenderApproveRequest = collections.namedtuple(
     'RenderApproveRequest', 'from_username to_username id state sub_state target_state created request email phone address')
+RenderFundRequest = collections.namedtuple(
+    'RenderFundRequest', 'from_username to_username id state sub_state created request email phone address')
 
 
 # ----- login -----
@@ -1083,6 +1085,22 @@ def tier1_view(request):
                     inner_request.email,
                     inner_request.phone,
                     inner_request.address
+                ))
+
+        # FUND
+        if inner_request.request == 'FUND':
+            if to_bank_user.user_type in ['CUSTOMER', 'MERCHANT']:
+                context['fund_requests'].append(RenderFundRequest(
+                    from_bank_user.username if from_bank_user else 'obsolete user',
+                    to_bank_user.username if to_bank_user else 'obsolete user',
+                    inner_request.id,
+                    inner_request.state,
+                    inner_request.sub_state,
+                    inner_request.created,
+                    inner_request.request,
+                    inner_request.email,
+                    inner_request.phone,
+                    inner_request.address,
                 ))
 
     return render(request, 'tier1.html', context)

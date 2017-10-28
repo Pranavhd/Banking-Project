@@ -22,6 +22,8 @@ RenderApproveRequest = collections.namedtuple(
     'RenderApproveRequest', 'from_username to_username id state sub_state target_state created request email phone address')
 RenderFundRequest = collections.namedtuple(
     'RenderFundRequest', 'from_username to_username id state sub_state created request email phone address money critical')
+RenderPaymentRequest = collections.namedtuple(
+    'RenderPaymentRequest', 'from_username to_username id state sub_state created request email phone address money critical')
 
 
 # ----- login -----
@@ -716,7 +718,7 @@ def make_payment_post_view(request):
         phone='',
         email='',
         address='',
-        critical=0,
+        critical=1 if int(request.POST['money']) > 1000 else 0,
         money=request.POST['money'],
         from_balance='',
         to_balance='',
@@ -1110,6 +1112,24 @@ def tier2_view(request):
                     inner_request.critical
                 ))
 
+        # PAYMENT
+        if inner_request.request == 'PAYMENT':
+            if to_bank_user.user_type in ['CUSTOMER', 'MERCHANT']:
+                context['payment_requests'].append(RenderPaymentRequest(
+                    from_bank_user.username if from_bank_user else 'obsolete user',
+                    to_bank_user.username if to_bank_user else 'obsolete user',
+                    inner_request.id,
+                    inner_request.state,
+                    inner_request.sub_state,
+                    inner_request.created,
+                    inner_request.request,
+                    inner_request.email,
+                    inner_request.phone,
+                    inner_request.address,
+                    inner_request.money,
+                    inner_request.critical
+                ))
+
     return render(request, 'tier2.html', context)
 
 
@@ -1223,6 +1243,24 @@ def tier1_view(request):
         if inner_request.request == 'FUND':
             if to_bank_user.user_type in ['CUSTOMER', 'MERCHANT']:
                 context['fund_requests'].append(RenderFundRequest(
+                    from_bank_user.username if from_bank_user else 'obsolete user',
+                    to_bank_user.username if to_bank_user else 'obsolete user',
+                    inner_request.id,
+                    inner_request.state,
+                    inner_request.sub_state,
+                    inner_request.created,
+                    inner_request.request,
+                    inner_request.email,
+                    inner_request.phone,
+                    inner_request.address,
+                    inner_request.money,
+                    inner_request.critical
+                ))
+
+        # PAYMENT
+        if inner_request.request == 'PAYMENT':
+            if to_bank_user.user_type in ['CUSTOMER', 'MERCHANT']:
+                context['payment_requests'].append(RenderPaymentRequest(
                     from_bank_user.username if from_bank_user else 'obsolete user',
                     to_bank_user.username if to_bank_user else 'obsolete user',
                     inner_request.id,

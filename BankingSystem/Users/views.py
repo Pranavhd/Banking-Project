@@ -268,8 +268,10 @@ def account_open_post_view(request):
         from_balance='',
         to_balance='',
         credit_number=''.join(random.choices(string.digits, k=16)),
-        cvv=''.join(random.choices(string.digits, k=3))
-
+        cvv=''.join(random.choices(string.digits, k=3)),
+        increment_credit_balance=0.0,
+        increment_checking_balance=0.0,
+        increment_saving_balance=0.0,
     )
 
     context = {'msg': 'Account Open Request Sent'}
@@ -667,6 +669,9 @@ def make_transfer_post_view(request):
         money=request.POST['money'],
         from_balance=request.POST['from_balance'],
         to_balance=request.POST['to_balance'],
+        increment_credit_balance=0.0,
+        increment_checking_balance=0.0,
+        increment_saving_balance=0.0,
     )
 
     context = {'msg': 'TRANSFER REQUEST sent'}
@@ -755,7 +760,10 @@ def make_payment_post_view(request):
         from_balance='',
         to_balance='',
         credit_number=request.POST['credit_number'],
-        cvv=request.POST['cvv']
+        cvv=request.POST['cvv'],
+        increment_credit_balance=0.0,
+        increment_checking_balance=0.0,
+        increment_saving_balance=0.0,
     )
 
     context = {'msg': 'Make Payment Request sent'}
@@ -838,6 +846,9 @@ def make_approve_request_post_view(request):
         money=0.0,
         from_balance='',
         to_balance='',
+        increment_credit_balance=0.0,
+        increment_checking_balance=0.0,
+        increment_saving_balance=0.0,
     )
 
     context = {'msg': 'APPROVE REQUEST sent'}

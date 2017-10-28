@@ -60,3 +60,9 @@ class MakeTransferPostForm(forms.Form):
     from_balance = forms.CharField(max_length=10, required=True)
     to_balance = forms.CharField(max_length=10, required=True)
     money = forms.DecimalField(required=True, max_digits=6, decimal_places=2)
+
+
+class MakePaymentPostForm(forms.Form):
+    credit_number = forms.CharField(max_length=16)
+    cvv = forms.CharField(max_length=3)
+    money = forms.DecimalField(required=True, max_digits=6, decimal_places=2)

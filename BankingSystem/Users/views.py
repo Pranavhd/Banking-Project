@@ -8,10 +8,12 @@ from . import models
 import collections
 from django.db.models import Q
 from .models import Request
+import random
+import string
 
 
 RenderUser = collections.namedtuple(
-    'RenderUser', 'username user_type state id email phone address credit_balance checking_balance saving_balance')
+    'RenderUser', 'username user_type state id email phone address credit_balance checking_balance saving_balance credit_number cvv')
 RenderAccountOpenRequest = collections.namedtuple(
     'RenderAccountOpenRequest', 'from_username to_username id state sub_state created request email phone address credit_balance checking_balance saving_balance')
 RenderAccountUpdateRequest = collections.namedtuple(
@@ -245,6 +247,8 @@ def account_open_post_view(request):
         money=0.0,
         from_balance='',
         to_balance='',
+        credit_number=''.join(random.choices(string.digits, k=16)),
+        cvv=''.join(random.choices(string.digits, k=3))
     )
 
     context = {'msg': 'Account Open Request Sent'}
@@ -524,6 +528,8 @@ def make_transfer_view(request):
         login_bankuser.credit_balance,
         login_bankuser.checking_balance,
         login_bankuser.saving_balance,
+        login_bankuser.credit_number,
+        login_bankuser.cvv,
     )
     context['user'] = user
 
@@ -606,6 +612,10 @@ def make_transfer_post_view(request):
             context = {'msg': 'different user only allow transfer between checking'}
             return render(request, 'error.html', context, status=400)
 
+    if int(request.POST['cvv']) <= 0:
+        context = {'msg': 'money must greate than 0'}
+        return render(request, 'error.html', context, status=400)
+
     # create Request
     models.Request.objects.create(
         from_id=from_bankuser.id,
@@ -633,12 +643,87 @@ def make_transfer_post_view(request):
 
 # ------ 5. payment -----
 def make_payment_view(request):
+    # valid user
+    if not request.user.is_authenticated():
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # login bank user
+    try:
+        login_bankuser = models.BankUser.objects.get(user=request.user)
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'from bank user not exist'}
+        return render(request, 'error.html', context, status=401)
+    if login_bankuser.user_type != 'MERCHANT':
+        context = {'msg': 'only merchant can make payment request'}
+        return render(request, 'error.html', context, status=401)
+
+    # active bank user
+    if login_bankuser.state == 'INACTIVE':
+        context = {'msg': 'not active BankUser'}
+        return render(request, 'error.html', context, status=400)
+
     context = {}
     return render(request, 'make_payment.html', context)
 
 
 def make_payment_post_view(request):
-    context = {}
+    # valid user
+    if not request.user.is_authenticated():
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # login bank user
+    try:
+        login_bankuser = models.BankUser.objects.get(user=request.user)
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'from bank user not exist'}
+        return render(request, 'error.html', context, status=401)
+    if login_bankuser.user_type != 'MERCHANT':
+        context = {'msg': 'only merchant can make payment request'}
+        return render(request, 'error.html', context, status=401)
+
+    # active bank user
+    if login_bankuser.state == 'INACTIVE':
+        context = {'msg': 'not active BankUser'}
+        return render(request, 'error.html', context, status=400)
+
+    from_bankuser = login_bankuser
+    try:
+        to_bankuser = models.BankUser.objects.get(credit_number=request.POST['credit_number'])
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'credit number/cvv not found'}
+        return render(request, 'error.html', context, status=400)
+    if to_bankuser.cvv != request.POST['cvv']:
+        context = {'msg': 'credit number/cvv not found'}
+        return render(request, 'error.html', context, status=400)
+    if int(request.POST['cvv']) <= 0:
+        context = {'msg': 'money must greate than 0'}
+        return render(request, 'error.html', context, status=400)
+
+    # create request
+    models.Request.objects.create(
+        from_id=from_bankuser.id,
+        to_id=to_bankuser.id,
+        created=datetime.datetime.now(),
+        state='PENDING',
+        sub_state='WAITING_T2_EX',
+        request='PAYMENT',
+        permission=0,
+        user_type=request.POST['user_type'],
+        request_id=-1,
+        phone='',
+        email='',
+        address='',
+        critical=0,
+        money=request.POST['money'],
+        from_balance='',
+        to_balance='',
+        credit_number=request.POST['credit_number'],
+        cvv=request.POST['cvv']
+    )
+
+    context = {'msg': 'Make Payment Request sent'}
     return render(request, 'success.html', context)
 
 
@@ -799,6 +884,8 @@ def admin_view(request):
         login_bankuser.credit_balance,
         login_bankuser.checking_balance,
         login_bankuser.saving_balance,
+        login_bankuser.credit_number,
+        login_bankuser.cvv,
     )
     context['user'] = user
 
@@ -819,6 +906,8 @@ def admin_view(request):
             u.credit_balance,
             u.checking_balance,
             u.saving_balance,
+            u.credit_number,
+            u.cvv,
         ))
 
     # render request
@@ -920,6 +1009,8 @@ def tier2_view(request):
         login_bankuser.credit_balance,
         login_bankuser.checking_balance,
         login_bankuser.saving_balance,
+        login_bankuser.credit_number,
+        login_bankuser.cvv,
     )
     context['user'] = user
 
@@ -928,7 +1019,7 @@ def tier2_view(request):
     ).exclude(user_type='ADMIN')
 
     for u in users:
-        context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, '***', '***', '***', '***', '***', '***'))
+        context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, '***', '***', '***', '***', '***', '***', '***', '***'))
 
     # render request
     inner_requests = models.Request.objects.all()
@@ -1065,6 +1156,8 @@ def tier1_view(request):
         login_bankuser.credit_balance,
         login_bankuser.checking_balance,
         login_bankuser.saving_balance,
+        login_bankuser.credit_number,
+        login_bankuser.cvv,
     )
     context['user'] = user
 
@@ -1074,7 +1167,7 @@ def tier1_view(request):
         user_type='TIER2').exclude(
         user_type='TIER1')
     for u in users:
-        context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, '***', '***', '***', '***', '***', '***'))
+        context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, '***', '***', '***', '***', '***', '***', '***', '***'))
 
     # render request
     inner_requests = models.Request.objects.all()
@@ -1191,6 +1284,8 @@ def customer_view(request):
         login_bankuser.credit_balance,
         login_bankuser.checking_balance,
         login_bankuser.saving_balance,
+        login_bankuser.credit_number,
+        login_bankuser.cvv,
     )
     context['user'] = user
 
@@ -1278,6 +1373,8 @@ def merchant_view(request):
         login_bankuser.credit_balance,
         login_bankuser.checking_balance,
         login_bankuser.saving_balance,
+        login_bankuser.credit_number,
+        login_bankuser.cvv,
     )
     context['user'] = user
 

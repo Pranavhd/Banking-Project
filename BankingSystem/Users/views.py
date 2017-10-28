@@ -580,7 +580,17 @@ def make_transfer_post_view(request):
         context = {'msg': 'unknown user'}
         return render(request, 'error.html', context, status=400)
 
-    from_bankuser = login_bankuser
+    if login_bankuser.user_type in ['CUSTOMER', 'MERCHANT']:
+        if login_bankuser.email != request.POST['to_email']:
+            context = {'msg': 'customer can only send from their own email'}
+            return render(request, 'error.html', context, status=401)
+        from_bankuser = login_bankuser
+    if login_bankuser.user_type in ['TIER2', 'TIER1']:
+        try:
+            from_bankuser = models.BankUser.objects.get(email=request.POST['from_email'])
+        except models.BankUser.DoesNotExist:
+            context = {'msg': 'from bank user not exist'}
+            return render(request, 'error.html', context, status=401)
     try:
         to_bankuser = models.BankUser.objects.get(email=request.POST['to_email'])
     except models.BankUser.DoesNotExist:

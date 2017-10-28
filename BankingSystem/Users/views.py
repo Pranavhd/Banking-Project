@@ -567,11 +567,11 @@ def make_transfer_post_view(request):
         context = {'msg': 'admin can not transfer money'}
         return render(request, 'error.html', context, status=400)
     elif login_bankuser.user_type == 'TIER2':
-        context = {'msg': 't2 can not transfer money'}
-        return render(request, 'error.html', context, status=400)
+        if request.POST['from_email'] > 1000:
+            context = {'msg': 't2 can not create critical transaction (above 1000)'}
+            return render(request, 'error.html', context, status=400)
     elif login_bankuser.user_type == 'TIER1':
-        context = {'msg': 't1 can not transfer money'}
-        return render(request, 'error.html', context, status=400)
+        pass
     elif login_bankuser.user_type == 'CUSTOMER':
         sub_state = 'WAITING_T2'
     elif login_bankuser.user_type == 'MERCHANT':

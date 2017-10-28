@@ -7,8 +7,12 @@
     <button type="button" id="twofa_manage" onclick="window.location.href='/two_factor/'">Two factor manage</button>
     <button type="button" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
     <button type="button" id="make_trans_btn"  onclick="window.location.href='/make_transfer/?id='"> Transfer</button>
-
+    <button type="button" onclick="printPDF()">Export Bank Statement</button>
 {% endblock %}
+
+
+
+
 {% block usertype %}<usertype>{{ user.username }}, {{ user.user_type }}, {{ user.email }}, {{ user.phone }}, {{ user.address }}</usertype>{% endblock %}
 
 {% block content %}
@@ -71,7 +75,24 @@
             {% endfor %}
 
     </table>
-
+    <br><br>
+    <t1>Transaction History</t1>
+    <table id="transaction_history">
+    <tr>
+        <th>Date</th>
+        <th>Account No</th>
+        <th>Amount</th>
+        <th>Status</th>
+    </tr>
+    {% for i in transaction_history %}
+    <tr>
+    <td>{{ i.created}}</td>
+    <td>{{ i.from_id}}</td>
+    <td>{{ i.money}}</td>
+    <td>{{ i.state}}</td>
+    </tr>
+    {% endfor %}
+    </table>
 
 
 {% endblock %}

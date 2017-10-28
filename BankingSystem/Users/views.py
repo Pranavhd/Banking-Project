@@ -7,6 +7,7 @@ from . import form
 from . import models
 import collections
 from django.db.models import Q
+from .models import Request
 
 
 RenderUser = collections.namedtuple(
@@ -1138,6 +1139,7 @@ def tier1_view(request):
 # ----- customer -----
 def customer_view(request):
 
+
     # check if a valid user
     if not request.user.is_authenticated():
         context = {'msg': 'not authenticated'}
@@ -1218,6 +1220,8 @@ def customer_view(request):
                     inner_request.address
                 ))
 
+    transaction_history = Request.objects.filter(from_id=user.id)
+    context.update({'transaction_history': transaction_history})
     return render(request, 'customer.html', context)
 
 

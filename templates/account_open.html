@@ -27,6 +27,19 @@
         <label for="address">Address: </label>
         <input type="text" id="address" name="address"><br>
 
+            <br>
+
+        <label for="address">Checking: </label>
+        <input type="text" id="checking_balance" name="checking_balance"><br>
+
+        <label for="address">Saving: </label>
+        <input type="text" id="saving_balance" name="saving_balance"><br>
+
+        <label for="address">Chedit: </label>
+        <input type="text" id="credit_balance" name="credit_balance"><br>
+
+
+
         <label for="user_type">User Type: </label>
         {% if user_type == "ADMIN"%}
             <select id="user_type" name="user_type">
@@ -40,6 +53,8 @@
                 <option value="MERCHANT">Merchant</option>
             </select><br>
         {% endif %}
+
+
 
     <button type="submit" id="post-btn">Summit</button>
     <button type="submit" onclick="window.history.go(-1); return false;"  value="Back">Back</button>

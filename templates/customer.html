@@ -5,6 +5,9 @@
 {% block logout%}
     <button type="button" id="logout_btn"  onclick="window.location.href='/logout/'">Logout</button>
     <button type="button" id="twofa_manage" onclick="window.location.href='/two_factor/'">Two factor manage</button>
+    <button type="button" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
+    <button type="button" id="make_trans_btn"  onclick="window.location.href='/make_transfer/?id='"> Transfer</button>
+
 {% endblock %}
 {% block usertype %}<usertype>{{ user.username }}, {{ user.user_type }}, {{ user.email }}, {{ user.phone }}, {{ user.address }}</usertype>{% endblock %}
 
@@ -16,15 +19,15 @@
     <table>
         <tr>
             <th>credit</th>
-            <td>$$</td>
+            <td> {{ user.credit_balance }}</td>
         </tr>
         <tr>
             <th>checking</th>
-            <td>$$</td>
+            <td> {{ user.checking_balance }}</td>
         </tr>
         <tr>
             <th>saving</th>
-            <td>$$</td>
+            <td> {{ user.saving_balance }}</td>
 
         </tr>
     </table>
@@ -68,15 +71,6 @@
             {% endfor %}
 
     </table>
-
-
-    <button type="submit" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
-
-    <form action="/make_transfer/" method="get">
-        <label class = "label" > </label><br>
-            <button type="submit" id="make_trans_btn">Transfer</button>
-
-    </form>
 
 
 

@@ -246,8 +246,8 @@ def account_open_post_view(request):
         pass
 
     # password
-    if len(request.POST['password']) < 10:
-        context = {'msg': 'password length must be at least 10'}
+    if len(request.POST['password']) < 16:
+        context = {'msg': 'password length must be at least 16'}
         return render(request, 'error.html', context, status=400)
 
     IS_UP = False

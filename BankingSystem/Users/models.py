@@ -78,3 +78,13 @@ class Request(models.Model):
     # ----- APPROVE REQUEST related -----
     request_id = models.IntegerField()
 
+
+class Log(models.Model):
+
+    # create date
+    created = models.DateTimeField()
+
+    # msg
+    msg = models.CharField(max_length=100)
+
+

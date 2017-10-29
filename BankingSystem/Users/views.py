@@ -24,6 +24,8 @@ RenderFundRequest = collections.namedtuple(
     'RenderFundRequest', 'from_username to_username id state sub_state created request email phone address money critical')
 RenderPaymentRequest = collections.namedtuple(
     'RenderPaymentRequest', 'from_username to_username id state sub_state created request email phone address money critical')
+RenderLog = collections.namedtuple(
+    'RenderLog', 'created msg')
 
 
 # ----- login -----
@@ -270,6 +272,12 @@ def account_open_post_view(request):
         increment_saving_balance=0.0,
     )
 
+    # system log
+    models.Log.objects.create(
+        created=datetime.datetime.now(),
+        msg='{} make ACCOUNT_OPEN request for {}'.format(from_bankuser.username, bank_user.username)
+    )
+
     context = {'msg': 'Account Open Request Sent'}
     return render(request, 'success.html', context)
 
@@ -455,6 +463,12 @@ def account_update_post_view(request):
         increment_credit_balance=increment_credit_balance,
         increment_checking_balance=increment_checking_balance,
         increment_saving_balance=increment_saving_balance,
+    )
+
+    # system log
+    models.Log.objects.create(
+        created=datetime.datetime.now(),
+        msg='{} make ACCOUNT_UPDATE request for {}'.format(from_bankuser.username, to_bankuser.username)
     )
 
     context = {'msg': 'Account Update Request sent'}
@@ -670,6 +684,12 @@ def make_transfer_post_view(request):
         increment_saving_balance=0.0,
     )
 
+    # system log
+    models.Log.objects.create(
+        created=datetime.datetime.now(),
+        msg='{} make FUND request for {}'.format(from_bankuser.username, to_bankuser.username)
+    )
+
     context = {'msg': 'TRANSFER REQUEST sent'}
     return render(request, 'success.html', context)
 
@@ -762,6 +782,12 @@ def make_payment_post_view(request):
         increment_saving_balance=0.0,
     )
 
+    # system log
+    models.Log.objects.create(
+        created=datetime.datetime.now(),
+        msg='{} make PAYMENT request for {}'.format(from_bankuser.username, to_bankuser.username)
+    )
+
     context = {'msg': 'Make Payment Request sent'}
     return render(request, 'success.html', context)
 
@@ -847,6 +873,12 @@ def make_approve_request_post_view(request):
         increment_saving_balance=0.0,
     )
 
+    # system log
+    models.Log.objects.create(
+        created=datetime.datetime.now(),
+        msg='{} make APPROVE_REQUEST request for {}'.format(from_bankuser.username, to_bankuser.username)
+    )
+
     context = {'msg': 'APPROVE REQUEST sent'}
     return render(request, 'success.html', context)
 
@@ -912,6 +944,7 @@ def admin_view(request):
         'account_update_requests': [],
         'fund_requests': [],
         'payment_requests': [],
+        'logs': []
     }
 
     # render user
@@ -951,6 +984,11 @@ def admin_view(request):
             u.credit_number,
             u.cvv,
         ))
+
+    # render logs
+    logs = models.Log.objects.all()
+    for log in logs:
+        context['logs'].append(RenderLog(log.created, log.msg))
 
     # render request
     inner_requests = models.Request.objects.all()

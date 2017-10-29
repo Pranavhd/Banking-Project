@@ -35,8 +35,8 @@ RenderPenaltyRequest = collections.namedtuple(
 def count_user_penalty(user):
     now = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7)
 
-    while (now - user.credit_balance_close_date).total_seconds() >= 7200:
-        user.credit_balance_close_date + datetime.timedelta(seconds=7200)
+    while (now - user.credit_balance_close_date).total_seconds() >= 30:
+        user.credit_balance_close_date + datetime.timedelta(seconds=30)
 
         if user.credit_balance < 0:
             before_credit_balance = user.credit_balance

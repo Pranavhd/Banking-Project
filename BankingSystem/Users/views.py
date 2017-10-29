@@ -975,7 +975,8 @@ def make_approve_request_post_view(request):
     # system log
     models.Log.objects.create(
         created=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7),
-        msg='{} make APPROVE_REQUEST request for {}'.format(from_bankuser.username, to_bankuser.username)
+        msg='{} make APPROVE_REQUEST request for {}'.format(from_bankuser.username if from_bankuser else '',
+                                                            to_bankuser.username if to_bankuser else '')
     )
 
     context = {'msg': 'APPROVE REQUEST sent'}

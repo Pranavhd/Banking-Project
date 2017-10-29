@@ -262,11 +262,11 @@ def account_open_post_view(request):
             IS_UP = True
         if 97 <= ord(c) <= 122:
             IS_LO = True
-        if c in ['@', '~', '*', '#', '!']:
+        if c in ['@', '~', '*', '#', '!', '?']:
             IS_SPEC = True
 
     if not (IS_UP and IS_LO and IS_SPEC and IS_NUM):
-        context = {'msg': 'password must contain one special character @~#*!, number, Upper and lower character'}
+        context = {'msg': 'password must contain one special character @~#*!?, number, Upper and lower character'}
         return render(request, 'error.html', context, status=400)
 
     # from bank user

@@ -28,7 +28,7 @@ SECRET_KEY = '&tc3ht918ut&^^^q6o=gp4%+%l&mw=((b9m26d58dp5vf^0-z$'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['cse545g1.mobicloud.asu.edu']
+ALLOWED_HOSTS = ['cse545g1.mobicloud.asu.edu', '127.0.0.1']
 
 
 # Application definition

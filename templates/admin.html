@@ -160,6 +160,22 @@
         </table>
         <br>
 
+        <t1>Systom log</t1>
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Message</th>
+            </tr>
+
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.created }}</td>
+                <td>{{ log.msg }}</td>
+            </tr>
+            {% endfor %}
+
+        </table>
+
 {% endblock %}
 
 <script>

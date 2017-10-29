@@ -246,8 +246,8 @@ def account_open_post_view(request):
         pass
 
     # password
-    if len(request.POST['password']) < 16:
-        context = {'msg': 'password length must be at least 16'}
+    if len(request.POST['password']) < 10:
+        context = {'msg': 'password length must be at least 10'}
         return render(request, 'error.html', context, status=400)
 
     IS_UP = False
@@ -457,6 +457,9 @@ def account_update_post_view(request):
     f = form.AccountUpdatePostForm(request.POST)
     if not f.is_valid():
         context = {'msg': 'not valid post data ', 'form': f}
+        return render(request, 'error.html', context, status=400)
+    if request.POST['phone'].strip() and len(request.POST['phone']) != 12:
+        context = {'msg': 'not valid post data phone length', 'form': f}
         return render(request, 'error.html', context, status=400)
 
     # to bank user

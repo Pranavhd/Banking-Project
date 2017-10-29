@@ -1016,7 +1016,7 @@ def make_credit_payment_post_view(request):
         after_credit_balance=0.0,
     )
 
-    login_bankuser.checking_balance += login_bankuser.credit_balance
+    login_bankuser.checking_balance = float(login_bankuser.checking_balance) + float(login_bankuser.credit_balance)
     login_bankuser.credit_balance = 0
     login_bankuser.save()
 

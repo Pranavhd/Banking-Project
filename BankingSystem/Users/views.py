@@ -72,6 +72,7 @@ def count_user_penalty(user):
                 late_fee=20.0,
                 after_credit_balance=after_credit_balance,
             )
+            user.credit_balance = after_credit_balance
 
         user.save()
 

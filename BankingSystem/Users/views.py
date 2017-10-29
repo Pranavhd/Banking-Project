@@ -306,8 +306,8 @@ def account_open_post_view(request):
         password=request.POST['password'],
     )
 
-    credit_number = ''.join(random.choices(string.digits, k=16))
-    cvv = ''.join(random.choices(string.digits, k=3))
+    credit_number = ''.join(random.choice(string.digits) for _ in range(16))
+    cvv = ''.join(random.choice(string.digits) for _ in range(3))
 
     # create bank user
     bank_user = models.BankUser.objects.create(

@@ -33,7 +33,7 @@ RenderPenaltyRequest = collections.namedtuple(
 
 
 def count_user_penalty(user):
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7)
 
     while (now - user.credit_balance_close_date).total_seconds() >= 7200:
         user.credit_balance_close_date + datetime.timedelta(seconds=7200)
@@ -302,7 +302,7 @@ def account_open_post_view(request):
     models.Request.objects.create(
         from_id=from_bankuser.id if from_bankuser else bank_user.id,
         to_id=bank_user.id,
-        created=datetime.datetime.now(),
+        created=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7),
         state='PENDING',
         sub_state='WAITING_T2',
         request='ACCOUNT_OPEN',
@@ -329,7 +329,7 @@ def account_open_post_view(request):
 
     # system log
     models.Log.objects.create(
-        created=datetime.datetime.now(),
+        created=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7),
         msg='{} make ACCOUNT_OPEN request for {}'.format(from_bankuser.username, bank_user.username)
     )
 
@@ -502,7 +502,7 @@ def account_update_post_view(request):
         from_id=from_bankuser.id,
         to_id=to_bankuser.id,
         user_type=to_bankuser.user_type,
-        created=datetime.datetime.now(),
+        created=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7),
         state='PENDING',
         sub_state=sub_state,
         request='ACCOUNT_UPDATE',
@@ -526,7 +526,7 @@ def account_update_post_view(request):
 
     # system log
     models.Log.objects.create(
-        created=datetime.datetime.now(),
+        created=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7),
         msg='{} make ACCOUNT_UPDATE request for {}'.format(from_bankuser.username, to_bankuser.username)
     )
 
@@ -724,7 +724,7 @@ def make_transfer_post_view(request):
         from_id=from_bankuser.id,
         to_id=to_bankuser.id if to_bankuser else -1,
         user_type='CUSTOMER',
-        created=datetime.datetime.now(),
+        created=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7),
         state='PENDING',
         # sub-state for T1, 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
         sub_state=sub_state,
@@ -749,7 +749,7 @@ def make_transfer_post_view(request):
 
     # system log
     models.Log.objects.create(
-        created=datetime.datetime.now(),
+        created=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7),
         msg='{} make FUND request for {}'.format(from_bankuser.username, to_bankuser.username)
     )
 
@@ -824,7 +824,7 @@ def make_payment_post_view(request):
     models.Request.objects.create(
         from_id=from_bankuser.id,
         to_id=to_bankuser.id,
-        created=datetime.datetime.now(),
+        created=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7),
         state='PENDING',
         sub_state='WAITING_T2',
         request='PAYMENT',
@@ -851,7 +851,7 @@ def make_payment_post_view(request):
 
     # system log
     models.Log.objects.create(
-        created=datetime.datetime.now(),
+        created=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7),
         msg='{} make PAYMENT request for {}'.format(from_bankuser.username, to_bankuser.username)
     )
 
@@ -921,7 +921,7 @@ def make_approve_request_post_view(request):
         from_id=from_bankuser.id,
         to_id=to_bankuser.id if to_bankuser else -1,
         user_type=request.POST['user_type'],
-        created=datetime.datetime.now(),
+        created=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7),
         state='PENDING',
         # sub-state for T1, 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
         sub_state='WAITING',
@@ -946,7 +946,7 @@ def make_approve_request_post_view(request):
 
     # system log
     models.Log.objects.create(
-        created=datetime.datetime.now(),
+        created=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7),
         msg='{} make APPROVE_REQUEST request for {}'.format(from_bankuser.username, to_bankuser.username)
     )
 
@@ -987,7 +987,7 @@ def make_credit_payment_post_view(request):
         from_id=login_bankuser.id,
         to_id=login_bankuser.id if login_bankuser else -1,
         user_type=login_bankuser.user_type,
-        created=datetime.datetime.now(),
+        created=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7),
         state='APPROVED',
         # sub-state for T1, 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
         sub_state='WAITING',
@@ -1016,7 +1016,7 @@ def make_credit_payment_post_view(request):
 
     # system log
     models.Log.objects.create(
-        created=datetime.datetime.now(),
+        created=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7),
         msg='{} make CREDIT PAYMENT'.format(login_bankuser.username)
     )
 

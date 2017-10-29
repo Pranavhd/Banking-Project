@@ -229,6 +229,9 @@ def account_open_post_view(request):
         password=request.POST['password'],
     )
 
+    credit_number = ''.join(random.choices(string.digits, k=16))
+    cvv = ''.join(random.choices(string.digits, k=3))
+
     # create bank user
     bank_user = models.BankUser.objects.create(
         user=user,
@@ -241,6 +244,8 @@ def account_open_post_view(request):
         credit_balance=request.POST['credit_balance'],
         checking_balance=request.POST['checking_balance'],
         saving_balance=request.POST['saving_balance'],
+        credit_number=credit_number,
+        cvv=cvv,
     )
 
     # create request
@@ -261,8 +266,8 @@ def account_open_post_view(request):
         money=0.0,
         from_balance='',
         to_balance='',
-        credit_number=''.join(random.choices(string.digits, k=16)),
-        cvv=''.join(random.choices(string.digits, k=3)),
+        credit_number=credit_number,
+        cvv=cvv,
         increment_credit_balance=0.0,
         increment_checking_balance=0.0,
         increment_saving_balance=0.0,

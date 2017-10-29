@@ -910,8 +910,8 @@ def make_credit_payment_post_view(request):
         context = {'msg': 'you have enough credit, you dont have to pay bill'}
         return render(request, 'error.html', context, status=400)
 
-    if login_bankuser.saving_balance + login_bankuser.credit_balance < 0:
-        context = {'msg': 'the balance in saving is not enough'}
+    if login_bankuser.checking_balance + login_bankuser.credit_balance < 0:
+        context = {'msg': 'the balance in checking is not enough'}
         return render(request, 'error.html', context, status=400)
 
     # create Request
@@ -938,9 +938,15 @@ def make_credit_payment_post_view(request):
         increment_saving_balance=0.0,
     )
 
-    login_bankuser.saving_balance += login_bankuser.credit_balance
+    login_bankuser.checking_balance += login_bankuser.credit_balance
     login_bankuser.credit_balance = 0
     login_bankuser.save()
+
+    # system log
+    models.Log.objects.create(
+        created=datetime.datetime.now(),
+        msg='{} make CREDIT PAYMENT'.format(login_bankuser.username)
+    )
 
     context = {'msg': 'you make credit payment'}
     return render(request, 'success.html', context)

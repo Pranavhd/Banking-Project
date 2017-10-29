@@ -1511,7 +1511,7 @@ def customer_view(request):
                 ))
 
         # CREDIT PAYMENT REQUEST
-        if inner_request.request == 'CREDIT_PAYMENT_REQUEST':
+        if inner_request.request == 'CREDIT_PAYMENT':
             if inner_request.to_id == login_bankuser.id:
                 context['credit_payment_requests'].append(RenderCreditPaymentRequest(
                     inner_request.created,

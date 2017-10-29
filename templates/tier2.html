@@ -262,18 +262,37 @@
         <table >
             <tr>
                 <th>Date</th>
-                <th>1</th>
-                <th>2</th>
-                <th>3</th>
-                <th>4</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Amount</th>
+                <th>State</th>
             </tr>
             {% for request in payment_requests %}
             <tr>
                 <td> {{ request.created }}</td>
-                <td> {{ request.username }}</td>
-                <td> {{ request.email }}</td>
-                <td> {{ request.phone }}</td>
-                <td> {{ request.address }}</td>
+                <td> {{ request.from_username }}</td>
+                <td> {{ request.to_username }}</td>
+                <td> {{ request.money }}</td>
+                <td>
+                    {% if request.state == "PENDING" %}
+                        <form action="/request_approve_post/" method="POST"> {% csrf_token %}
+                          <input type="hidden" value="{{ request.id }}" name="id" />
+                          <input type="hidden" value="1" name="approve" />
+                          <button type="submit" name="decline_btn"> APPROVE</button>
+                      </form>
+
+                      <form action="/request_approve_post/" method="POST"> {% csrf_token %}
+                          <input type="hidden" value="{{ request.id }}" name="id" />
+                          <input type="hidden" value="0" name="approve" />
+                          <button type="submit" name="decline_btn"> Decline</button>
+                      </form>
+
+                {% else %}
+                    {{ request.state }}
+
+                {% endif %}
+
+                </td>
             </tr>
             {% endfor %}
         </table>

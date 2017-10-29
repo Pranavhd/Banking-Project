@@ -9,8 +9,12 @@
     <button type="button" id="make_trans_btn"  onclick="window.location.href='/make_transfer/?id='"> Transfer</button>
     <button type="button" id="sessions_btn"  onclick="window.location.href='/account/sessions/'"> Session</button>
 
+    <form action="/make_credit_payment_post/" method="POST"> {% csrf_token %}
+        <button type="submit" name="payment_btn" class = "right"> Pay for you bill</button>
+    </form>
+
 {% endblock %}
-{% block usertype %}<usertype>{{ user.username }}, {{ user.user_type }}, {{ user.email }}, {{ user.phone }}, {{ user.address }}, {{ user.credit_number }},{{ user.cvv }}</usertype>{% endblock %}
+{% block usertype %}<usertype>{{ user.username }}, {{ user.user_type }}, {{ user.email }}, {{ user.phone }}, {{ user.address }}, {{ user.credit_number }}, {{ user.cvv }}</usertype>{% endblock %}
 
 {% block content %}
 
@@ -35,45 +39,81 @@
     <br>
     </table>
 
-        <!-- approve request-->
-        <t1> Approve Request</t1>
-        <table >
-            <tr>
-                <th>Date</th>
-                <th>target state</th>
-                <th>From user</th>
-                <th>Status</th>
-            </tr>
-            {% for request in approve_requests %}
-            <tr>
-                <td> {{ request.created }}</td>
-                <td> {{ request.target_state }}</td>
-                <td> {{ request.target_state }}</td>
-                <td> {{ request.from_username }}</td>
-                <td>
-                    {% if request.state == "PENDING" %}
-                        <form action="/request_approve_post/" method="POST">{% csrf_token %}
-                            <input type="hidden" value="{{ request.id }}" name="id" />
-                            <input type="hidden" value="1" name="approve" />
-                            <button type="submit" name="approve_btn"> APPROVE</button>
-                        </form>
+    <!-- approve request-->
+    <t1> Approve Request</t1>
+    <table >
+        <tr>
+            <th>Date</th>
+            <th>target state</th>
+            <th>From user</th>
+            <th>Status</th>
+        </tr>
+        {% for request in approve_requests %}
+        <tr>
+            <td> {{ request.created }}</td>
+            <td> {{ request.target_state }}</td>
+            <td> {{ request.target_state }}</td>
+            <td> {{ request.from_username }}</td>
+            <td>
+                {% if request.state == "PENDING" %}
+                    <form action="/request_approve_post/" method="POST">{% csrf_token %}
+                        <input type="hidden" value="{{ request.id }}" name="id" />
+                        <input type="hidden" value="1" name="approve" />
+                        <button type="submit" name="approve_btn"> APPROVE</button>
+                    </form>
 
-                        <form action="/request_approve_post/" method="POST"> {% csrf_token %}
-                            <input type="hidden" value="{{ request.id }}" name="id" />
-                            <input type="hidden" value="0" name="approve" />
-                            <button type="submit" name="decline_btn"> Decline</button>
-                        </form>
+                    <form action="/request_approve_post/" method="POST"> {% csrf_token %}
+                        <input type="hidden" value="{{ request.id }}" name="id" />
+                        <input type="hidden" value="0" name="approve" />
+                        <button type="submit" name="decline_btn"> Decline</button>
+                    </form>
 
-                {% else %}
-                    {{ request.state }}
+            {% else %}
+                {{ request.state }}
 
-                {% endif %}
+            {% endif %}
 
-                </td>
-            </tr>
-            {% endfor %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table><br>
 
 
+    <!-- approve request-->
+    <t1> Bill Payment</t1>
+    <table >
+        <tr>
+            <th>Date</th>
+            <th>Amount</th>
+        </tr>
+        {% for request in credit_payment_requests %}
+        <tr>
+            <td> {{ request.created }}</td>
+            <td> {{ request.money }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- penalty-->
+    <t1> Penalty</t1>
+    <table >
+        <tr>
+            <th>Date</th>
+            <th>Original Amount</th>
+            <th>Interest</th>
+            <th>Late fee</th>
+            <th>Now you own</th>
+        </tr>
+        {% for request in penalty_requests %}
+        <tr>
+            <td> {{ request.created }}</td>
+            <td> {{ request.before_credit_balance }}</td>
+            <td> {{ request.interest }}</td>
+            <td> {{ request.late_fee }}</td>
+            <td> {{ request.after_credit_balance }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 
 {% endblock %}
 

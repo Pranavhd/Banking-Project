@@ -71,7 +71,7 @@ def count_user_penalty(user):
                 after_credit_balance=after_credit_balance,
             )
 
-    user.save()
+        user.save()
 
 
 # ----- login -----

@@ -14,6 +14,7 @@ import os
 from django.core.urlresolvers import reverse_lazy
 LOGIN_URL = 'two_factor:login'
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -27,7 +28,7 @@ SECRET_KEY = '&tc3ht918ut&^^^q6o=gp4%+%l&mw=((b9m26d58dp5vf^0-z$'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['cse545g1.mobicloud.asu.edu']
 
 
 # Application definition

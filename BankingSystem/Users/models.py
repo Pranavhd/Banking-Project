@@ -26,6 +26,9 @@ class BankUser(models.Model):
     checking_balance = models.DecimalField(max_digits=10, decimal_places=2)
     saving_balance = models.DecimalField(max_digits=10, decimal_places=2)
 
+    #
+    credit_balance_close_date = models.DateTimeField()
+
     # credit
     credit_number = models.CharField(max_length=16)
     cvv = models.CharField(max_length=3)
@@ -45,7 +48,7 @@ class Request(models.Model):
     # sub-state for T1, 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
     sub_state = models.CharField(max_length=20)
 
-    # 'FUND', 'PAYMENT', 'ACCOUNT_OPEN', 'ACCOUNT_UPDATE', 'APPROVE_REQUEST', 'CREDIT_PAYMENT'
+    # 'FUND', 'PAYMENT', 'ACCOUNT_OPEN', 'ACCOUNT_UPDATE', 'APPROVE_REQUEST', 'CREDIT_PAYMENT', 'PENALTY'
     request = models.CharField(max_length=20)
 
     # permission
@@ -77,6 +80,12 @@ class Request(models.Model):
 
     # ----- APPROVE REQUEST related -----
     request_id = models.IntegerField()
+
+    # ----- PENALTY REQUEST related -----
+    before_credit_balance = models.DecimalField(max_digits=10, decimal_places=2)
+    interest = models.DecimalField(max_digits=10, decimal_places=2)
+    late_fee = models.DecimalField(max_digits=10, decimal_places=2)
+    after_credit_balance = models.DecimalField(max_digits=10, decimal_places=2)
 
 
 class Log(models.Model):

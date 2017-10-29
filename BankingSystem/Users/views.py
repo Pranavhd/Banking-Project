@@ -28,6 +28,49 @@ RenderLog = collections.namedtuple(
     'RenderLog', 'created msg')
 RenderCreditPaymentRequest = collections.namedtuple(
     'RenderCreditPaymentRequest', 'created money')
+RenderPenaltyRequest = collections.namedtuple(
+    'RenderPenaltyRequest', 'created before_credit_balance interest late_fee after_credit_balance')
+
+
+def count_user_penalty(user):
+    now = datetime.datetime.now()
+
+    while (now - user.credit_balance_close_date).total_seconds() >= 7200:
+        user.credit_balance_close_date + datetime.timedelta(seconds=7200)
+
+        if user.credit_balance < 0:
+            before_credit_balance = user.credit_balance
+            after_credit_balance = user.credit_balance * 1.02 - 20
+
+            models.Request.objects.create(
+                from_id=user.id,
+                to_id=user.id,
+                created=user.credit_balance_close_date,
+                state='APPROVED',
+                sub_state='WAITING',
+                request='PENALTY',
+                permission=0,
+                user_type=user.user_type,
+                request_id=-1,
+                phone='',
+                email='',
+                address='',
+                critical=0,
+                money=0.0,
+                from_balance='',
+                to_balance='',
+                credit_number='',
+                cvv='',
+                increment_credit_balance=0.0,
+                increment_checking_balance=0.0,
+                increment_saving_balance=0.0,
+                before_credit_balance=before_credit_balance,
+                interest=1.02,
+                late_fee=20.0,
+                after_credit_balance=after_credit_balance,
+            )
+
+    user.save()
 
 
 # ----- login -----
@@ -55,8 +98,10 @@ def login_view(request):
         elif login_bankuser.user_type == 'TIER2':
             return redirect('/tier2/')
         elif login_bankuser.user_type == 'CUSTOMER':
+            count_user_penalty(login_bankuser)
             return redirect('/customer/')
         elif login_bankuser.user_type == 'MERCHANT':
+            count_user_penalty(login_bankuser)
             return redirect('/merchant/')
         else:
             return redirect('/logout/')
@@ -104,8 +149,10 @@ def login_post_view(request):
     elif login_bankuser.user_type == 'TIER2':
         return redirect('/tier2/')
     elif login_bankuser.user_type == 'CUSTOMER':
+        count_user_penalty(login_bankuser)
         return redirect('/customer/')
     elif login_bankuser.user_type == 'MERCHANT':
+        count_user_penalty(login_bankuser)
         return redirect('/merchant/')
     else:
         return redirect('/logout/')
@@ -248,6 +295,7 @@ def account_open_post_view(request):
         saving_balance=request.POST['saving_balance'],
         credit_number=credit_number,
         cvv=cvv,
+        credit_balance_close_date=datetime.datetime.now(),
     )
 
     # create request
@@ -273,6 +321,10 @@ def account_open_post_view(request):
         increment_credit_balance=0.0,
         increment_checking_balance=0.0,
         increment_saving_balance=0.0,
+        before_credit_balance=0.0,
+        interest=0.0,
+        late_fee=0.0,
+        after_credit_balance=0.0,
     )
 
     # system log
@@ -466,6 +518,10 @@ def account_update_post_view(request):
         increment_credit_balance=increment_credit_balance,
         increment_checking_balance=increment_checking_balance,
         increment_saving_balance=increment_saving_balance,
+        before_credit_balance=0.0,
+        interest=0.0,
+        late_fee=0.0,
+        after_credit_balance=0.0,
     )
 
     # system log
@@ -685,6 +741,10 @@ def make_transfer_post_view(request):
         increment_credit_balance=0.0,
         increment_checking_balance=0.0,
         increment_saving_balance=0.0,
+        before_credit_balance=0.0,
+        interest=0.0,
+        late_fee=0.0,
+        after_credit_balance=0.0,
     )
 
     # system log
@@ -783,6 +843,10 @@ def make_payment_post_view(request):
         increment_credit_balance=0.0,
         increment_checking_balance=0.0,
         increment_saving_balance=0.0,
+        before_credit_balance=0.0,
+        interest=0.0,
+        late_fee=0.0,
+        after_credit_balance=0.0,
     )
 
     # system log
@@ -874,6 +938,10 @@ def make_approve_request_post_view(request):
         increment_credit_balance=0.0,
         increment_checking_balance=0.0,
         increment_saving_balance=0.0,
+        before_credit_balance=0.0,
+        interest=0.0,
+        late_fee=0.0,
+        after_credit_balance=0.0,
     )
 
     # system log
@@ -936,6 +1004,10 @@ def make_credit_payment_post_view(request):
         increment_credit_balance=0.0,
         increment_checking_balance=0.0,
         increment_saving_balance=0.0,
+        before_credit_balance=0.0,
+        interest=0.0,
+        late_fee=0.0,
+        after_credit_balance=0.0,
     )
 
     login_bankuser.checking_balance += login_bankuser.credit_balance
@@ -1039,6 +1111,7 @@ def admin_view(request):
         user_type='CUSTOMER').exclude(
         user_type='MERCHANT')
     for u in users:
+        count_user_penalty(u)
         context['users'].append(RenderUser(
             u.username,
             u.user_type,
@@ -1168,6 +1241,7 @@ def tier2_view(request):
     ).exclude(user_type='ADMIN')
 
     for u in users:
+        count_user_penalty(u)
         context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, '***', '***', '***', '***', '***', '***', '***', '***'))
 
     # render request
@@ -1335,6 +1409,7 @@ def tier1_view(request):
         user_type='TIER2').exclude(
         user_type='TIER1')
     for u in users:
+        count_user_penalty(u)
         context['users'].append(RenderUser(u.username, u.user_type, u.state, u.id, '***', '***', '***', '***', '***', '***', '***', '***'))
 
     # render request
@@ -1447,6 +1522,8 @@ def customer_view(request):
         context = {'msg': 'not active BankUser'}
         return render(request, 'error.html', context, status=400)
 
+    count_user_penalty(login_bankuser)
+
     context = {
         'user': None,
         'users': [],
@@ -1456,6 +1533,7 @@ def customer_view(request):
         'fund_requests': [],
         'payment_requests': [],
         'credit_payment_requests': [],
+        'penalty_requests': [],
     }
 
     # render user
@@ -1518,6 +1596,13 @@ def customer_view(request):
                     inner_request.money,
                 ))
 
+        # PENALTY REQUEST
+        if inner_request.request == 'PENALTY':
+            if inner_request.to_id == login_bankuser.id:
+                context['penalty_requests'].append(RenderCreditPaymentRequest(
+                    inner_request.created,
+                    inner_request.money,
+                ))
     return render(request, 'customer.html', context)
 
 
@@ -1542,6 +1627,8 @@ def merchant_view(request):
     if login_bankuser.state == 'INACTIVE':
         context = {'msg': 'not active BankUser'}
         return render(request, 'error.html', context, status=400)
+
+    count_user_penalty(login_bankuser)
 
     context = {
         'user': None,

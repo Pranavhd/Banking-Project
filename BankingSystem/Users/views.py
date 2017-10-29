@@ -986,6 +986,8 @@ def make_credit_payment_post_view(request):
         context = {'msg': 'the balance in checking is not enough'}
         return render(request, 'error.html', context, status=400)
 
+    count_user_penalty(login_bankuser)
+
     # create Request
     models.Request.objects.create(
         from_id=login_bankuser.id,

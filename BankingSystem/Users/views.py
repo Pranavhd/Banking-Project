@@ -1600,9 +1600,12 @@ def customer_view(request):
         # PENALTY REQUEST
         if inner_request.request == 'PENALTY':
             if inner_request.to_id == login_bankuser.id:
-                context['penalty_requests'].append(RenderCreditPaymentRequest(
+                context['penalty_requests'].append(RenderPenaltyRequest(
                     inner_request.created,
-                    inner_request.money,
+                    inner_request.before_credit_balance,
+                    inner_request.interest,
+                    inner_request.late_fee,
+                    inner_request.after_credit_balance,
                 ))
     return render(request, 'customer.html', context)
 

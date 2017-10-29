@@ -245,6 +245,30 @@ def account_open_post_view(request):
     except models.BankUser.DoesNotExist:
         pass
 
+    # password
+    if len(request.POST['password']) < 10:
+        context = {'msg': 'password length must be at least 10'}
+        return render(request, 'error.html', context, status=400)
+
+    IS_UP = False
+    IS_LO = False
+    IS_SPEC = False
+    IS_NUM = False
+
+    for c in request.POST['password']:
+        if 48 <= ord(c) <= 57:
+            IS_NUM = True
+        if 65 <= ord(c) <= 90:
+            IS_UP = True
+        if 97 <= ord(c) <= 122:
+            IS_LO = True
+        if c in ['@', '~', '*', '#']:
+            IS_SPEC = True
+
+    if not (IS_UP and IS_LO and IS_SPEC and IS_NUM):
+        context = {'msg': 'password must contain one special character @~#*, number, Upper and lower character'}
+        return render(request, 'error.html', context, status=400)
+
     # from bank user
     try:
         from_bankuser = models.BankUser.objects.get(user=request.user)

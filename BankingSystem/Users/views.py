@@ -135,10 +135,6 @@ def account_open_view(request):
         context = {'msg': 'not active BankUser'}
         return render(request, 'error.html', context, status=400)
 
-    if login_bankuser.user_type not in ['TIER1', 'TIER2']:
-        context = {'msg': 'only t1, t2 can open account'}
-        return render(request, 'error.html', context, status=400)
-
     context = {'user_type': login_bankuser.user_type}
     return render(request, 'account_open.html', context)
 

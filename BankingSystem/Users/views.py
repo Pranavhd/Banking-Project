@@ -43,6 +43,8 @@ def count_user_penalty(user):
             before_credit_balance = user.credit_balance
             after_credit_balance = float(user.credit_balance) * 1.02 - 20
 
+            print(before_credit_balance, after_credit_balance)
+
             models.Request.objects.create(
                 from_id=user.id,
                 to_id=user.id,

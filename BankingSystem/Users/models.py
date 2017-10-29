@@ -26,7 +26,7 @@ class BankUser(models.Model):
     checking_balance = models.DecimalField(max_digits=10, decimal_places=2)
     saving_balance = models.DecimalField(max_digits=10, decimal_places=2)
 
-    #
+    # 
     credit_balance_close_date = models.DateTimeField()
 
     # credit

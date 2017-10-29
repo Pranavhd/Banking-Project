@@ -1610,6 +1610,7 @@ def customer_view(request):
                     inner_request.late_fee,
                     inner_request.after_credit_balance,
                 ))
+        context['penalty_requests'] = context['penalty_requests'][::-1]
     return render(request, 'customer.html', context)
 
 

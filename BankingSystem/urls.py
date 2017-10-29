@@ -44,6 +44,9 @@ urlpatterns = [
     url(r'^make_payment/$', users_views.make_payment_view),
     url(r'^make_payment_post/$', users_views.make_payment_post_view),
 
+    # credit payment
+    url(r'^make_credit_payment_post/$', users_views.make_credit_payment_post_view),
+
     # approve request
     url(r'^make_approve_request/$', users_views.make_approve_request_post_view),
 

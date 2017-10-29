@@ -26,6 +26,8 @@ RenderPaymentRequest = collections.namedtuple(
     'RenderPaymentRequest', 'from_username to_username id state sub_state created request email phone address money critical')
 RenderLog = collections.namedtuple(
     'RenderLog', 'created msg')
+RenderCreditPaymentRequest = collections.namedtuple(
+    'RenderCreditPaymentRequest', 'created money')
 
 
 # ----- login -----
@@ -884,6 +886,62 @@ def make_approve_request_post_view(request):
     return render(request, 'success.html', context)
 
 
+# 8. --- Credit Payment ---
+def make_credit_payment_post_view(request):
+
+    # bank user
+    try:
+        login_bankuser = models.BankUser.objects.get(user=request.user)
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # active bank user
+    if login_bankuser.state == 'INACTIVE':
+        context = {'msg': 'not active BankUser'}
+        return render(request, 'error.html', context, status=400)
+
+    # customer
+    if login_bankuser.user_type != 'CUSTOMER':
+        context = {'msg': 'only customer can make credit payment'}
+        return render(request, 'error.html', context, status=400)
+
+    if login_bankuser.saving_balance + login_bankuser.credit_balance < 0:
+        context = {'msg': 'the balance in saving is not enough'}
+        return render(request, 'error.html', context, status=400)
+
+    # create Request
+    models.Request.objects.create(
+        from_id=login_bankuser.id,
+        to_id=login_bankuser.id if login_bankuser else -1,
+        user_type=login_bankuser.user_type,
+        created=datetime.datetime.now(),
+        state='APPROVED',
+        # sub-state for T1, 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
+        sub_state='WAITING',
+        request='CREDIT_PAYMENT',
+        request_id=-1,
+        permission=0,
+        critical=0,
+        phone='',
+        email='',
+        address='',
+        money=abs(login_bankuser.credit_balance),
+        from_balance='',
+        to_balance='',
+        increment_credit_balance=0.0,
+        increment_checking_balance=0.0,
+        increment_saving_balance=0.0,
+    )
+
+    login_bankuser.saving_balance += login_bankuser.credit_balance
+    login_bankuser.credit_balance = 0
+    login_bankuser.save()
+
+    context = {}
+    return render(request, 'success.html', context)
+
+
 # ----- index -----
 def index_view(request):
     if not request.user.is_authenticated():
@@ -1387,6 +1445,7 @@ def customer_view(request):
         'approve_requests': [],
         'fund_requests': [],
         'payment_requests': [],
+        'credit_payment_requests': [],
     }
 
     # render user
@@ -1439,6 +1498,14 @@ def customer_view(request):
                     inner_request.email,
                     inner_request.phone,
                     inner_request.address
+                ))
+
+        # CREDIT PAYMENT REQUEST
+        if inner_request.request == 'CREDIT_PAYMENT_REQUEST':
+            if inner_request.to_id == login_bankuser.id:
+                context['credit_payment_requests'].append(RenderCreditPaymentRequest(
+                    inner_request.created,
+                    inner_request.money,
                 ))
 
     return render(request, 'customer.html', context)
@@ -1881,7 +1948,7 @@ def request_approve_post_view(request):
         elif inner_request.request == 'PAYMENT':
             if int(request.POST['approve']):
 
-                if to_bankuser.credit_balance < inner_request.money:
+                if to_bankuser.credit_balance + 1000 < inner_request.money:
                     context['msg'] = 'to bank user balance not enough'
                     return render(request, 'error.html', context, status=400)
 
@@ -2134,7 +2201,7 @@ def request_approve_post_view(request):
                     context['msg'] = 't1 can not approve critical'
                     return render(request, 'error.html', context, status=400)
 
-                if to_bankuser.credit_balance < inner_request.money:
+                if to_bankuser.credit_balance + 1000 < inner_request.money:
                     context['msg'] = 'to bank user balance not enough'
                     return render(request, 'error.html', context, status=400)
 

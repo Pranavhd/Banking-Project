@@ -45,7 +45,7 @@ class Request(models.Model):
     # sub-state for T1, 'WAITING_T2', 'WAITING_T2_EX', 'WAITING_EX', 'WAITING'
     sub_state = models.CharField(max_length=20)
 
-    # 'FUND', 'PAYMENT', 'ACCOUNT_OPEN', 'ACCOUNT_UPDATE', 'APPROVE_REQUEST'
+    # 'FUND', 'PAYMENT', 'ACCOUNT_OPEN', 'ACCOUNT_UPDATE', 'APPROVE_REQUEST', 'CREDIT_PAYMENT'
     request = models.CharField(max_length=20)
 
     # permission

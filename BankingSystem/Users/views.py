@@ -314,7 +314,6 @@ def account_open_post_view(request):
         context = {'msg': 'balance should be positive'}
         return render(request, 'error.html', context, status=400)
 
-
     # create user
     user = User.objects.create_user(
         username=request.POST['username'],
@@ -543,8 +542,8 @@ def account_update_post_view(request):
         increment_checking_balance = 0.0
         increment_saving_balance = 0.0
 
-    if float(increment_credit_balance) < 0.0 or float(increment_checking_balance) < 0.0 or float(increment_saving_balance) < 0.0:
-        context = {'msg': 'balance should be positive'}
+    if float(increment_checking_balance) < 0.0 or float(increment_saving_balance) < 0.0:
+        context = {'msg': 'checking & saving balance should be positive'}
         return render(request, 'error.html', context, status=400)
 
     # create Request

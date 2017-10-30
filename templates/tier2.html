@@ -134,6 +134,9 @@
                 <th>phone</th>
                 <th>address</th>
                 <th>Status</th>
+                <th>Checking</th>
+                <th>Saving</th>
+                <th>Credit</th>
             </tr>
             {% for request in account_update_requests %}
             <tr>
@@ -163,6 +166,9 @@
                 {% endif %}
 
                 </td>
+                <td>{{ request.increment_checking_balance }}</td>
+                <td>{{ request.increment_saving_balance }}</td>
+                <td>{{ request.increment_credit_balance }}</td>
             </tr>
             {% endfor %}
 

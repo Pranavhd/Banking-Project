@@ -143,6 +143,9 @@
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Address</th>
+                <th>Checking</th>
+                <th>Saving</th>
+                <th>Credit</th>
                 <th>Request T2</th>
                 <th>Request CUS</th>
                 <th>Status</th>
@@ -213,6 +216,9 @@
                 {% endif %}
 
                 </td>
+                <td>{{ request.increment_checking_balance }}</td>
+                <td>{{ request.increment_saving_balance }}</td>
+                <td>{{ request.increment_credit_balance }}</td>
             </tr>
             {% endfor %}
         </table>

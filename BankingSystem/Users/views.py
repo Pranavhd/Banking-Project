@@ -767,8 +767,8 @@ def make_transfer_post_view(request):
             context = {'msg': 'different user only allow transfer between checking'}
             return render(request, 'error.html', context, status=400)
 
-    if int(request.POST['money']) <= 0:
-        context = {'msg': 'money must greate than 0'}
+    if float(request.POST['money']) <= 0:
+        context = {'msg': 'money must greater than 0'}
         return render(request, 'error.html', context, status=400)
 
     # create Request
@@ -786,7 +786,7 @@ def make_transfer_post_view(request):
         phone=request.POST.get('phone', '').strip(),
         email=request.POST.get('email', '').strip(),
         address=request.POST.get('address', '').strip(),
-        critical=1 if int(request.POST['money']) > 1000 else 0,
+        critical=1 if float(request.POST['money']) > 1000 else 0,
         money=request.POST['money'],
         from_balance=request.POST['from_balance'],
         to_balance=request.POST['to_balance'],
@@ -800,7 +800,7 @@ def make_transfer_post_view(request):
     )
 
     # critical email
-    if int(request.POST['money']) > 1000:
+    if float(request.POST['money']) > 1000:
         body = "The amount {} for fund transfer has been started." .format(request.POST['money'])
         if from_bankuser:
             send_mail('Critical Fund Transfer', body, 'software_security', [from_bankuser.email])
@@ -876,7 +876,7 @@ def make_payment_post_view(request):
     if from_bankuser == to_bankuser:
         context = {'msg': 'can not be same user'}
         return render(request, 'error.html', context, status=400)
-    if int(request.POST['money']) <= 0:
+    if float(request.POST['money']) <= 0:
         context = {'msg': 'money must greater than 0'}
         return render(request, 'error.html', context, status=400)
 
@@ -894,7 +894,7 @@ def make_payment_post_view(request):
         phone='',
         email='',
         address='',
-        critical=1 if int(request.POST['money']) > 1000 else 0,
+        critical=1 if float(request.POST['money']) > 1000 else 0,
         money=request.POST['money'],
         from_balance='',
         to_balance='',

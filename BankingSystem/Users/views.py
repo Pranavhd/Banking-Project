@@ -787,6 +787,14 @@ def make_transfer_post_view(request):
         after_credit_balance=0.0,
     )
 
+    # critical email
+    if int(request.POST['money']) > 1000:
+        body = "The amount {} for fund transfer has been started." .format(request.POST['money'])
+        if from_bankuser:
+            send_mail('Critical Fund Transfer', body, 'software_security', [from_bankuser.email])
+        if to_bankuser:
+            send_mail('Critical Fund Transfer', body, 'software_security', [to_bankuser.email])
+
     # system log
     models.Log.objects.create(
         created=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7),
@@ -1088,7 +1096,6 @@ def sendOTP(request, user_id):
         return render(request, 'error.html', context, status=400)
 
     # customer
-    print(login_bankuser.id, user_id)
     if login_bankuser.id != int(user_id):
         context = {'msg': 'must be the same user id'}
         return render(request, 'error.html', context, status=400)
@@ -1135,7 +1142,7 @@ def sendOTP(request, user_id):
                 otp_data.save()
 
         to_id = models.BankUser.objects.get(id=user_id)
-        body = "The OTP for logging into " + str(otp)
+        body = "The OTP for logging is " + str(otp)
         send_mail('OTP for Software Security', body, 'software_security', [to_id.email])
 
     return render(request,'exportPDF.html',context)

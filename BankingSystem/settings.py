@@ -30,6 +30,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['cse545g1.mobicloud.asu.edu', '127.0.0.1']
 
+# Email credentials
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'sftwrscrt@gmail.com'
+EMAIL_HOST_PASSWORD = 'software1'
+EMAIL_PORT = 587
 
 # Application definition
 

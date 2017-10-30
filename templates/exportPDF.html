@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Title</title>
+</head>
+
+<script src="/static/jquery-3.2.1.min.js"></script>
+<link rel="stylesheet" href="/static/jquery.virtual_keyboard.css">
+<script src="/static/jquery.virtual_keyboard.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+<script>
+$(document).ready(function(){
+    $('#OTPText').keyboard(
+        {
+            // Keyboard Type
+	  type: 'gatekeeper',
+	  // default, monokai, orange
+	  theme: 'default',
+	  // ru_RU, es_ES, pt_PT, it_IT
+	  language: 'en_US',
+	  // active Shift key
+	  active_shift: false,
+	  // action Capslock key
+	  active_caps: false,
+	  // hide the keyboard on page load
+	  is_hidden: true,
+	  // animation speed in ms
+	  open_speed: 300,
+	  close_speed: 300,
+	  // show on focus
+	  show_on_focus_in: true,
+	  // auto hide when the text field has lost focus.
+	  hide_on_focus_out: true,
+	  // Id selector to trigger the keyboard
+	  trigger: undefined,
+	  // enable the plugin
+	  enabled: true
+        }
+    );
+});
+</script>
+
+<body>
+{% for message in messages %}
+<h4>{{ message }}</h4>
+{% endfor %}
+<div class="container" style="padding-left: 10px">
+<div class="row">
+<form action="." method="post">
+{% csrf_token %}
+<t1>Please enter the OTP sent to your registered email address</t1><br>
+<input type="text" name="OTPText" id="OTPText"/>
+<button type="submit" class="btn btn-success">OK</button>
+<button type="button" class="btn btn-warning" onClick="location.href=location.href">Resend OTP</button>
+</form>
+</div>
+</div>
+</body>
+</html>

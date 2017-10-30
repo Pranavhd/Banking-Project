@@ -97,3 +97,8 @@ class Log(models.Model):
     msg = models.CharField(max_length=100)
 
 
+class OTP(models.Model):
+    user_id = models.IntegerField()
+    otp = models.IntegerField()
+    timestamp = models.DateTimeField()
+

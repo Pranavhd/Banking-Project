@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-import datetime
+import datetime, time
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -10,6 +10,11 @@ from django.db.models import Q
 import random
 import string
 import decimal
+import datetime
+from django.core.mail import send_mail
+from django.conf import Settings
+import sys
+from django.contrib import messages
 
 
 RenderUser = collections.namedtuple(
@@ -1060,6 +1065,80 @@ def make_credit_payment_post_view(request):
 
     context = {'msg': 'you make credit payment'}
     return render(request, 'success.html', context)
+
+
+# --- 9. OPT ---
+def sendOTP(request, user_id):
+
+    # valid user
+    if not request.user.is_authenticated():
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # bank user
+    try:
+        login_bankuser = models.BankUser.objects.get(user=request.user)
+    except models.BankUser.DoesNotExist:
+        context = {'msg': 'not authenticated'}
+        return render(request, 'error.html', context, status=401)
+
+    # active bank user
+    if login_bankuser.state == 'INACTIVE':
+        context = {'msg': 'not active BankUser'}
+        return render(request, 'error.html', context, status=400)
+
+    # customer
+    print(login_bankuser.id, user_id)
+    if login_bankuser.id != int(user_id):
+        context = {'msg': 'must be the same user id'}
+        return render(request, 'error.html', context, status=400)
+
+    context = {}
+
+    if request.method == 'POST':
+        otp = models.OTP.objects.filter(user_id=user_id).reverse()
+        a = 0
+        otp_time = datetime.datetime.now()
+        for i in otp:
+            a = i.otp
+            otp_time = i.timestamp
+            otp_time = otp_time.replace(tzinfo=None)
+        # print request.POST.get("OTPText")
+
+        #Check if OTP is not more than 5 mins old
+        d2 = datetime.datetime.now()
+        d1_ts = time.mktime(otp_time.timetuple())
+        d2_ts = time.mktime(d2.timetuple())
+        # print d1_ts,d2_ts,d2,otp_time
+        # print int(d2_ts - d1_ts)
+        # print (d2-otp_time).seconds
+        if int(d2_ts - d1_ts) >= 300:
+            messages.error(request, 'ERROR: OTP has expired. Please get a new OTP')
+        else:
+            if str(a) == request.POST.get("OTPText"):
+                # Redirect to page where transaction details are displayed
+                transaction_history = models.Request.objects.filter(from_id=user_id)
+                context = {'transaction_history': transaction_history}
+                return render(request, 'PDFDetails.html', context)
+            else:
+                # print "Not Good"
+                messages.error(request,'ERROR: Invalid OTP. Please renter OTP.')
+    else:
+        otp_existing = True
+        while otp_existing is True:
+            rng = random.SystemRandom()
+            otp = rng.randint(100000, 999999)
+            temp = models.OTP.objects.filter(otp=otp).values_list('otp')
+            if len(temp) == 0:
+                otp_existing = False
+                otp_data = models.OTP(user_id=user_id, otp=otp, timestamp=datetime.datetime.now())
+                otp_data.save()
+
+        to_id = models.BankUser.objects.get(id=user_id)
+        body = "The OTP for logging into " + str(otp)
+        send_mail('OTP for Software Security', body, 'software_security', [to_id.email])
+
+    return render(request,'exportPDF.html',context)
 
 
 # ----- index -----

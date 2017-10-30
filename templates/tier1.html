@@ -196,6 +196,9 @@
                         -
                     {% endif %}
                 </td>
+                <td>{{ request.increment_checking_balance }}</td>
+                <td>{{ request.increment_saving_balance }}</td>
+                <td>{{ request.increment_credit_balance }}</td>
               <td>
                   {% if request.state == "PENDING" %}
                       <form action="/request_approve_post/" method="POST"> {% csrf_token %}
@@ -216,9 +219,7 @@
                 {% endif %}
 
                 </td>
-                <td>{{ request.increment_checking_balance }}</td>
-                <td>{{ request.increment_saving_balance }}</td>
-                <td>{{ request.increment_credit_balance }}</td>
+
             </tr>
             {% endfor %}
         </table>

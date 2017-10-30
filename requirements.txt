@@ -4,5 +4,5 @@ py-moneyed==0.7.0
 django-money==0.11.4
 django-localflavor==1.5.2
 
--e git+git://github.com/donndonn/django-two-factor-auth.git#egg=django-two-factor-auth
--e git+git://github.com/donndonn/django-user-sessions.git#egg=django-user-sessions
+-e git+git://github.com/donndonn/django-two-factor-auth.git#egg=django-two-factor-auth==1.6.3
+-e git+git://github.com/donndonn/django-user-sessions.git#egg=django-user-sessions==1.5.5

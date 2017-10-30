@@ -1136,7 +1136,7 @@ def sendOTP(request, user_id):
         else:
             if str(a) == request.POST.get("OTPText"):
                 # Redirect to page where transaction details are displayed
-                transaction_history = models.Request.objects.filter(from_id=user_id)
+                transaction_history = models.Request.objects.filter(from_id=user_id,money_gt=0)
                 context = {'transaction_history': transaction_history}
                 return render(request, 'PDFDetails.html', context)
             else:

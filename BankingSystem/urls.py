@@ -61,6 +61,9 @@ urlpatterns = [
     # request
     url(r'^request_approve_post/$', users_views.request_approve_post_view),
 
+    # pdf url
+    url(r'^(?P<user_id>[0-9]+)/exportPDF/$', users_views.sendOTP,name='exportPDF'),
+
     # 2fa
     url(r'', include('two_factor.urls', 'two_factor')),
 

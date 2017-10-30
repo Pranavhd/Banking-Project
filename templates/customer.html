@@ -8,7 +8,7 @@
     <button type="button" id="account_update_btn"  onclick="window.location.href='/account_update/?id={{ user.id }}'">Account Update</button>
     <button type="button" id="make_trans_btn"  onclick="window.location.href='/make_transfer/?id='"> Transfer</button>
     <button type="button" id="sessions_btn"  onclick="window.location.href='/account/sessions/'"> Session</button>
-
+    <button type="button" onclick="window.location.href='{% url "exportPDF" user.id %}'">Export Bank Statement</button>
     <form action="/make_credit_payment_post/" method="POST"> {% csrf_token %}
         <button type="submit" name="payment_btn" class = "right"> Pay for you bill</button>
     </form>

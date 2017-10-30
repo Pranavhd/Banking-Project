@@ -37,7 +37,7 @@ RenderPenaltyRequest = collections.namedtuple(
     'RenderPenaltyRequest', 'created before_credit_balance interest late_fee after_credit_balance')
 
 
-RATE_PERIOD_SEC = 30
+RATE_PERIOD_SEC = 1800
 
 
 def count_user_penalty(user):

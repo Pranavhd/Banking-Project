@@ -246,8 +246,8 @@ def account_open_post_view(request):
         pass
 
     # password
-    if len(request.POST['password']) < 16:
-        context = {'msg': 'password length must be at least 16'}
+    if len(request.POST['password']) < 10:
+        context = {'msg': 'password length must be at least 10'}
         return render(request, 'error.html', context, status=400)
 
     IS_UP = False
@@ -458,6 +458,9 @@ def account_update_post_view(request):
     if not f.is_valid():
         context = {'msg': 'not valid post data ', 'form': f}
         return render(request, 'error.html', context, status=400)
+    if request.POST['phone'].strip() and len(request.POST['phone']) != 12:
+        context = {'msg': 'not valid post data phone length', 'form': f}
+        return render(request, 'error.html', context, status=400)
 
     # to bank user
     try:
@@ -524,6 +527,10 @@ def account_update_post_view(request):
         increment_credit_balance = 0.0
         increment_checking_balance = 0.0
         increment_saving_balance = 0.0
+
+    if float(increment_credit_balance) < 0.0 or float(increment_checking_balance) < 0.0 or float(increment_saving_balance):
+        context = {'msg': 'balance should be positive'}
+        return render(request, 'error.html', context, status=400)
 
     # create Request
     models.Request.objects.create(
@@ -975,7 +982,8 @@ def make_approve_request_post_view(request):
     # system log
     models.Log.objects.create(
         created=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7),
-        msg='{} make APPROVE_REQUEST request for {}'.format(from_bankuser.username, to_bankuser.username)
+        msg='{} make APPROVE_REQUEST request for {}'.format(from_bankuser.username if from_bankuser else '',
+                                                            to_bankuser.username if to_bankuser else '')
     )
 
     context = {'msg': 'APPROVE REQUEST sent'}

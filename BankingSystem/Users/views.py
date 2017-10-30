@@ -37,12 +37,15 @@ RenderPenaltyRequest = collections.namedtuple(
     'RenderPenaltyRequest', 'created before_credit_balance interest late_fee after_credit_balance')
 
 
+RATE_PERIOD_SEC = 30
+
+
 def count_user_penalty(user):
     now = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=3600*7)
 
-    while (now - user.credit_balance_close_date).total_seconds() >= 30:
+    while (now - user.credit_balance_close_date).total_seconds() >= RATE_PERIOD_SEC:
 
-        user.credit_balance_close_date += datetime.timedelta(seconds=30)
+        user.credit_balance_close_date += datetime.timedelta(seconds=RATE_PERIOD_SEC)
 
         if user.credit_balance < 0:
             before_credit_balance = user.credit_balance
@@ -1676,6 +1679,7 @@ def customer_view(request):
         'payment_requests': [],
         'credit_payment_requests': [],
         'penalty_requests': [],
+        'credit_balance_future_date': login_bankuser.credit_balance_close_date + datetime.timedelta(seconds=RATE_PERIOD_SEC),
     }
 
     # render user

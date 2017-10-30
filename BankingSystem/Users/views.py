@@ -305,6 +305,16 @@ def account_open_post_view(request):
         context = {'msg': 'customer merchant cannot create user'}
         return render(request, 'error.html', context, status=401)
 
+    # balance
+    credit_balance = float(request.POST.get('credit_balance', 0.0))
+    checking_balance = float(request.POST.get('checking_balance', 0.0))
+    saving_balance = float(request.POST.get('saving_balance', 0.0))
+
+    if float(credit_balance) < 0.0 or float(checking_balance) < 0.0 or float(saving_balance) < 0.0:
+        context = {'msg': 'balance should be positive'}
+        return render(request, 'error.html', context, status=400)
+
+
     # create user
     user = User.objects.create_user(
         username=request.POST['username'],
@@ -323,9 +333,9 @@ def account_open_post_view(request):
         phone=request.POST['phone'],
         email=request.POST['email'],
         address=request.POST['address'],
-        credit_balance=request.POST['credit_balance'],
-        checking_balance=request.POST['checking_balance'],
-        saving_balance=request.POST['saving_balance'],
+        credit_balance=credit_balance,
+        checking_balance=checking_balance,
+        saving_balance=checking_balance,
         credit_number=credit_number,
         cvv=cvv,
         credit_balance_close_date=datetime.datetime.now(),
@@ -533,7 +543,7 @@ def account_update_post_view(request):
         increment_checking_balance = 0.0
         increment_saving_balance = 0.0
 
-    if float(increment_credit_balance) < 0.0 or float(increment_checking_balance) < 0.0 or float(increment_saving_balance):
+    if float(increment_credit_balance) < 0.0 or float(increment_checking_balance) < 0.0 or float(increment_saving_balance) < 0.0:
         context = {'msg': 'balance should be positive'}
         return render(request, 'error.html', context, status=400)
 

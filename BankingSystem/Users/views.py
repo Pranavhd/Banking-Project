@@ -1036,7 +1036,7 @@ def make_credit_payment_post_view(request):
         return render(request, 'error.html', context, status=400)
 
     if login_bankuser.credit_balance >= 0:
-        context = {'msg': 'you have enough credit, you dont have to pay bill'}
+        context = {'msg': 'You dont owe any money, you dont have to pay bill'}
         return render(request, 'error.html', context, status=400)
 
     if login_bankuser.checking_balance + login_bankuser.credit_balance < 0:

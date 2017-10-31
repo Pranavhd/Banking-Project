@@ -24,7 +24,7 @@
             <label for="saving_balance">Saving: </label>
             <input type="number" step="0.01" id="saving_balance" name="increment_saving_balance" value="0" ><br>
 
-            <label for="credit_balance">Chedit: </label>
+            <label for="credit_balance">Credit: </label>
             <input type="number" step="0.01" id="credit_balance" name="increment_credit_balance" value="0"><br>
 
         {% else %}
@@ -34,7 +34,7 @@
 
         {% endif %}
 
-    <button type="submit" id="post-btn" onclick="pop()">Summit</button>
+    <button type="submit" id="post-btn" onclick="pop()">Submit</button>
     <button type="submit" onclick="window.history.go(-1); return false;"  value="Back">Back</button>
 
     </form>
